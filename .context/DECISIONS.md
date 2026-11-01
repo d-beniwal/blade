@@ -1,186 +1,92 @@
 # Decisions
 
-Add new decisions at the top using:
+Add new decisions at the top using `## YYYY-MM-DD — Short title`. Only decisions that still hold are kept here; superseded approaches were removed on 2026-10-31 (history is in git).
 
-## YYYY-MM-DD — Short title
+## 2026-10-31 — MCP server is the front door for agents; capabilities register once (user)
 
-What was decided and why.
+Other agents access BLADE through an MCP server (`blade mcp`), not by learning the CLI. `blade/registry.py` (no MCP dependency) is the single declaration point: each module's `tools.py` registers `@tool` functions (`fn(run, **args)->dict`, docstring = agent-facing description, `moves=True` for motor-moving tools) and its playbook;
+`blade/mcp_server.py` exposes whatever is registered (tools with read-only/moves annotations, playbooks as `blade://playbook/<module>`, server instructions). Core tools (`core_tools.py`): list_profiles, new_run, run_status, list_runs, add_note, finish_run; alignment: align_* wrapping the same `do_*` functions as the CLI, so CLI and MCP cannot diverge.
+Rule: a new capability is not done until registered here (added to `registry.MODULES`) and covered in `tests/test_mcp.py`. Safety unchanged: simulator default, hardware only via `new_run(backend='epics')` when the user authorised it, equipment limits inside the tools. Calls are serialised with a lock (cfg is process-global); each tool takes an optional `run_id`.
+Supports mcp 1.x (`FastMCP`) and 2.x (`MCPServer`); `mcp` is an optional dependency (`blade[mcp]`). Not done: MCP progress/streaming for long routines, estimate-pm/live-feed tools, authentication for `--http`.
 
-## 2026-10-30 — Beamline prompt moved into the playbook (user request)
+## 2026-10-31 — Motors + geometry are per station (hutch), not per beamline (user)
 
-The long prompt in the README was replaced by one sentence: "Start the beam alignment at beamline. You can access hardware." `AGENTS.md` (read first) maps that sentence to the playbook section
-"Standard beamline run": camera (named, else `DEFAULT_CAMERA` = gh1, announced), start the GUI if needed, `new-run --backend epics`, `adaptive-align`, one remedy attempt on failure, finish + report.
-Why a default camera instead of asking: the user wants a one-line prompt; a wrong camera only mis-scales moves (pixel size), which the sign/shrink guard and step limits catch, and the agent states the choice up front.
+The s1id motors (`samE.*`, aerox base) and sign geometry were measured for **hutch E** only; other hutches may have different stages/geometry. Profile now has `stations.<hutch> = {description, motors, geometry}` + `default_station` (s1id: `E`; demo: `sim`).
+`config.load(profile, station)` publishes the chosen station's motors/geometry (`cfg.STATION`, `cfg.STATIONS`); station comes from `new-run --station`, stored in run `state.json`, else `$BLADE_STATION`, else `default_station`. Cameras stay beamline-level (each names its hutch);
+limits/tolerances/pin remain profile-wide (move under a station if a hutch needs different ones). A profile without `stations` (legacy flat motors/geometry) still loads as one station. Adding a hutch = add a sibling entry; nothing else changes.
 
-## 2026-10-30 — Adaptive alignment procedure + hardware gate removed (user)
+## 2026-10-31 — Renamed to BLADE; profile-driven, packaged for other beamlines (user)
 
-Procedure (user's, implemented as `align.py adaptive-align`): omega -> 0; pin axis to the beam centre (x); rotate + in 15 deg steps until the pin can no longer be measured (note how far its axis moved),
-rotate - likewise; fit x(w)=c+a cos w+b sin w (weighted LSQ) to ALL measurements of the pass (>= the two end points, as discussed: more robust than the 2-equation solve); correct z<-b, x<-a, aerox<-c-beam;
-repeat. If a pass reaches +-90 on both sides, later passes use 0, +90, -90 only. Never beyond +-90 (`MAX_ROT_DEG`, `goto_omega` refuses). Refinements agreed in discussion: last *measurable* angle is the limit,
-a half-visible pin located by `locate_partial` extends the range (weight 0.3); a is applied only partly (>= 0.25) and aerox not at all while the range is < 30 deg (poorly conditioned); sign-suspect stop if a/b
-fail to shrink after a correction; converged = |a|,|b| < tol and |c-beam| < tol with range >= 30 deg. Sim: converges in 2 passes (1st pass range e.g. +60/-90, 2nd +-90).
-Hardware: the user found the repeated confirmation / `BALIGN_ENABLE_HARDWARE` gate to be an obstacle on the beamline. Removed: `--backend epics --camera <name>` now just connects when the user says they are on the real
-beamline; default stays the simulator. Kept (equipment protection, not prompts): per-step move limits (moves split), soft limits, mm-units check, readback check, +-90 deg rotation. AGENTS.md, playbook and the workspace
-`CLAUDE/projects/beam_alignment_s1.md` + `CLAUDE/overview.md` updated (scoped exception to the workspace-wide no-hardware rule).
+Project renamed **BLADE (Beamline Automation and Device Experiments)**, repo/dir `blade` (was `beam_alignment_s1`), to grow into general beamline automation; current scope stays Sector 1, alignment is the first module.
+Structure mirrors the B-PILOT idea of per-beamline profiles: all beamline-specific values (cameras + pixel sizes + PV prefixes, motor roles -> PVs/names, signs, limits, tolerances, pin shape, procedure defaults) moved out of code into
+`profiles/<name>/default_config.json` (+ git-ignored `active_config.json` override, extra dirs via `BLADE_PROFILES_DIR`); `blade/config.py` loads a profile into `cfg.*` (the old `align_config.py`). Profiles: `s1id` (real) and `demo` (simulator-only template).
+The profile is chosen at `new-run --profile` (default `$BLADE_PROFILE` or `s1id`), stored in the run's `state.json`, and re-loaded by every later command and by the GUI.
+Motors are addressed by role (`omega,x,y,z,base`); the 1-ID base motor `samE.aerox` is the profile's `base` (display name from the profile). Package: `blade/{config,paths,session,cli,gui}.py`, `blade/backends/{sim,epics}.py`,
+`blade/alignment/*` (module); CLI `blade align|gui|profiles` (`pip install -e .`, or `python -I launch.py ...` without install); `pyproject.toml`, env `blade`. Playbooks live in `playbooks/` (one per module).
+Backends not enabled in a profile are refused (`demo` is sim-only). New modules (slits, undulator/mono, ...) = new sub-package + CLI group + playbook, sharing runs, backends and GUI.
+Removed `make_report.py` (a one-off script hard-wired to the 2026-10-28 run files). Verified after the restructure: identical sim result (a 0.009, b 0.008, c−beam −0.008 px), all tests, demo profile, refusal paths, GUI config endpoint, wheel build.
+Not done: GitHub remote push (rename only), a real second-beamline profile, `blade <module>` registry (modules are wired by hand in `blade/cli.py`).
 
-## 2026-10-30 — Smaller-step retry in adaptive-align (user request)
+## 2026-10-31 — Streamline; keep the CLI + playbook approach; EAA-Pi not adopted now (user)
 
-If the pin cannot be measured even at the first +-15 deg step, that side is retried with 7.5 then 3.75 deg. If the whole pass has < 3 points (pin measurable over a few degrees only), b comes from the
-farthest point alone (a-term a*theta^2/2 negligible) and only z is moved ("small-angle mode"); the next pass then has a much larger range. Sim: pin leaving the view at 7.5 deg (b=1800 px) and at 3.75 deg
-(b=-3000 px) both converge in 3 passes. Fixed a false sign-suspect: the a/b-shrink guard now accounts for only a fraction of a having been applied. README.md added with the prompt to paste at the beamline.
+Evaluated integrating with EAA-Pi (skill / MCP wrapper / workflow). Decision: stay with the agent-driven CLI. Reasons: stage 1 is deterministic (`adaptive-align` is one command), EAA-Pi is Linux-only (this Mac and the beamline OS unknown),
+it would duplicate our GUI/event log, and the safety limits must stay in `blade/` regardless. Revisit for later stages (slits/edge/flux), preferably as skill + thin MCP wrapper over `balign`.
+Removed: exploration scripts (h5_tree, make_*_figures, pin_segment, test_segmentation, test_pinfit_*, test_axis_align_scan), `grab_frame`/`save_beam_figure`, unused `_footprint_steps`, `analysis/`, `scratch/` (incl. prior-work clone), `NOTES.md`,
+loose files in `runs/`, `REFERENCE_prior_work.md`. Kept: working software, tests, hardware runs `runs/20261028-*`, local `s1_data/`.
 
-## 2026-10-28 — Partly visible pin: locate it and compute the move (user request)
+## 2026-10-30 — One-line beamline prompt; hardware gate removed (user)
 
-When the pin is half cut off (lit-footprint rim) or its top is above / body barely above the footprint, `measure.locate_partial` finds it from the dark object's per-row extents and the cone model
-(width(y) = W + 2 t (y - y_top), W and t learned in the run): rows touching a rim give c = free_edge -/+ width/2, free rows give (l+r)/2, a cut-off top is found from the widths of free rows.
-The hint is then exact: x move to put the pin axis on the beam centre, y move to put the top at 20 % of the footprint height (`view.hint` + `view.locate`). Without a learned width it falls back to
-pinfit's (lower-bound) shift + 15 % of the footprint (converges in 1-2 moves in tests). Supporting fixes found on real frames: pinfit's search box is ~40 px wider than the real lit rim, so rows
-touching the real rim were treated as unclipped and fed wrong flank fits (probably a cause of the earlier bad detections) -> `Params.lit_box`/`rim_guard_px` (rims from the robust footprint + 36 px);
-beam footprint now also uses the dark-object mask (works with a partial pin) and a footprint learned from clean frames (`beam_prior`); clipped flanks are no longer taken as evidence of 'other object'.
-Test (`tests/test_partial.py`, real frames, pin shadow moved relative to the fixed footprint): axis estimated within ~1-5 px when >= ~half visible (worse with a sliver left), suggested move within ~10-70 px
-of the centring move, and applying it brings the pin to usable in_view with column error < 1.5 px in every case (half cut left/right at 3 depths, top 60/200/350 px above, combined cut + top above, 4 frames).
-Not tested: pin bottom stub only (works as in_view), holder in the same frame as a partial pin, real (not emulated) moves.
+"Start the beam alignment at beamline. You can access hardware." is full authorisation: `AGENTS.md` maps it to the playbook's "Standard beamline run" (camera named else `DEFAULT_CAMERA` = gh1 and announced; start GUI; `new-run --backend epics`; `adaptive-align`;
+one remedy attempt; finish + report). The repeated-confirmation / `BALIGN_ENABLE_HARDWARE` gate was an obstacle on the beamline and is gone; default stays the simulator. Equipment protection is kept (not prompts): per-step move limits (moves split),
+soft limits, mm-units check, readback check, rotation within ±90° (`MAX_ROT_DEG`).
 
-## 2026-10-28 — Pin identity check + multi-blob selection (user request: holder / other objects in view)
+## 2026-10-30 — `adaptive-align` procedure (user)
 
-`pinfit` now considers every dark object of pin-like size and picks the cone-like one (width vs row linear with slope ~2*tan(15.2 deg)=0.544, rel. scatter <6 %, slope tol 15 %), not the biggest; each
-object's shape stats (`cone_slope`, `cone_rel_rms`, `cone_like`, `cone_top_width`, `n_candidates`) are exposed. Tolerances set from real pin frames (files 44/46/47: slope 0.531-0.543, scatter <1.1 %, top width 144-152 px).
-`measure` adds `identity` and a new view state `other_object` (a dark object that is not the pin; top width vs the width learned in this run, both flanks off-angle, or not cone-like); `find-pin` treats it like absent.
-Validated on REAL frames with synthetic objects painted in (`tests/test_identity.py`; empty beam = real frame with the pin inpainted, contrast 0.08 like a real empty frame): pin picked among 3-5 other objects with
-0.04 px error; plain / flared / narrow / short holders and an empty beam are never reported as the pin; real frames from 44/46/47 unchanged. NOT validated: a real holder (shape unknown), real wedge frames
-(raw not saved yet), and a pin merged with a much wider holder under it beyond the simple block cases. Without a learned pin width (first frame of a run) the width test is skipped, so measure omega=0 first.
+omega -> 0; pin axis to the beam centre (x); rotate + in 15° steps until the pin can no longer be measured, rotate − likewise (retry 7.5° then 3.75° if not even one step works); fit x(w)=c+a cos w+b sin w (weighted LSQ) to all points of the pass;
+correct z<-b, x<-a, aerox<-c−beam; repeat. If a pass reaches ±90° on both sides, later passes use 0, +90, −90 only. A half-visible pin is located from its visible part and counts with weight 0.3; `a` is applied only partly and aerox not at all while
+the range is < 30° (ill-conditioned); with < 3 points the pass corrects z from b alone (small-angle mode). Converged = |a|,|b| < `TOL_AB_PX`, |c−beam| < `TOL_C_PX` with range ≥ 30°. Sign-suspect stop if a/b fail to shrink after a correction.
 
-## 2026-10-28 — Post-beamline-test overhaul: detection guards, fast workflow, pin search (user feedback)
+## 2026-10-28 — Detection guards, partial/absent pin handling (after first hardware runs)
 
-Feedback from the first live runs (`runs/20261028-103726`, `-112616`): hardware link fine, corrections correct, but (1) pin-edge detection failed at some positions, (2) the procedure
-(calibrate x/z/aerox with 7-angle sweeps, many full rotations) was slow whereas "rotate to +-30 -> correct -> +-90 -> correct" was fast, (3) need pin-in-view detection + search.
-Diagnosis from the saved overlay JPEGs (raw frames were NOT saved, so this is from overlays): (a) the "beam centre" (half-max box of whole-row/column means) was dragged by up to ~150 px by
-an off-centre pin shadow (beam cx 1474-1828 vs 1615); (b) at |omega| ~ 60-90 the pin has a grey half-transparent flank (bevel) and pinfit fitted that boundary (near-vertical or wrong-slope side line),
-yet reported status ok; (c) the "pin NOT measured (low_contrast)" frame was a genuinely empty beam (pin out of view), only mislabelled.
-Changes: `measure.beam_footprint` (pin-excluded footprint: columns from rows above the pin top, rows from columns outside the pin; coarse p90 fallback); `_validate` accepts a frame only if both flanks have the
-nominal half-angle (15.2 +- 3 deg), are not inferred, and corners are >= 30 px inside the footprint; if one flank is bad, the axis comes from the good corner +- half of the top width learned in this run
-(`one_sided_*`); otherwise the frame is rejected with reasons, never guessed. `assess_view` = in_view | partial (+x/y hint) | absent (dark object contrast < 0.5) | no_beam; FOV = the lit footprint.
-Raw frames are now saved per measurement (`runs/<id>/raw/*.npz`) so detection can be re-run offline. Workflow: `step-pm THETA [--apply] [--base]` and `fast-align` (+-30 -> +-90 -> verify), no calibration
-(signs/scales confirmed: aerox -1431 px/mm measured today => BASE_COL_PER_AEROX = -1; z +1456, x -1458); per-move limit still enforced by splitting; sign-suspect guard if |b| fails to shrink after a z move.
-`find-pin`: follows the hint when the pin is partly visible, else searches x then y outward in footprint-sized steps within SEARCH_RADIUS_X/Y_MM, returns to start if not found. y sign (IMAGE_ROW_PER_Y = -1: +y moves the pin up) was assumed, then
-confirmed by the user from a hardware test the same day. Caveat: the grey-wedge rescue and thresholds are validated only on a simulated wedge (sim/tests), not yet on raw real frames.
+Problems seen live: the beam centre was dragged by an off-centre pin shadow (up to ~150 px); at |omega| ~60–90 the pin has a grey half-transparent flank (bevel) that was fitted as an edge; an "empty" frame was a pin out of view.
+Fixes: pin-excluded beam footprint (`measure.beam_footprint`); a frame is accepted only if both flanks have the nominal half-angle (15.2° ± 3°) and corners are ≥ 30 px inside the footprint, else the axis comes from the good flank ± half the learned top width
+(`one_sided_*`), else the frame is rejected with reasons (never guessed). `view.state` = in_view | partial (+hint) | absent | other_object | no_beam; the field of view is the lit footprint. `locate_partial` finds a partly visible pin from per-row extents and the cone model.
+`find-pin` follows the hint or searches x then y outward within `SEARCH_RADIUS_*` and returns to the start if not found. Pin identity: the cone-like dark object (width vs row slope ≈ 2 tan 15.2° = 0.544) is picked, not the biggest; holders/other objects are never the pin.
+Raw frames are saved per measurement (`runs/<id>/raw/*.npz`). Not yet validated on real raw wedge frames.
+
+## 2026-10-28 — Fast workflow, no calibration; constants confirmed (user)
+
+Signs/scales are confirmed constants, not learned per run: `IMAGE_COL_PER_X=-1` (+x moves the pin left), `ROT_SIGN=+1` (stage is left-handed: +omega clockwise from the top), `IMAGE_ROW_PER_Y=-1` (+y moves the pin up; hardware-confirmed), base motor `samE.aerox`
+(~−1431 px/mm on gh1, hardware-measured), z +1456, x −1458 px/mm. `calibrate` remains only as a diagnostic. Per-camera pixel size via `set_camera` (retiga2 1.0, pg5 1.17, gh1 0.69, pg1 1.17 um/px; `PIXEL_UM` is the active camera's).
 
 ## 2026-10-28 — One self-contained folder per run (user)
 
-Stray files (CLI JSON redirected by the agent, gui/live-feed/test logs, figures) were piling up in `runs/` itself. Now everything for a run lives in `runs/<id>/`: `events.jsonl`, `state.json`,
-`frames/`, plus `outputs/` (every CLI command's JSON is auto-saved by `cli._out` as `NNN_<cmd>.json`), `raw/` (.npy frames), `figures/`, `logs/`, `report/`. Helpers `Run.subdir()` / `Run.save_output()`
-(plain folder names only). `scripts/grab_frame.py CAMERA [NAME]` and `scripts/save_beam_figure.py FRAME NAME` now write inside the current run; `tests/scripted_agent.py` logs to `logs/`; playbook tells agents
-never to write into `runs/` itself. Only `runs/CURRENT` (pointer) remains at the top level. Legacy loose files from the two 2026-10-28 live runs were left untouched (not mapped to a run).
+Everything for a run lives in `runs/<id>/` (`events.jsonl`, `state.json`, `frames/`, `outputs/` (every CLI JSON), `raw/`, `figures/`, `logs/`, `report/`); only `runs/CURRENT` is at the top level. Agents must never write into `runs/` itself, `/tmp` or the repo root.
 
-## 2026-10-28 — Per-camera pixel size; `samE.aerox` confirmed as base motor (user)
+## 2026-10-28 — Only the alignment software is tracked
 
-User: `samE.aerox` is the base motor that puts the pin axis on the beam centre. Tomo cameras: retiga2 (B hutch, 1 um/px), pg5 (C, 1.17), gh1 (E, high-res table, "69 micron" -> taken as
-0.69 um/px: typo-by-factor-100 assumption, consistent with the ~0.69 inferred from the live calibration moves), pg1 (E, near back wall, 1.17). `scripts/align_config.py` now has `CAMERA_INFO`
-+ `set_camera()`; `PIXEL_UM` is the active camera's value (default 1.0 with no camera). `Run` stores the camera in `state.inst.camera` and calls `set_camera` on load; `new-run --camera X` rejects
-unknown names; GUI config follows the run's camera. retiga2 has no PV prefix yet, so the epics backend still refuses it. Sim test (`tests/scripted_agent.py`) passes.
+Git-ignored: `s1_data/`, `analysis/`, `runs/`, `scratch/`, caches. Tracked: software, tests, `environment.yml`, `AGENTS.md`, `playbooks/alignment.md`, `.context/`.
 
-## 2026-10-28 — Sign constants confirmed by the user: IMAGE_COL_PER_X=-1, ROT_SIGN=+1
+## 2026-10-27 — Architecture: agent-driven CLI + passive web GUI + simulated backend
 
-User confirmed IMAGE_COL_PER_X = -1 and stated the Sector 1 stage is left-handed (+omega = clockwise seen from the top). Derivation: lab x = left, y = up, z = downstream
-(right-handed); clockwise = rotation by -omega about +y, x' = x cos w - z sin w, image col = c - x' => a = -x_p, b = +z_p, so +z changes b by +1 per unit: ROT_SIGN = +1
-(unchanged value; comment in `scripts/align_config.py` now records the derivation). Still not hardware-verified: `calibrate` measures both at run time; the base motor
-(`aerox`) sign and identity remain open.
+The user starts the alignment from an agent; the agent makes every decision, tools never loop or move on their own (except explicit helpers). `blade align` = JSON CLI of primitives (agent-neutral, no MCP needed); every command appends to `runs/<id>/events.jsonl`;
+`blade gui` tails it read-only. Default backend is the simulator (`blade/backends/sim.py`, hidden ground truth). Real backend (`blade/backends/epics.py`) uses pvapy for camera frames (read-only) and pyepics motor records (omega `1ide:m9`, x/y/z `1ide1:m34/35/36`, aerox `m101`).
+GUI shows answers, not raw events: progress tracker, "Agent says", verdict tiles (a, b, c−beam with tolerance and sparklines), stale-data warning, camera tab, pin-position plot, moves table, notes, collapsed raw log.
 
-## 2026-10-28 — .gitignore: only the alignment software is tracked (user)
+## 2026-10-27 — Stage-1 scope, "aligned", axis fixed by the base, wedge deferred (user)
 
-Ignored: `s1_data/`, `analysis/`, `runs/`, `scratch/`, caches, and the exploration/analysis scripts (h5_tree, make_*_figures, pin_segment, test_segmentation,
-test_pinfit_*, test_axis_align_scan) - verified that nothing in `align.py`, `gui.py`, `balign/` or the core scripts (`align_config`, `axis_align`, `beam_center`, `pinfit`)
-imports them. Tracked: code above + `tests/scripted_agent.py`, `environment.yml`, `AGENTS.md`, `ALIGNMENT_PLAYBOOK.md`, `.context/`. Caveat: the ignored scripts are then NOT
-backed up by git (only matters once this becomes a repo); drop their lines from `.gitignore` if that is unwanted.
-
-## 2026-10-27 — GUI redesigned around answers, not events
-
-The first GUI showed every event with equal weight. New layout: header (run, status, live stage positions), 6-step progress tracker (derived from events; a step is
-done only when a sweep taken after the last move confirms it), "Agent says" (last agent note), three plain-language verdict tiles (a, b, c-beam: value, pass/fail
-vs tolerance, start value, history sparkline), a stale-data warning when a move came after the last fit, camera tab (last measurement with legend / live view),
-pin-position plot with a plain-English caption, moves table (calibration test moves greyed), agent notes, and the raw event log collapsed. Calibration sweeps are
-excluded from tiles/plot/progress. Still read-only; same event-log API.
-
-## 2026-10-27 — Real backend written but gated; live view = separate read-only feed process
-
-`balign/epics_backend.py` implements the instrument over pvapy (camera frames, read-only) + pyepics motor records (omega 1ide:m9, x/y/z 1ide1:m34/35/36, aerox m101), copying
-midas-gui's PVA reading. It refuses to construct unless BALIGN_ENABLE_HARDWARE=1 and an explicit camera is given, checks motor units (mm), soft limits and readbacks, never
-writes to camera/IOC PVs, and has NEVER been run (project rule: no hardware from development sessions). The GUI live view = `align.py live-feed` writing runs/<id>/live.jpg
-(~1 Hz) that the page polls; calculations still come from the event log. Not decided by the user yet: camera (gh1/pg1/pg5).
-
-## 2026-10-27 — Phase-1 software architecture: agent-driven CLI + passive web GUI + simulated backend
-
-The user starts the alignment from Claude Code / Codex ("start the alignment") and wants full visibility in a GUI, with all decisions made by the agent.
-So: (1) `align.py` = a small JSON CLI of primitives (measure, sweep+fit, calibrate, propose, move, note, finish) - the agent calls them and decides;
-agent-neutral because it is plain commands (no MCP needed yet); `ALIGNMENT_PLAYBOOK.md` is the procedure/decision rules. (2) Every command appends to
-`runs/<id>/events.jsonl` (+ overlay JPEGs); `gui.py` is a read-only stdlib web server that tails it (camera view with detections, x(omega) plot with fit,
-convergence table, moves, event log incl. agent notes). File-based event log (not a socket) so CLI calls stay independent processes and the GUI/agent can restart.
-(3) Backend is simulated only (`balign/sim.py` renders 1490x1940 frames like the real ones with hidden ground truth); the real backend is deliberately not
-implemented - `get_backend` refuses anything else - until the user enables hardware. (4) Unverified signs/sizes are learned at run time by `calibrate`
-(small undone test moves) instead of trusted from config; `propose` prefers calibrations. (5) Per-step move limits in config. (6) Sweep fit of
-x(omega)=c+a cos+b sin replaces the sequential +-theta loop as the main estimator (robust, one equation); `estimate-pm` kept for the user's original small-angle scheme.
-Results on the simulator: full run converges to a,b<0.03 px and c-beam<0.01 px; with all hidden signs flipped the calibration step handles it (see STATE).
-
-## 2026-10-27 — Prior work reviewed; our model matches theirs (no change of method)
-
-`auto_beamline_alignment_tomo` (Hemant Sharma et al., SAM + sinusoid fit) fits off + rad*sin(theta+st) and moves x by rad*sin(st), z by -rad*cos(st),
-aerox by (off - beam centre). Algebraically identical to our (c, a, b) and the same signs (IMAGE_COL_PER_X=-1, ROT_SIGN=+1), which raises confidence in
-those signs but is not hardware verification. We keep classical segmentation + the +-theta loop, adopt their global fit as a final check, treat `samE.aerox`
-as the candidate base motor, and do not copy their beam-width-as-centre bug. Details in `.context/REFERENCE_prior_work.md`.
-
-## 2026-10-27 — Axis fixed by base; pixel size 1 um in one config place; loop extended (user)
-
-Rotation axis is fixed by the base, samE.x/y/z only move the pin. So the loop (1) puts the pin marker at the beam centre, (2) cancels b with
-z at +-1..90 deg, (3) cancels a with x using the >=30 deg estimate, (4) reports c (now the pin column at any omega) and the base shift needed to
-bring c to the beam centre - report only, base motors TBD. Pixel size 1 um/px confirmed; `scripts/align_config.py` holds PIXEL_UM and the sign
-constants (IMAGE_COL_PER_X, ROT_SIGN) and is the only place they are defined (pinfit.stage_x_hint now defaults to it). Replay on file 47:
-a,b left -1.3/-2.0 px, c=817.1 (global fit 818.1). Replay bug fixed on the way: pin x/z moves act in the rotating frame (dx*cos w, db*sin w), not as constant shifts.
-
-## 2026-10-27 — Stage-1 alignment procedure (user) and the dry-run loop
-
-omega -> 0; move pin (x) so the axis column sits at the beam centre; then for theta = 1, 5, 10, 30, 60, 90 deg measure the axis
-column at -theta and +theta, get the along-beam offset b = (x(+t)-x(-t))/(2 sin t) (a and axis column cancel), move z by -k*b,
-go to the next angle. Why increasing angles: small angles are a safe, coarse first guess (the small-angle linearisation is valid);
-larger angles divide the measurement noise by sin t, so they refine b. `scripts/axis_align.py` implements it with injected
-measure/move callables (no hardware) and a synthetic-pin simulator: converges (noise 0.3 px -> |b| ~0.2 px after 90 deg), and
-stops if |b| grows after a move (wrong sign k). Residual x offset a = (x(0)-s)/(1-cos t) is reported but NOT corrected (user asked for z only).
-Unverified: k (sign of z vs rotation sense), that samE.x/z ride on the rotation, pixel size (1 um placeholder).
+Stage 1 assumes the beam is already on the tomo detector: no slits, edge or flux; wedge (axis tilt) ignored. Aligned = flux maximised at the edge + pin in view + pin axis stationary over −90..+90° (only the last part is automated now). Rotation motor = `samE.ry`.
+The axis is fixed by the base: `samE.x/y/z` move only the pin (cancel a, b); `samE.aerox` moves the axis column c onto the beam centre. Why staged: de-risk by adding automation one stage at a time.
 
 ## 2026-10-27 — Beam centre = midpoint of the half-maximum footprint (user)
 
-Per-axis: smoothed mean profile, plateau = 90th percentile, base = 5th percentile, edges where profile crosses base + 0.5*(plateau-base); centre = midpoint of the two edges (box found iteratively cols->rows->cols). On `tomo_beam.png`: (959.5, 625.0) px, 625 x 822 px. Why: robust to the saturated, lopsided core; core-intensity peak and outer (10 %) footprint shifted the centre by tens of px. Code: `scripts/beam_center.py::half_max_footprint`; QA figure `analysis/beam_center.png` via `make_beam_center_figure.py` (needs cmcrameri, e.g. `midas-env`).
+Per axis: smoothed mean profile, plateau = 90th percentile, base = 5th percentile, edges at base + 0.5(plateau − base), centre = midpoint (box found iteratively). Robust to the saturated, lopsided core; core peak or the 10 % footprint shifted the centre by tens of px. Code: `blade/alignment/beam_center.py`.
 
-## 2026-10-27 — Wedge correction deferred (user)
+## 2026-10-27 — Classical pin segmentation, not a learned model
 
-This phase ignores axis tilt (wedge) vs APS Y; only pin axis column == beam centre. Why: keep stage 1 to one measurable quantity; wedge needs its own measurement/stage.
+Pin is a high-contrast dark silhouette: lit-area box -> subtract outside dark level -> divide by a polynomial beam model -> threshold at the midpoint of beam and pin levels -> opening, largest component, hole fill. Naive global/box Otsu failed with gradients; a step-edge lit-area finder regressed under noise and was removed.
+Virtual top corners (side line meets top line) define the axis because the real tip is bevelled on one side. Validated: IoU ≥ 0.99 vs the clean mask under brightness, offset, noise, vignette, hot pixels, blur, crop. SAM-type models were skipped.
 
-## 2026-10-27 — Staged rollout: stage 1 = rotation axis on the beam only (user)
+## 2026-10-26 — Agent-neutral context; `mpe_bluesky` as device reference
 
-Current stage assumes the beam is already on the tomo detector, so NO slit control and NO absorption-edge/flux optimisation.
-Only goal: the stage rotation axis (`samE.ry`) lies on the beam. Direct-beam reference image (no sample): one bright,
-roughly rectangular blob (~1/3 of the 1920x1200 frame wide), saturated structured core, soft vignetted edges, dark
-background with sparse hot pixels; Java ImageJ-style viewer of `1idSP5:Pva1:Image` (16-bit). Why: de-risk by adding
-automation in stages; slit/edge/flux stages deferred. Implication: beam centroid/footprint from the blob (robust to
-saturation, e.g. threshold-at-fraction footprint centre rather than intensity peak) is the "beam position" to compare
-with the pin-derived axis column.
-
-## 2026-10-27 — "Aligned" definition and rotation stage fixed (user)
-
-Aligned = flux maximized at the edge + pin in view + pin axis stationary over -90..+90 deg. Rotation motor = `samE.ry`, the
-far-field-scan rotation in E (confirmed in `mpe_bluesky`: PSO fly module, used by `hedmscan_sw`/`switch_to_ff`). Why: user
-decision; gives the agent a concrete, measurable stop criterion for each stage.
-
-## 2026-10-27 — Classical segmentation (beam-model ratio + 50 % level), not a learned model, as the baseline
-
-Pin is a high-contrast dark silhouette, so: lit-area box -> subtract outside-area dark level -> divide by a polynomial beam
-model -> threshold at the midpoint of measured beam and pin levels -> opening, largest component, hole fill. Tested against
-naive global Otsu (fails, merges pin with outside) and box Otsu (fails with gradients). Tried a step-edge lit-area finder: it
-regressed under noise/blur/crop and was reverted (kept as `_footprint_steps`, unused). Virtual top corners (side line meets
-top line) define the axis because the real tip is bevelled on one side. Caveat: reference mask in tests is this same
-method on the clean frame, so agreement is a robustness check, not independent ground truth.
-
-## 2026-10-26 — Scaffold agent-neutral context; EAA-Pi as base, mpe_bluesky as device reference
-
-Project dir `beam_alignment_s1` uses `AGENTS.md` + `.context/` (no CLAUDE.md).
-EAA-Pi is the agent host; `mpe_bluesky` s1id devices/plans are read only to
-pick which devices/PVs matter. No hardware/EPICS access from this project.
+`AGENTS.md` + `.context/` (no `CLAUDE.md`). `mpe_bluesky` s1id devices/plans are read only to pick the relevant devices/PVs.

@@ -1,4 +1,4 @@
-"""A stand-in 'agent' that follows ALIGNMENT_PLAYBOOK.md using only the CLI (as Claude/Codex would). Simulated backend.
+"""A stand-in 'agent' that follows playbooks/alignment.md using only the CLI (as Claude/Codex would). Simulated backend.
 Usage: python -I tests/scripted_agent.py [--truth JSON] [--pace SECONDS]
 Fast flow: measure -> (find-pin) -> fast-align (+-30, +-90, verify). Used to prove the tool set end-to-end and to exercise the GUI."""
 import json
@@ -16,7 +16,7 @@ pace = float(args[args.index("--pace") + 1]) if "--pace" in args else 0.0
 
 def call(*a):
     time.sleep(pace)
-    r = subprocess.run([PY, "-I", str(ROOT / "align.py"), *map(str, a)], capture_output=True, text=True)
+    r = subprocess.run([PY, "-I", str(ROOT / "launch.py"), "align", *map(str, a)], capture_output=True, text=True)
     if r.returncode:
         print(r.stderr); raise SystemExit("command failed: " + " ".join(map(str, a)))
     return json.loads(r.stdout)
@@ -44,7 +44,7 @@ if m["view"]["state"] != "in_view":
     note(f"Pin found after {f['steps']} steps at offset {f['offset_mm']}.")
 else:
     note(f"Pin in view at omega=0 (col {m['pin_col']:.1f}, beam cx {m['beam']['cx']:.1f}).")
-note("Adaptive routine: rotate until the pin leaves the view on each side, fit, correct (z, x, aerox), repeat.")
+note("Adaptive routine: rotate until the pin leaves the view on each side, fit, correct (z, x, base), repeat.")
 r = call("adaptive-align")
 for p in r["passes"]:
     note(f"pass {p['pass']}: range +{p['limit_plus_deg']:g}/-{p['limit_minus_deg']:g} deg, a={p.get('a', 0):+.2f}, b={p.get('b', 0):+.2f}, c-beam={p.get('c_minus_beam_px', 0):+.2f} px, applied {p.get('applied')}")

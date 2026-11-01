@@ -10,13 +10,10 @@ After a, b -> 0 the pin sits on the axis and x(w) = c is constant; c is then mov
 
 Procedure: omega=0; (optional) x so the pin marker is at the beam centre; for theta in ANGLES_DEG: measure -theta/+theta,
 z move from b; after the loop an x move from a (taken at the largest angle); report c and the base shift.
-Constants (pixel size, signs) live in align_config.py.
+Constants (pixel size, signs) live in the beamline profile (blade/config.py).
 """
-import sys
-from pathlib import Path
 import numpy as np
-sys.path.insert(0, str(Path(__file__).parent))  # python -I drops the script dir
-import align_config as cfg  # noqa: E402
+from .. import config as cfg
 
 ANGLES_DEG = (1, 5, 10, 30, 60, 90)
 A_MIN_DEG = 30        # smallest angle whose 'a' estimate is trusted
@@ -76,7 +73,8 @@ def run(measure_x, move_x_mm, move_z_mm, goto_omega, beam_cx_px, angles=ANGLES_D
 
 class SimPin:
     """Synthetic pin: x(w)=c+a cos w+b sin w. z changes b by k*dz; x changes a by IMAGE_COL_PER_X*dx (true signs adjustable)."""
-    def __init__(self, c=818., a=-132., b=40., k_true=+1, xsign_true=cfg.IMAGE_COL_PER_X, noise=0.0, seed=0):
+    def __init__(self, c=818., a=-132., b=40., k_true=+1, xsign_true=None, noise=0.0, seed=0):
+        xsign_true = cfg.IMAGE_COL_PER_X if xsign_true is None else xsign_true
         self.c, self.a, self.b, self.k, self.xs, self.noise, self.w = c, a, b, k_true, xsign_true, noise, 0.0
         self.rng = np.random.default_rng(seed)
     def goto(self, deg): self.w = np.deg2rad(deg)

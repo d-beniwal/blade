@@ -1,0 +1,113 @@
+{
+  "beamline": "APS 1-ID",
+  "description": "Sector 1 (1-ID) MPE beamline; tomo cameras in B/C/E. Stage motors + geometry are per hutch under `stations` (only E, the samE stage, is described so far).",
+  "backends": [
+    "sim",
+    "epics"
+  ],
+  "default_camera": "gh1",
+  "default_pixel_um": 1.0,
+  "camera_pva_suffix": "Pva1:Image",
+  "cameras": {
+    "retiga2": {
+      "hutch": "B",
+      "pixel_um": 1.0,
+      "pv_prefix": null
+    },
+    "pg5": {
+      "hutch": "C",
+      "pixel_um": 1.17,
+      "pv_prefix": "1idSP5:"
+    },
+    "gh1": {
+      "hutch": "E",
+      "pixel_um": 0.69,
+      "pv_prefix": "1idGH1:",
+      "note": "high-res table"
+    },
+    "pg1": {
+      "hutch": "E",
+      "pixel_um": 1.17,
+      "pv_prefix": "1idPG1:",
+      "note": "close to back wall"
+    }
+  },
+  "limits": {
+    "max_step_pin_mm": 0.5,
+    "max_step_base_mm": 0.3,
+    "max_rot_deg": 90.0,
+    "omega_tol_deg": 0.05,
+    "move_timeout_s": 60.0,
+    "search_radius_x_mm": 3.0,
+    "search_radius_y_mm": 2.0,
+    "search_step_frac": 0.5
+  },
+  "tolerances": {
+    "tol_ab_px": 1.0,
+    "tol_c_px": 2.0,
+    "beam_frac": 0.5
+  },
+  "pin": {
+    "nominal_half_angle_deg": 15.2,
+    "half_angle_tol_deg": 3.0,
+    "min_contrast": 0.5,
+    "top_width_tol": 0.3,
+    "clip_margin_px": 30
+  },
+  "procedure": {
+    "fast_steps_deg": [
+      30,
+      90
+    ],
+    "default_sweep_deg": [
+      -90,
+      -60,
+      -30,
+      0,
+      30,
+      60,
+      90
+    ],
+    "save_raw": true
+  },
+  "default_station": "E",
+  "stations": {
+    "E": {
+      "description": "Hutch E: rotation stage samE (samE.ry on aerox base), pin stage samE.x/y/z. Motors and signs are specific to this hutch.",
+      "motors": {
+        "omega": {
+          "pv": "1ide:m9",
+          "name": "samE.ry",
+          "role": "rotation (omega, deg)"
+        },
+        "x": {
+          "pv": "1ide1:m34",
+          "name": "samE.x",
+          "role": "pin, horizontal (cancels a)"
+        },
+        "y": {
+          "pv": "1ide1:m35",
+          "name": "samE.y",
+          "role": "pin, vertical (find-pin only)"
+        },
+        "z": {
+          "pv": "1ide1:m36",
+          "name": "samE.z",
+          "role": "pin, along the beam (cancels b)"
+        },
+        "base": {
+          "pv": "1ide1:m101",
+          "name": "samE.aerox",
+          "role": "base under the rotation stage: moves the axis column c"
+        }
+      },
+      "geometry": {
+        "image_col_per_x": -1,
+        "rot_sign": 1,
+        "image_row_per_y": -1,
+        "base_col_per_base": -1,
+        "_note": "+x moves the pin image left; stage left-handed (+omega clockwise from the top); +y moves the pin up; +base moves the axis column down (-1431 px/mm on gh1, measured 2026-10-28)."
+      }
+    }
+  }
+}

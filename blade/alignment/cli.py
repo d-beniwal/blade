@@ -1,14 +1,13 @@
-"""Command-line tools for the agent. Every command prints one JSON object (stdout) and appends events the GUI shows live.
+"""BLADE alignment module - command-line tools for the agent (`blade align <cmd>`). Every command prints one JSON object (stdout) and appends events the GUI shows live.
 The agent decides what to run next; nothing here decides or loops on its own, except the explicit `sweep`/`calibrate` helpers.
-Backends: sim (default) or epics (real beamline, when the user says so; see session.get_backend)."""
+Backends: sim (default) or epics (real beamline, when the user says so; see backends.get_backend)."""
 import argparse
 import json
 import sys
 import numpy as np
-from . import RUNS_DIR  # noqa: F401  (also puts scripts/ on sys.path)
-import align_config as cfg
-import axis_align
-from .session import Run
+from .. import config as cfg
+from ..session import Run
+from . import axis_align
 from . import measure as M
 
 
@@ -112,7 +111,7 @@ def _moves_from_abc(run, a, b, c, bcx):
     """Moves (mm) that cancel a, b and bring c onto the beam centre. Uses run calibrations if present, else the confirmed constants.
     Entries are None when the needed quantity is unknown (nan)."""
     notes, mv = [], {}
-    cx, cz, cb = cal_get(run, "x"), cal_get(run, "z"), cal_get(run, "aerox")
+    cx, cz, cb = cal_get(run, "x"), cal_get(run, "z"), cal_get(run, cfg.BASE_MOTOR)
     # pin x: cancel a (image column at omega=0 changes by -a)
     if not np.isfinite(a):
         mv["x"] = None
@@ -134,8 +133,8 @@ def _moves_from_abc(run, a, b, c, bcx):
         mv[cfg.BASE_MOTOR] = None
     elif cb:
         mv[cfg.BASE_MOTOR] = (bcx - c) / cb["d_c_per_mm"]
-    elif cfg.BASE_COL_PER_AEROX is not None:
-        mv[cfg.BASE_MOTOR] = (bcx - c) / (cfg.BASE_COL_PER_AEROX * 1e3 / cfg.PIXEL_UM)
+    elif cfg.BASE_COL_PER_BASE is not None:
+        mv[cfg.BASE_MOTOR] = (bcx - c) / (cfg.BASE_COL_PER_BASE * 1e3 / cfg.PIXEL_UM)
     else:
         mv[cfg.BASE_MOTOR] = None
         notes.append(f"base motor '{cfg.BASE_MOTOR}' sign/size unknown: run `calibrate --motor {cfg.BASE_MOTOR}` first")
@@ -190,7 +189,7 @@ MIN_MOVE_MM = 0.0005
 
 def do_step_pm(run, theta, apply=False, base=False, force=False):
     """One fast correction step: measure -theta, 0, +theta (monotonic rotation, nearest end first) -> a, b, c -> optionally move.
-    b = (x+ - x-)/(2 sin t) -> z.  a = (x0 - mean)/(1 - cos t) (t >= 30) -> x.  c = x0 - a (= mean at 90) -> aerox if `base`."""
+    b = (x+ - x-)/(2 sin t) -> z.  a = (x0 - mean)/(1 - cos t) (t >= 30) -> x.  c = x0 - a (= mean at 90) -> base motor if `base`."""
     cur = run.inst.get_omega()
     near, far = (-theta, theta) if abs(cur + theta) <= abs(cur - theta) else (theta, -theta)
     # no pin-shape prior yet: measure omega=0 first (full view there), so that a flank lost to the grey bevel wedge at large |omega|
@@ -239,7 +238,7 @@ def do_step_pm(run, theta, apply=False, base=False, force=False):
 
 
 def do_fast_align(run, verify=True, steps=None):
-    """The quick routine: +-30 (z, x) -> +-90 (z, x, aerox) -> verify. ~3 short rotations instead of calibration + many sweeps."""
+    """The quick routine: +-30 (z, x) -> +-90 (z, x, base) -> verify. ~3 short rotations instead of calibration + many sweeps."""
     out = {"ok": True, "steps": []}
     for th in (steps or cfg.FAST_STEPS_DEG):
         r = do_step_pm(run, th, apply=True, base=th >= 60)
@@ -316,7 +315,7 @@ def _apply_moves(run, mv, why):
 def do_adaptive_align(run, step=15.0, max_passes=6):
     """Adaptive alignment (user procedure, 2026-10-30). omega -> 0; pin axis to the beam centre (x); then per pass: rotate + until the pin
     can no longer be measured (note how far its axis moved), rotate - likewise, fit x(w) = c + a cos w + b sin w to every measurement,
-    correct (z <- b, x <- a, aerox <- c-beam), repeat. If a pass reaches +-90 on both sides, later passes just use 0, +90, -90.
+    correct (z <- b, x <- a, base <- c-beam), repeat. If a pass reaches +-90 on both sides, later passes just use 0, +90, -90.
     Never beyond +-MAX_ROT_DEG. Done when |a|,|b| < TOL_AB_PX and |c - beam| < TOL_C_PX."""
     out = {"ok": False, "passes": []}
     if abs(run.inst.get_omega()) > 1e-6:
@@ -534,18 +533,18 @@ def do_live_feed(run, interval, seconds):
 
 # ---- argparse -------------------------------------------------------------------------------------------------------
 def main(argv=None):
-    p = argparse.ArgumentParser(prog="align.py", description=__doc__)
+    p = argparse.ArgumentParser(prog="blade align", description=__doc__)
     p.add_argument("--run", help="run id (default: current)")
     sub = p.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("new-run"); s.add_argument("--backend", default="sim"); s.add_argument("--camera"); s.add_argument("--seed", type=int, default=0)
+    s = sub.add_parser("new-run"); s.add_argument("--profile", help="beamline profile (default: $BLADE_PROFILE or s1id; see `blade profiles`)"); s.add_argument("--station", help="hutch/station whose motors+geometry to use (default: profile default_station or $BLADE_STATION)"); s.add_argument("--backend", default="sim"); s.add_argument("--camera"); s.add_argument("--seed", type=int, default=0)
     s.add_argument("--truth", help="JSON dict overriding hidden sim truth, e.g. '{\"a\":-50,\"true_k_z\":-1}'")
     sub.add_parser("status")
     s = sub.add_parser("goto-omega"); s.add_argument("deg", type=float)
     s = sub.add_parser("measure"); s.add_argument("--omega", type=float)
-    s = sub.add_parser("sweep"); s.add_argument("--angles", type=float, nargs="+", default=list(cfg.DEFAULT_SWEEP_DEG))
+    s = sub.add_parser("sweep"); s.add_argument("--angles", type=float, nargs="+", default=None, help="default: the profile's default_sweep_deg")
     s = sub.add_parser("estimate-pm"); s.add_argument("theta", type=float)
-    s = sub.add_parser("step-pm"); s.add_argument("theta", type=float); s.add_argument("--apply", action="store_true", help="also move z, x (and aerox with --base)")
-    s.add_argument("--base", action="store_true", help="include the aerox move (axis -> beam centre); sensible for theta >= 60"); s.add_argument("--force", action="store_true")
+    s = sub.add_parser("step-pm"); s.add_argument("theta", type=float); s.add_argument("--apply", action="store_true", help="also move z, x (and the base motor with --base)")
+    s.add_argument("--base", action="store_true", help="include the base-motor move (axis -> beam centre); sensible for theta >= 60"); s.add_argument("--force", action="store_true")
     s = sub.add_parser("fast-align"); s.add_argument("--no-verify", action="store_true")
     s = sub.add_parser("adaptive-align"); s.add_argument("--step", type=float, default=15.0); s.add_argument("--max-passes", type=int, default=6)
     s = sub.add_parser("find-pin"); s.add_argument("--max-steps", type=int, default=60); s.add_argument("--no-y", action="store_true")
@@ -559,9 +558,9 @@ def main(argv=None):
     a = p.parse_args(argv)
 
     if a.cmd == "new-run":
-        run = Run.create(a.backend, a.seed, json.loads(a.truth) if a.truth else None, a.camera)
+        run = Run.create(a.backend, a.seed, json.loads(a.truth) if a.truth else None, a.camera, a.profile, a.station)
         _CTX.update(run=run, cmd=a.cmd)
-        return _out({"run": run.dir.name, "dir": str(run.dir), "pixel_um": cfg.PIXEL_UM})
+        return _out({"run": run.dir.name, "dir": str(run.dir), "profile": cfg.PROFILE, "station": cfg.STATION, "beamline": cfg.BEAMLINE, "pixel_um": cfg.PIXEL_UM})
     run = Run.current(a.run)
     _CTX.update(run=run, cmd=a.cmd)
     if a.cmd == "status":
@@ -573,7 +572,7 @@ def main(argv=None):
     if a.cmd == "measure":
         return _out(do_measure(run, a.omega))
     if a.cmd == "sweep":
-        return _out(do_sweep(run, a.angles))
+        return _out(do_sweep(run, a.angles or list(cfg.DEFAULT_SWEEP_DEG)))
     if a.cmd == "estimate-pm":
         t = a.theta
         x0 = do_measure(run, 0, "pm0")["pin_col"]; xm = do_measure(run, -t, "pm_neg")["pin_col"]; xp = do_measure(run, t, "pm_pos")["pin_col"]

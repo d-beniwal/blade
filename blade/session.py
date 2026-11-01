@@ -1,26 +1,16 @@
-"""A run = one alignment session. EVERYTHING produced for it lives in runs/<id>/ (nothing else is written under runs/ except the CURRENT pointer):
+"""A run = one BLADE session (alignment today). EVERYTHING produced for it lives in runs/<id>/ (nothing else is written under runs/ except the CURRENT pointer):
   events.jsonl, state.json, live.jpg   - core record (CLI appends events; the GUI tails them)
   frames/   JPEGs shown in the GUI       outputs/  JSON printed by every CLI command (auto-saved, NNN_<cmd>.json)
   raw/      raw .npy frames              figures/  beam/analysis figures (+ json)
-  logs/     process logs (live-feed, scripted agent, ...)      report/  make_report.py output
+  logs/     process logs (live-feed, scripted agent, ...)      report/  reports
 Use Run.subdir(name) / Run.save_output(...) rather than building paths by hand."""
 import json
 import time
 from datetime import datetime
 from pathlib import Path
-from . import RUNS_DIR
-from .sim import SimInstrument
-import align_config as cfg
-
-
-def get_backend(name, state=None, seed=0, camera=None):
-    if name == "sim":
-        return SimInstrument(state, seed)
-    if name == "epics":   # real beamline: needs an explicit --camera (pixel size / PVs)
-        from .epics_backend import EpicsInstrument
-        return EpicsInstrument(state, camera=camera or (state or {}).get("camera"))
-    raise NotImplementedError(
-        f"unknown backend '{name}'. Use --backend sim (simulator) or --backend epics --camera <name> (real beamline).")
+from .paths import RUNS_DIR
+from .backends import get_backend
+from . import config as cfg
 
 
 class Run:
@@ -29,13 +19,15 @@ class Run:
         self.events_path = self.dir / "events.jsonl"
         self.state_path = self.dir / "state.json"
         self.state = json.loads(self.state_path.read_text())
+        cfg.load(self.state.get("profile"), self.state.get("station"))   # beamline profile stored in the run (older runs: default profile)
         self.inst = get_backend(self.state["backend"], self.state["inst"])
         cam = self.state["inst"].get("camera")
         cfg.set_camera(cam if cam in cfg.CAMERA_INFO else None)   # pixel size follows the run's camera
 
     # -- lifecycle ---------------------------------------------------------------------------------------------------
     @classmethod
-    def create(cls, backend="sim", seed=0, truth=None, camera=None):
+    def create(cls, backend="sim", seed=0, truth=None, camera=None, profile=None, station=None):
+        cfg.load(profile, station)
         # Build the backend first: a refused/failed backend must not leave a run directory behind.
         inst = get_backend(backend, None, seed, camera)
         if camera and camera not in cfg.CAMERA_INFO:
@@ -56,11 +48,11 @@ class Run:
                 n += 1
                 rid = f"{base}-{n}"
         (d / "frames").mkdir()
-        (d / "state.json").write_text(json.dumps({"backend": backend, "inst": inst.get_state(), "calibration": {},
+        (d / "state.json").write_text(json.dumps({"profile": cfg.PROFILE, "station": cfg.STATION, "backend": backend, "inst": inst.get_state(), "calibration": {},
                                                   "last_fit": None, "n_frames": 0, "status": "running"}))
         (RUNS_DIR / "CURRENT").write_text(rid)
         run = cls(d)
-        run.log("run_started", f"Run {rid} started (backend: {backend})", {"backend": backend})
+        run.log("run_started", f"Run {rid} started (profile {cfg.PROFILE}, station {cfg.STATION}, backend: {backend})", {"backend": backend, "profile": cfg.PROFILE, "station": cfg.STATION})
         return run
 
     @classmethod

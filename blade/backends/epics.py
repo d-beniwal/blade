@@ -1,7 +1,7 @@
-"""REAL instrument backend (EPICS): `align.py new-run --backend epics --camera <name>`.
+"""REAL instrument backend (EPICS): `blade align new-run --backend epics --camera <name>`.
 
 Used when the user says they are on the real beamline and want to align on hardware - no extra switch or confirmation. Needs an explicit
-camera name from align_config.CAMERAS and pvapy + pyepics importable. Equipment protection that stays on (not confirmations): motor units
+camera name from the profile's `cameras` (with a pv_prefix) and pvapy + pyepics importable. Equipment protection that stays on (not confirmations): motor units
 must read back as mm, per-move soft-limit check against .LLM/.HLM, per-step limits enforced upstream in cli.do_move, rotation limited to
 +-MAX_ROT_DEG, readback verification after every move, no writes to camera/IOC PVs (acquisition only reads frames from the existing PVA stream).
 
@@ -9,7 +9,7 @@ Camera must already be acquiring continuously (the IOC is NOT touched); after ea
 new unique ids have arrived so the returned frame is taken after the stage stopped."""
 import time
 import numpy as np
-import align_config as cfg
+from .. import config as cfg
 
 
 class EpicsInstrument:
@@ -54,7 +54,7 @@ class EpicsInstrument:
         self._check_done("omega", float(deg), cfg.OMEGA_TOL_DEG)
 
     def move(self, motor, mm):
-        if motor not in ("x", "y", "z", "aerox"):
+        if motor not in self._motors or motor == "omega":
             raise ValueError(motor)
         m = self._motors[motor]
         egu = str(m.get("EGU") or "").strip().lower()

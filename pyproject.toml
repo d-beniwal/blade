@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blade"
+version = "0.1.0"
+description = "BLADE - Beamline Automation and Device Experiments: agent-driven beamline automation, first module: rotation-axis alignment."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26", "scipy", "pillow"]
+
+[project.optional-dependencies]
+epics = ["pvapy==5.4.1", "pyepics==3.5.10"]   # real-beamline backend only
+mcp = ["mcp>=1.2"]                            # `blade mcp` server (agents reach every capability through it)
+dev = ["h5py", "matplotlib"]                  # tests that read the HDF5 scans
+
+[project.scripts]
+blade = "blade.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["blade*"]
+
+[tool.setuptools.package-data]
+blade = ["gui.html"]

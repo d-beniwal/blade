@@ -2,8 +2,8 @@
 import numpy as np
 from scipy import ndimage as ndi
 from PIL import Image, ImageDraw
-import pinfit
-import align_config as cfg
+from . import pinfit
+from .. import config as cfg
 
 
 def _cross(profile, sigma=5.0, frac=0.5):

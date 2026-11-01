@@ -2,7 +2,7 @@
 ground truth (axis column c, pin offsets a, b) that the motors change. No hardware, no EPICS."""
 import numpy as np
 from scipy.special import erf, expit
-import align_config as cfg
+from .. import config as cfg
 
 H, W = 1490, 1940
 BEAM_BOX = (457, 1488, 347, 1157)   # x0, x1, y0, y1 of the lit area (from real frames)
@@ -17,9 +17,9 @@ class SimInstrument:
     def __init__(self, state=None, seed=0):
         self.s = state or {
             "omega": 0.0, "c": 818.0, "a": -132.0, "b": -10.0,
-            "pos": {"x": 0.0, "y": 0.0, "z": 0.0, "aerox": 0.0},
+            "pos": {"x": 0.0, "y": 0.0, "z": 0.0, "base": 0.0},
             # hidden truth the agent must discover (can be flipped to test the sign guards)
-            "true_col_per_x": -1.0, "true_k_z": +1.0, "true_col_per_aerox": -1.0, "true_row_per_y": -1.0, "wedge": True,
+            "true_col_per_x": -1.0, "true_k_z": +1.0, "true_col_per_base": -1.0, "true_row_per_y": -1.0, "wedge": True,
             "noise": 1.0, "timing_lag_deg": 0.0, "seed": seed, "n_acq": 0,
         }
 
@@ -36,7 +36,7 @@ class SimInstrument:
         px = cfg.mm_to_px(mm)
         if motor == "x":   s["a"] += s["true_col_per_x"] * px
         elif motor == "z": s["b"] += s["true_k_z"] * px
-        elif motor == "aerox": s["c"] += s["true_col_per_aerox"] * px
+        elif motor == "base": s["c"] += s["true_col_per_base"] * px
         elif motor == "y": s["top_row_shift"] = s.get("top_row_shift", 0.0) + s["true_row_per_y"] * px
         else: raise ValueError(f"unknown motor {motor}")
         s["pos"][motor] += mm
