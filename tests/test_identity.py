@@ -10,8 +10,7 @@ sys.path.insert(0, str(ROOT))
 import numpy as np  # noqa: E402
 import h5py  # noqa: E402
 from scipy import ndimage as ndi  # noqa: E402
-import balign  # noqa: E402,F401
-from balign import measure as M  # noqa: E402
+from blade.alignment import measure as M  # noqa: E402
 
 D = ROOT / "s1_data/tomo_alignment/"
 f44, f46 = D / "alignment_pin/alignment_pin_000044.h5", D / "alignment_pin_off_center_0_180/alignment_pin_off_center_0_180_000046.h5"

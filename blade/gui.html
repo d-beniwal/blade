@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Beam alignment monitor</title>
+<title>BLADE alignment monitor</title>
 <style>
 :root{--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--badbg:#fbe9e7;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--badbg:#3a1d1a;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--agent:#b994f2;--agentbg:#2a2038}}
@@ -57,7 +57,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:12px;font-weight:700;
 </style></head><body><div class="wrap">
 
 <div class="card top">
- <h1>Beam alignment</h1><span class="pill" id="run">no run</span><span class="pill" id="status">–</span>
+ <h1>BLADE <span id="bl" style="font-weight:400;opacity:.7"></span></h1><span class="pill" id="run">no run</span><span class="pill" id="status">–</span>
  <span class="sp"></span>
  <span class="pill" id="pos" title="current stage positions">–</span><span class="pill" id="cnt"></span><span class="pill" id="pix"></span><span class="pill" id="sim">simulated backend</span>
 </div>
@@ -113,7 +113,7 @@ function ingest(e){
  if(e.kind==='calibration')S.phase.cal=1;
  if(e.kind==='move'){const test=/calibration test|undo calibration/i.test(d.reason||'');
    S.moves.push({d,test});
-   if(!test){S.movesAfterFit++;if(d.motor==='aerox')S.phase.base=1;else if(d.motor==='x'||d.motor==='z')S.phase.pin=1}
+   if(!test){S.movesAfterFit++;if((d.motor==='base'||d.motor==='aerox'))S.phase.base=1;else if(d.motor==='x'||d.motor==='z')S.phase.pin=1}
    const r=document.createElement('tr');r.className=test?'test':'real';
    r.innerHTML=`<td class="l">${d.motor}</td><td>${sg(d.mm,4)}</td><td>${f(d.after[d.motor],4)}</td><td class="l">${esc(d.reason||'')}</td>`;$('moves').tBodies[0].appendChild(r)}
  if(e.kind==='note'&&d.agent!==false){S.lastNote=e;const n=document.createElement('div');n.className='note';n.innerHTML=`<div class="t">${e.t.slice(11,19)}</div>${esc(e.msg)}`;
@@ -174,19 +174,19 @@ function render(){
  const A=S.sweeps.map(s=>s.fit.ok?s.fit.a:null).filter(v=>v!=null),B=S.sweeps.map(s=>s.fit.ok?s.fit.b:null).filter(v=>v!=null),C=S.sweeps.map(s=>s.fit.ok?s.within_tol.c_minus_beam_px:null).filter(v=>v!=null);
  $('tiles').innerHTML=tile('Pin sideways offset (a)','How far the pin sits off the rotation axis, across the image. Fixed with stage x.',A,tolAB)
   +tile('Pin offset along beam (b)','How far the pin sits off the axis, along the beam. Fixed with stage z.',B,tolAB)
-  +tile('Axis vs beam centre (c − beam)','Is the rotation axis on the beam centre? Fixed by moving the base (aerox).',C,tolC);
+  +tile('Axis vs beam centre (c − beam)','Is the rotation axis on the beam centre? Fixed by moving the base ('+((cfg.motors||{}).base||'base')+').',C,tolC);
  const st=$('stale');if(S.movesAfterFit>0&&L){st.style.display='block';st.textContent=`⚠ ${S.movesAfterFit} stage move(s) happened after the last fit — the numbers above are from before that move. A new sweep will update them.`}else st.style.display='none';
  plot();
 }
 
 async function tick(){
- try{cfg=await j('/api/config');$('pix').textContent=`${cfg.pixel_um} µm/px`;
+ try{cfg=await j('/api/config');$('pix').textContent=`${cfg.pixel_um} µm/px`;$('bl').textContent=cfg.beamline?'· '+cfg.beamline+' ('+cfg.profile+(cfg.station?', hutch '+cfg.station:'')+')':'';
   if(cfg.latest&&cfg.latest!==run){run=cfg.latest;since=0;reset()}
   if(run){const r=await j(`/api/events?run=${run}&since=${since}`);
    r.events.forEach(ingest);since+=r.events.length;const state=r.state;
    $('run').textContent=run;
    if(state){const b=$('status');b.textContent=state.status;b.className='pill '+(state.status==='running'?'run':state.status==='ok'?'ok':'failed');
-    const p=state.inst&&state.inst.pos?state.inst.pos:{};$('pos').textContent=`ω ${f(state.inst.omega,1)}° · x ${f(p.x,3)} · z ${f(p.z,3)} · aerox ${f(p.aerox,3)} mm`;
+    const p=state.inst&&state.inst.pos?state.inst.pos:{};$('pos').textContent=`ω ${f(state.inst.omega,1)}° · x ${f(p.x,3)} · z ${f(p.z,3)} · ${(cfg.motors||{}).base||'base'} ${f(p.base!=null?p.base:p.aerox,3)} mm`;
     $('sim').textContent=state.backend==='sim'?'simulated backend':'REAL INSTRUMENT'}
    $('cnt').textContent=`${S.frames} frames · ${S.moves.filter(m=>!m.test).length} moves`;
    const nm=S.moves.filter(m=>m.test).length;$('movesnote').textContent=nm?`Grey rows are small calibration test moves (each undone right after).`:'';
@@ -196,7 +196,7 @@ async function tick(){
  setTimeout(tick,1000)}
 function tab(t){S.tab=t;$('tabM').className=t==='M'?'on':'';$('tabL').className=t==='L'?'on':'';
  $('cam').style.display=t==='M'&&$('cam').src?'block':'none';$('live').style.display=t==='L'?'block':'none';
- $('legend').style.display=t==='M'?'flex':'none';$('camcap').textContent=t==='L'?(+$('live').dataset.ok?'live frame (read-only feed, ~1 Hz)':'no live feed running (start: python -I align.py live-feed)'):(S.cap||'no frame yet')}
+ $('legend').style.display=t==='M'?'flex':'none';$('camcap').textContent=t==='L'?(+$('live').dataset.ok?'live frame (read-only feed, ~1 Hz)':'no live feed running (start: blade align live-feed)'):(S.cap||'no frame yet')}
 $('tabM').onclick=()=>tab('M');$('tabL').onclick=()=>tab('L');
 tick();
 </script></body></html>

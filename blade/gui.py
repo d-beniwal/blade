@@ -6,8 +6,8 @@ import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
-from . import RUNS_DIR
-import align_config as cfg
+from .paths import RUNS_DIR
+from . import config as cfg
 
 
 
@@ -38,11 +38,14 @@ class H(BaseHTTPRequestHandler):
             return self._send((Path(__file__).parent / "gui.html").read_text(), "text/html; charset=utf-8")
         if u.path == "/api/config":
             try:
-                cam = json.loads((RUNS_DIR / rid / "state.json").read_text())["inst"].get("camera") if rid else None
+                st = json.loads((RUNS_DIR / rid / "state.json").read_text()) if rid else {}
             except Exception:
-                cam = None
+                st = {}
+            cam = (st.get("inst") or {}).get("camera")
+            cfg.load(st.get("profile"), st.get("station"))          # the GUI follows the profile and camera of the shown run
             cfg.set_camera(cam if cam in cfg.CAMERA_INFO else None)
-            return self._send({"pixel_um": cfg.PIXEL_UM, "camera": cfg.CAMERA, "tol_ab_px": cfg.TOL_AB_PX, "tol_c_px": cfg.TOL_C_PX,
+            return self._send({"profile": cfg.PROFILE, "station": cfg.STATION, "beamline": cfg.BEAMLINE, "motors": cfg.MOTOR_NAMES, "base_motor": cfg.BASE_MOTOR,
+                               "pixel_um": cfg.PIXEL_UM, "camera": cfg.CAMERA, "tol_ab_px": cfg.TOL_AB_PX, "tol_c_px": cfg.TOL_C_PX,
                                "latest": _latest(), "runs": sorted(p.name for p in RUNS_DIR.iterdir() if p.is_dir()) if RUNS_DIR.exists() else []})
         if rid is None:
             return self._send({"events": [], "state": None})
@@ -68,7 +71,7 @@ class H(BaseHTTPRequestHandler):
 
 def serve(port=8765):
     srv = ThreadingHTTPServer(("127.0.0.1", port), H)
-    print(f"alignment GUI on http://localhost:{port}  (runs dir: {RUNS_DIR})", flush=True)
+    print(f"BLADE GUI on http://localhost:{port}  (runs dir: {RUNS_DIR})", flush=True)
     srv.serve_forever()
 
 

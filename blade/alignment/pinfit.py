@@ -192,37 +192,6 @@ def _as_2d_ref(a):
     return a
 
 
-def _span_from_steps(profile, min_rel=0.3):
-    """Lit span [i0, i1] of a 1-D brightness profile from its two strongest opposite steps.
-    A side with no strong step is treated as running off the detector (edge = array border).
-    Step based, so a smooth beam gradient / vignetting does not matter."""
-    n = len(profile)
-    pr = ndi.gaussian_filter1d(profile.astype(float), 3)
-    d = np.gradient(pr)
-    span = max(np.percentile(pr, 92) - np.percentile(pr, 5), 1e-9)
-    half = n // 2
-    i0 = int(np.argmax(d[:half]))
-    i1 = half + int(np.argmin(d[half:]))
-    k = 10
-    up = pr[min(i0 + k, n - 1)] - pr[max(i0 - k, 0)]
-    dn = pr[max(i1 - k, 0)] - pr[min(i1 + k, n - 1)]
-    lo = i0 if up > min_rel * span else 0
-    hi = i1 if dn > min_rel * span else n - 1
-    return int(lo), int(hi)
-
-
-def _footprint_steps(sm, p: Params):
-    """EXPERIMENTAL (regressed under noise/blur/crop in tests, not used): lit-area box from step profiles."""
-    H, W = sm.shape
-    sub = sm[::4]
-    c0, c1 = _span_from_steps(np.percentile(sub, 75, axis=0))
-    r0, r1 = _span_from_steps(np.percentile(sm[:, c0:c1 + 1][:, ::4], 75, axis=1))
-    c0, c1 = _span_from_steps(np.percentile(sm[r0:r1 + 1:4, :], 75, axis=0))
-    if c1 - c0 < 20 or r1 - r0 < 20:
-        return None
-    return int(r0), int(r1), int(c0), int(c1)
-
-
 def _footprint(sm, p: Params):
     """Bounding box (y0, y1, x0, x1) of the lit area, from bright-fraction projections."""
     sub = sm[::4, ::4]
@@ -757,14 +726,14 @@ def _mass_direction(out: PinFit, dark_mask, w, x0):
     out.confidence = "low"
 
 
-def stage_x_hint(res: PinFit, image_x_to_stage_sign=None, pixel_size_um=None):  # default pixel size: align_config.PIXEL_UM
+def stage_x_hint(res: PinFit, image_x_to_stage_sign=None, pixel_size_um=None):  # default pixel size: the profile's active camera (config.PIXEL_UM)
     """Convert the image shift into a stage move.  The motor sign / pixel size are NOT known yet
     (see DOMAIN.md to-confirm list), so by default only the image-space direction is returned."""
     d = {"move_pin_in_image": res.move_pin_image_x, "image_dx_px": res.shift_px,
          "lower_bound": res.shift_is_lower_bound}
     if pixel_size_um is None:
-        import align_config
-        pixel_size_um = align_config.PIXEL_UM
+        from .. import config as cfg
+        pixel_size_um = cfg.PIXEL_UM
     if image_x_to_stage_sign is not None:
         d["stage_dx_mm"] = float(image_x_to_stage_sign * res.shift_px * pixel_size_um * 1e-3)
     else:

@@ -1,0 +1,95 @@
+{
+  "beamline": "Demo (simulator only)",
+  "description": "Generic simulator profile: no hardware. Copy this folder to start a profile for a new beamline, then edit cameras, motors, geometry, limits and pin.",
+  "backends": [
+    "sim"
+  ],
+  "default_camera": "simcam",
+  "default_pixel_um": 1.0,
+  "camera_pva_suffix": "Pva1:Image",
+  "cameras": {
+    "simcam": {
+      "hutch": "-",
+      "pixel_um": 1.0,
+      "pv_prefix": null,
+      "note": "simulated"
+    }
+  },
+  "limits": {
+    "max_step_pin_mm": 0.5,
+    "max_step_base_mm": 0.3,
+    "max_rot_deg": 90.0,
+    "omega_tol_deg": 0.05,
+    "move_timeout_s": 60.0,
+    "search_radius_x_mm": 3.0,
+    "search_radius_y_mm": 2.0,
+    "search_step_frac": 0.5
+  },
+  "tolerances": {
+    "tol_ab_px": 1.0,
+    "tol_c_px": 2.0,
+    "beam_frac": 0.5
+  },
+  "pin": {
+    "nominal_half_angle_deg": 15.2,
+    "half_angle_tol_deg": 3.0,
+    "min_contrast": 0.5,
+    "top_width_tol": 0.3,
+    "clip_margin_px": 30
+  },
+  "procedure": {
+    "fast_steps_deg": [
+      30,
+      90
+    ],
+    "default_sweep_deg": [
+      -90,
+      -60,
+      -30,
+      0,
+      30,
+      60,
+      90
+    ],
+    "save_raw": true
+  },
+  "default_station": "sim",
+  "stations": {
+    "sim": {
+      "description": "Simulated station.",
+      "motors": {
+        "omega": {
+          "pv": null,
+          "name": "sim.omega",
+          "role": "rotation (omega, deg)"
+        },
+        "x": {
+          "pv": null,
+          "name": "sim.x",
+          "role": "pin, horizontal (cancels a)"
+        },
+        "y": {
+          "pv": null,
+          "name": "sim.y",
+          "role": "pin, vertical (find-pin only)"
+        },
+        "z": {
+          "pv": null,
+          "name": "sim.z",
+          "role": "pin, along the beam (cancels b)"
+        },
+        "base": {
+          "pv": null,
+          "name": "sim.base",
+          "role": "base under the rotation stage: moves the axis column c"
+        }
+      },
+      "geometry": {
+        "image_col_per_x": -1,
+        "rot_sign": 1,
+        "image_row_per_y": -1,
+        "base_col_per_base": -1
+      }
+    }
+  }
+}

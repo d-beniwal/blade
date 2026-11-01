@@ -4,10 +4,9 @@ import sys
 sys.dont_write_bytecode = True
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-import balign  # noqa: E402,F401  (puts scripts/ on sys.path)
-from balign.sim import SimInstrument  # noqa: E402
-from balign import measure as M  # noqa: E402
-import beam_center as bc  # noqa: E402
+from blade.backends.sim import SimInstrument  # noqa: E402
+from blade.alignment import measure as M  # noqa: E402
+from blade.alignment import beam_center as bc  # noqa: E402
 
 fails = []
 
