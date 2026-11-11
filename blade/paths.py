@@ -6,3 +6,4 @@ ROOT = Path(__file__).resolve().parent.parent                       # repo root 
 RUNS_DIR = Path(os.environ["BLADE_RUNS"]).expanduser() if os.environ.get("BLADE_RUNS") else ROOT / "runs"
 PROFILES_DIRS = ([Path(os.environ["BLADE_PROFILES_DIR"]).expanduser()] if os.environ.get("BLADE_PROFILES_DIR") else []) + [ROOT / "profiles"]
 DEFAULT_PROFILE = "s1id"
+TWINS_DIR = Path(os.environ["BLADE_TWINS_DIR"]).expanduser() if os.environ.get("BLADE_TWINS_DIR") else ROOT / "beamline_twins"   # beamline twins (profile key "twin" names the folder)

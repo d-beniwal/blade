@@ -26,7 +26,7 @@ def main(argv=None):
         for n in cfg.profiles():
             p = json.loads((cfg.profile_dir(n) / "default_config.json").read_text())
             out[n] = {"beamline": p.get("beamline"), "backends": p.get("backends"), "cameras": sorted(p.get("cameras", {})),
-                    "stations": sorted(p.get("stations", {})), "default_station": p.get("default_station")}
+                    "stations": sorted(p.get("stations", {})), "default_station": p.get("default_station"), "twin": p.get("twin")}
         print(json.dumps({"default": cfg.PROFILE, "profiles": out}, indent=2))
         return
     if cmd in ("-V", "--version", "version"):

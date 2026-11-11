@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLADE beamline twin</title>
+<style>
+:root{--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace;
+ --c0:#2160c4;--c1:#168a4a;--c2:#a96a08;--c3:#6b3fa0;--c4:#c0352b;--c5:#0e8a8a;--beam:#d6342a}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2;--agentbg:#2a2038;--beam:#ff6a5e;
+ --c0:#6ea4ff;--c1:#4cc380;--c2:#e3a549;--c3:#b994f2;--c4:#ff7064;--c5:#4fd1d1}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
+a{color:var(--acc)}
+.wrap{max-width:1500px;margin:0 auto;padding:12px 16px;display:grid;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:0 0 8px;font-weight:700}
+.top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}.top h1{font-size:17px;margin:0 6px 0 0}.sp{flex:1}
+select,input{font:13px system-ui;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+select#prof{font-weight:600;border-color:var(--acc)}
+.pill{padding:2px 10px;border-radius:99px;border:1px solid var(--line);font:12px var(--mono);white-space:nowrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{font:13px system-ui;padding:4px 14px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chip{font:12px system-ui;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}.chip.off{opacity:.35}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+@media(max-width:1100px){.main{grid-template-columns:1fr}}
+.side{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}
+.scroll{overflow-x:auto}
+svg text{fill:var(--mute);font:11px var(--mono)}svg text.nm{fill:var(--ink);font:11px system-ui}
+.g *{fill:var(--panel);stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.g.cf-code *{stroke:var(--acc)}.g.cf-inferred *{stroke:var(--warn);stroke-dasharray:4 3}.g.cf-unseen *{stroke:var(--mute);stroke-dasharray:2 3}.g.cf-confirmed *{stroke:var(--ok)}
+.g .fillink{fill:var(--ink)}.g .tomo{fill:var(--agent);stroke:none}
+.g.sel *{stroke-width:2.6}.g.sel .halo{stroke:var(--acc);stroke-width:3;fill:var(--accbg);stroke-dasharray:none}
+.g.bt .halo{stroke:var(--agent);stroke-width:2.5;fill:var(--agentbg);stroke-dasharray:none}
+.g.dim{opacity:.13}.item{cursor:pointer}.item:hover .halo{fill:var(--accbg)}
+.halo{fill:transparent;stroke:none}
+.beamline{stroke:var(--beam);stroke-width:2.2;stroke-dasharray:7 5;fill:none}
+.conn{stroke:var(--mute);stroke-width:1;stroke-dasharray:3 3;fill:none}
+.hh{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:4px}.hh b{font-size:15px}.hh span{color:var(--mute);font-size:12.5px}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font:11.5px var(--mono);border:1px solid var(--line)}
+.badge.bt{background:var(--agentbg);color:var(--agent);border-color:transparent}
+table{border-collapse:collapse;width:100%;font:12.5px var(--mono)}th,td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}td.l,th.l{text-align:left}
+tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:2px 8px;font-size:13px}.kv dt{color:var(--mute)}.kv dd{margin:0;word-break:break-word}
+.mono{font-family:var(--mono);font-size:12.5px}.mute{color:var(--mute)}.note{font-size:12.5px;color:var(--mute);margin-top:6px}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.thumbs a{display:block}.thumbs img{height:72px;border-radius:5px;border:1px solid var(--line);display:block}
+.thumbs .nophoto{font:11px var(--mono);padding:4px 8px;border:1px dashed var(--line);border-radius:5px;color:var(--mute)}
+.empty{padding:30px 10px;text-align:center;color:var(--mute)}.empty b{color:var(--ink)}
+.rng{display:grid;grid-template-columns:250px 1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.rng:hover{background:var(--accbg)}.rng .t b{font-size:13px}.rng .t div{font-size:11.5px;color:var(--mute)}
+.track{position:relative;height:26px}.track .bar{position:absolute;left:0;right:0;top:11px;height:4px;background:var(--line);border-radius:2px}
+.track .mk{position:absolute;top:3px;width:3px;height:20px;background:var(--acc);border-radius:2px}.track .zero{position:absolute;top:7px;width:1px;height:12px;background:var(--mute)}
+.track .lo,.track .hi,.track .rb{position:absolute;top:-2px;font:10.5px var(--mono);color:var(--mute)}.track .lo{left:0}.track .hi{right:0}.track .rb{color:var(--acc)}
+.stackbox{border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:0 8px}
+</style></head><body><div class="wrap">
+
+<div class="card top">
+ <h1>BLADE <span style="font-weight:400;opacity:.7">· beamline twin</span></h1>
+ <label class="mute">profile <select id="prof"></select></label>
+ <span class="pill" id="pbl"></span><span class="pill" id="pn"></span><span class="pill" id="pe"></span>
+ <span class="sp"></span><span id="confs" class="mono"></span>
+ <a href="/">← alignment monitor</a>
+</div>
+
+<div id="body"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const j=async u=>{const r=await fetch(u);return r.json()};
+const CONFCOL={confirmed:'var(--ok)',seen:'var(--ink)',code:'var(--acc)',inferred:'var(--warn)',unseen:'var(--mute)'};
+const CONFTXT={confirmed:'confirmed by user/hardware',seen:'seen in a photo or operator panel',code:'only in mpe_bluesky code',inferred:'inferred (see notes)',unseen:'known to exist, not seen'};
+const HASH0=location.hash.slice(1);
+let first=true,P=null,sel=null,view='path',F={conf:new Set(),kind:'',q:''},EL={};
+
+async function init(){
+ const L=await j('/api/profiles');const s=$('prof');
+ s.innerHTML=L.profiles.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.twin?'':'  (no twin)'}</option>`).join('');
+ let want=new URLSearchParams(location.search).get('profile');
+ if(!want){try{want=localStorage.getItem('blade.twin.profile')}catch(e){}}
+ if(!L.profiles.some(p=>p.name===want))want=L.default;
+ s.value=want;s.onchange=()=>{sel=null;load(s.value)};
+ load(want);
+}
+async function load(name){
+ try{localStorage.setItem('blade.twin.profile',name)}catch(e){}
+ P=await j('/api/twin?profile='+encodeURIComponent(name));EL={};
+ if(P.twin)P.twin.elements.forEach(e=>EL[e.id]=e);
+ F={conf:new Set(),kind:'',q:''};
+ const h=new URLSearchParams(first?HASH0:'');first=false;
+ if(['path','slits','stage'].includes(h.get('view')))view=h.get('view');
+ if(h.get('sel')&&EL[h.get('sel')])sel=h.get('sel');
+ head();draw();hash();
+}
+function hash(){history.replaceState(null,'','?profile='+encodeURIComponent(P.profile.name)+'#view='+view+(sel?'&sel='+encodeURIComponent(sel):''))}
+function head(){
+ const p=P.profile,t=P.twin;$('pbl').textContent=p.beamline;
+ $('pn').textContent=t?'twin '+t.id:'no twin';$('pe').textContent=t&&t.snapshot.energy_keV?`snapshot ${t.snapshot.energy_keV} keV · ${t.snapshot.date}`:'';$('pe').style.display=t&&t.snapshot.energy_keV?'':'none';
+ $('confs').innerHTML=t?t.conf_order.filter(c=>t.conf_counts[c]).map(c=>`<span title="${esc(CONFTXT[c])}" style="margin-left:10px"><span class="dot" style="background:${CONFCOL[c]}"></span>${c} ${t.conf_counts[c]}</span>`).join(''):'';
+}
+function draw(){
+ const t=P.twin,b=$('body');
+ if(!t){b.innerHTML=`<div class="card empty"><b>Profile '${esc(P.profile.name)}' has no beamline twin.</b><br>${P.twin_declared?`It declares twin '${esc(P.twin_declared)}' but beamline_twins/${esc(P.twin_declared)}/beamline.json was not found.`:'To add one: create beamline_twins/&lt;id&gt;/ (see beamline_twins/README.md) and set <span class="mono">"twin": "&lt;id&gt;"</span> in profiles/'+esc(P.profile.name)+'/default_config.json.'}
+  <div style="margin-top:14px;text-align:left;max-width:640px;margin-inline:auto">${profileCard()}</div></div>`;return}
+ b.innerHTML=`<div style="display:grid;gap:12px">
+  <div class="card" style="display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center">
+   <div class="tabs" id="tabs">${[['path','Beam path'],['slits','Slit apertures'],['stage','Sample stage']].map(([k,l])=>`<button data-v="${k}" class="${view===k?'on':''}">${l}</button>`).join('')}</div>
+   <span class="sp"></span><span id="filters"></span></div>
+  <div class="main"><div id="view"></div><div class="side card" id="side"></div></div></div>`;
+ document.querySelectorAll('#tabs button').forEach(x=>x.onclick=()=>{view=x.dataset.v;hash();draw()});
+ filters();paint();side();
+}
+function filters(){
+ const t=P.twin,kinds=[...new Set(t.elements.map(e=>e.kind))].sort(),f=$('filters');
+ if(view!=='path'){f.innerHTML='';return}
+ f.innerHTML=t.conf_order.filter(c=>t.conf_counts[c]).map(c=>`<button class="chip ${F.conf.has(c)?'':'off'}" data-c="${c}" style="${F.conf.has(c)?'':'opacity:.9'}"><span class="dot" style="background:${CONFCOL[c]}"></span>${c}</button>`).join(' ')
+  +` <select id="fk"><option value="">all kinds</option>${kinds.map(k=>`<option ${F.kind===k?'selected':''}>${k}</option>`).join('')}</select> <input id="fq" placeholder="search id / name / PV" value="${esc(F.q)}" size="22">`;
+ f.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{F.conf.has(c.dataset.c)?F.conf.delete(c.dataset.c):F.conf.add(c.dataset.c);filters();paint()});
+ $('fk').onchange=e=>{F.kind=e.target.value;paint()};$('fq').oninput=e=>{F.q=e.target.value;paint()};
+ // chips: highlighted (not dimmed) = selected filter; none selected = all shown
+ f.querySelectorAll('.chip').forEach(c=>{c.classList.toggle('off',F.conf.size>0&&!F.conf.has(c.dataset.c))});
+}
+function match(e){
+ if(F.conf.size&&!F.conf.has(e.conf))return false;if(F.kind&&e.kind!==F.kind)return false;
+ if(F.q){const s=[e.id,e.name,e.pv,e.dev,e.notes].join(' ').toLowerCase();if(!s.includes(F.q.toLowerCase()))return false}return true;
+}
+function paint(){const v=$('view');v.innerHTML=view==='path'?pathView():view==='slits'?slitsView():stageView();bind()}
+function bind(){
+ document.querySelectorAll('[data-id]').forEach(n=>n.onclick=()=>{sel=n.dataset.id;hash();side();paint()});
+}
+
+/* ---------- beam path ---------- */
+function glyph(e,x,y){
+ const k=e.kind;let s='';const r=(a,b,w,h,c='')=>`<rect x="${a}" y="${b}" width="${w}" height="${h}" ${c}/>`;
+ switch(k){
+  case 'slit':s=r(x-3,y-32,6,24)+r(x-3,y+8,6,24);break;
+  case 'ic':s=r(x-9,y-17,18,34)+`<line x1="${x-4}" x2="${x-4}" y1="${y-10}" y2="${y+10}"/><line x1="${x+4}" x2="${x+4}" y1="${y-10}" y2="${y+10}"/>`;break;
+  case 'lens':s=`<path d="M${x},${y-20} Q${x+11},${y} ${x},${y+20} Q${x-11},${y} ${x},${y-20}Z"/>`;break;
+  case 'crl':s=[-8,0,8].map(d=>`<path d="M${x+d},${y-16} Q${x+d+5},${y} ${x+d},${y+16} Q${x+d-5},${y} ${x+d},${y-16}Z"/>`).join('');break;
+  case 'mono':s=`<path d="M${x-14},${y+16} L${x-4},${y-16} L${x+6},${y+16}Z"/><path d="M${x+2},${y-16} L${x+12},${y+16} L${x+22},${y-16}Z" transform="translate(-4 0)"/>`;break;
+  case 'shutter':s=r(x-5,y-22,10,44)+`<line x1="${x-5}" y1="${y-22}" x2="${x+5}" y2="${y+22}"/>`;break;
+  case 'fast_shutter':s=r(x-4,y-22,8,44)+`<path d="M${x+9},${y-14} l-6,14 h8 l-6,14" fill="none"/>`;break;
+  case 'foil':s=r(x-2,y-18,4,36,'class="fillink"');break;
+  case 'attenuator':s=[-6,0,6].map(d=>r(x+d-1.5,y-18,3,36,'class="fillink"')).join('');break;
+  case 'sample_stage':s=r(x-15,y+2,30,10)+r(x-11,y-8,22,10)+r(x-7,y-18,14,10)+`<line x1="${x}" x2="${x}" y1="${y-18}" y2="${y-26}"/>`;break;
+  case 'sample_holder':s=r(x-4,y-14,8,28);break;
+  case 'stage':s=r(x-12,y-12,24,24)+`<line x1="${x-12}" x2="${x+12}" y1="${y}" y2="${y}"/><line x1="${x}" x2="${x}" y1="${y-12}" y2="${y+12}"/>`;break;
+  case 'detector':s=r(x-14,y-18,28,36)+`<circle cx="${x}" cy="${y}" r="8"/>`+(e.tomo?`<circle class="tomo" cx="${x}" cy="${y}" r="3.4"/>`:'');break;
+  case 'beamstop':s=`<circle cx="${x}" cy="${y}" r="9" class="fillink"/>`;break;
+  case 'source':s=`<circle cx="${x}" cy="${y}" r="14"/><path d="M${x-10},${y} q3,-9 5,0 t5,0 t5,0 t5,0" fill="none"/>`;break;
+  default:s=`<circle cx="${x}" cy="${y}" r="12"/><text x="${x-4}" y="${y+4}" style="stroke:none;fill:var(--mute)">?</text>`;
+ }
+ return s;
+}
+function pathView(){
+ const t=P.twin,DX=62;let out='';
+ const bt=t.blade_targets||{};
+ for(const h of t.hutch_order){
+  const els=t.elements.filter(e=>e.hutch===h);if(!els.length)continue;
+  const pos={};let slot=0;
+  els.forEach(e=>{if(!e.near){pos[e.id]=46+slot*DX;slot++}});
+  els.forEach(e=>{if(e.near&&pos[e.near]!=null)pos[e.id]=pos[e.near];else if(e.near)pos[e.id]=46+(slot++)*DX});
+  const W=Math.max(300,46+slot*DX+30);
+  const isAbove=e=>e.kind==='ic'||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above'),isBelow=e=>e.kind!=='ic'&&e.placement==='retractable'&&e.side==='below';
+  const LY=els.some(isAbove)?175:50,H=LY+(els.some(isBelow)?200:120);
+  let g='';
+  els.forEach(e=>{
+   const x=pos[e.id],ic=e.kind==='ic',above=ic||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above');
+   const below=!ic&&e.placement==='retractable'&&e.side==='below';
+   const gy=above?LY-62:below?LY+62:LY;
+   const dim=!match(e),cls=`g cf-${e.conf}${sel===e.id?' sel':''}${bt[e.id]?' bt':''}${dim?' dim':''}`;
+   const conn=gy!==LY?`<line class="conn" x1="${x}" x2="${x}" y1="${gy+(above?20:-20)}" y2="${LY+(above?-2:2)}"/>`:'';
+   const nm=e.name.length>24?e.name.slice(0,23)+'…':e.name;
+   let lab;
+   if(above)lab=`<text class="nm" transform="translate(${x-4},${gy-26}) rotate(-38)">${esc(nm)}</text>`;
+   else lab=`<text class="nm" transform="translate(${x-4},${gy+(below?26:36)}) rotate(38)">${esc(nm)}</text>`;
+   const tip=`${e.name} [${e.kind}] — ${e.conf}${e.state&&e.state.counts!=null?' — count '+e.state.counts:''}`;
+   g+=`<g class="item" data-id="${esc(e.id)}"><title>${esc(tip)}</title>${conn}<g class="${cls}"><circle class="halo" cx="${x}" cy="${gy}" r="27"/>${glyph(e,x,gy)}</g><g class="${dim?'dim':''}">${lab}</g></g>`;
+  });
+  const hd=t.hutches[h];
+  out+=`<div class="card"><div class="hh"><b>Hutch ${esc(h)}</b><span>${esc(hd.description)}</span></div><div class="mute" style="font-size:12px;margin-bottom:4px">coverage: ${esc(hd.coverage)}</div>
+   <div class="scroll"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path class="beamline" d="M0,${LY} H${W-8}"/><path d="M${W-8},${LY-5} l9,5 l-9,5z" fill="var(--beam)"/>${g}</svg></div></div>`;
+ }
+ out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?'only some distances known':'no distances known yet; z_m is not set'}). Stroke colour = confidence (solid black seen · blue code · amber dashed inferred); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
+ return `<div style="display:grid;gap:12px">${out}</div>`;
+}
+
+/* ---------- slits ---------- */
+function slitsView(){
+ const sl=P.twin.elements.filter(e=>e.kind==='slit'),R=1.1,S=150,C=R*S+34,N=2*R*S+68;
+ let g='';for(let v=-1;v<=1.001;v+=.5){const p=C+v*S;g+=`<line x1="${p}" x2="${p}" y1="12" y2="${N-22}" stroke="var(--line)"/><line x1="12" x2="${N-22}" y1="${p}" y2="${p}" stroke="var(--line)"/><text x="${p-9}" y="${N-8}">${v}</text><text x="0" y="${p+4}">${-v}</text>`}
+ sl.forEach((e,i)=>{const s=e.state||{},hs=s.hsize_mm,vs=s.vsize_mm;if(hs==null||vs==null)return;
+  const hc=s.hcenter_mm,vc=s.vcenter_mm,known=hc!=null&&vc!=null,cx=C+(known?hc:0)*S,cy=C-(known?vc:0)*S,col=`var(--c${i%6})`;
+  g+=`<g class="item" data-id="${esc(e.id)}" style="opacity:${sel&&sel!==e.id?.45:1}"><rect x="${cx-hs*S/2}" y="${cy-vs*S/2}" width="${hs*S}" height="${vs*S}" fill="${col}" fill-opacity=".10" stroke="${col}" stroke-width="${sel===e.id?3:1.8}" ${known?'':'stroke-dasharray="5 4"'}/><circle cx="${cx}" cy="${cy}" r="2.5" fill="${col}"/><title>${esc(e.name)}</title></g>`});
+ const rows=sl.map((e,i)=>{const s=e.state||{};return `<tr class="clk ${sel===e.id?'sel':''}" data-id="${esc(e.id)}"><td class="l"><span class="dot" style="background:var(--c${i%6})"></span>${esc(e.name)}</td><td class="l">${esc(e.hutch)}</td><td>${s.hsize_mm??'–'}</td><td>${s.vsize_mm??'–'}</td><td>${s.hcenter_mm??'–'}</td><td>${s.vcenter_mm??'–'}</td></tr>`}).join('');
+ return `<div class="card"><h2>Slit apertures, true size (mm) · snapshot ${esc(P.twin.snapshot.date||'')}</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start"><svg width="${N}" height="${N}" viewBox="0 0 ${N} ${N}" style="max-width:100%">${g}</svg>
+  <div style="flex:1;min-width:320px"><table><thead><tr><th class="l">slit</th><th class="l">hutch</th><th>H size</th><th>V size</th><th>H centre</th><th>V centre</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="note">Rectangles are drawn at the opening's size and centre offset, all on the same axes (H right, V up). Slit-centre sign convention is not established yet, so offsets are drawn as shown on the panel. A dashed outline = centre unknown (drawn at 0,0). These are operator-panel values at one moment, not targets.</div></div></div></div>`;
+}
+
+/* ---------- sample stage ---------- */
+function stageView(){
+ const A=Object.values(P.twin.assemblies);if(!A.length)return `<div class="card empty">No assemblies recorded for this twin.</div>`;
+ return A.map(a=>{
+  const rows=a.stack_top_to_bottom.map(s=>{
+   const lim=s.limits;let bar='';
+   if(lim&&lim.length===2){const lo=lim[0],hi=lim[1],span=hi-lo||1,pc=v=>Math.max(0,Math.min(100,(v-lo)/span*100)),rb=s.readback;
+    bar=`<div class="track"><div class="bar"></div>${lo<0&&hi>0?`<div class="zero" style="left:${pc(0)}%"></div>`:''}${rb!=null?`<div class="mk" style="left:calc(${pc(rb)}% - 1px)"></div>`:''}<span class="lo">${lo}</span><span class="hi">${hi}</span>${rb!=null?`<span class="rb" style="left:${Math.min(80,Math.max(8,pc(rb)))}%;top:16px">${rb} ${esc(s.units||'')}</span>`:''}</div>`}
+   else bar=`<div class="mute mono">${esc(s.hardware||s.notes||'')}</div>`;
+   return `<div class="rng" data-id="${esc(a.element)}"><div class="t"><b>${s.level}. ${esc(s.name)}</b><div>${esc(s.role||s.kind||'')}${s.motor?' · <span class="mono">'+esc(s.motor)+'</span>':''}${s.blade_role?'<br><span class="badge bt">BLADE '+esc(s.blade_role)+'</span>':''}</div></div>${bar}</div>`}).join('');
+  const tilts=a.aero_table_tilts?`<div class="note mono">Aero table tilts: RotX ${a.aero_table_tilts.RotX_deg}° · RotZ ${a.aero_table_tilts.RotZ_deg}°</div>`:'';
+  return `<div class="card"><h2>${esc(a.name)}</h2><div class="note" style="margin-top:0;margin-bottom:6px">${esc(a.note)}</div><div class="stackbox">${rows}</div>${tilts}
+   <div class="note">Bar = soft-limit range (user coordinates); blue tick = readback at photo time; grey tick = zero. Rows top to bottom = physical stack top to bottom.</div></div>`}).join('');
+}
+
+/* ---------- side panel ---------- */
+function profileCard(){
+ const p=P.profile,cams=Object.entries(p.cameras||{}),st=Object.entries(p.stations||{});
+ return `<h2>Profile ${esc(p.name)}</h2><dl class="kv"><dt>beamline</dt><dd>${esc(p.beamline)}</dd><dt>backends</dt><dd>${esc((p.backends||[]).join(', '))}</dd>
+  <dt>cameras</dt><dd>${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (hutch ${esc(v.hutch)}, ${v.pixel_um} µm/px)`).join('<br>'):'–'}</dd>
+  <dt>stations</dt><dd>${st.length?st.map(([k,v])=>`<b>${esc(k)}</b>: ${Object.values(v.motors).map(m=>`<span class="mono">${esc(m.name)}</span>`).join(', ')}`).join('<br>'):'–'}</dd></dl>`;
+}
+function side(){
+ const el=$('side');if(!el)return;const t=P.twin,e=sel&&EL[sel];
+ if(!e){el.innerHTML=profileCard()+`<div class="note">Click an element for its details, controls and source photos.</div>`+twinCard();return}
+ const bt=(t.blade_targets||{})[e.id],kv=[],add=(k,v)=>{if(v!=null&&v!=='')kv.push(`<dt>${k}</dt><dd>${v}</dd>`)};
+ add('kind',esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
+ add('confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)} <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
+ add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
+ if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));
+ add('device',e.dev&&`<span class="mono">${esc(e.dev)}</span>`);add('PV',e.pv&&`<span class="mono">${esc(e.pv)}</span>`);
+ add('z',e.z_m==null?'<span class="mute">unknown (not set)</span>':esc(e.z_m)+' m');
+ let ctl='';
+ if(e.controls){ctl=`<h2 style="margin-top:12px">Controls</h2><table><tbody>`+Object.entries(e.controls).map(([k,v])=>{
+   if(v&&typeof v==='object'&&!Array.isArray(v)){const f=Object.entries(v).map(([a,b])=>`${esc(a)} ${esc(Array.isArray(b)?b.join('…'):typeof b==='object'?JSON.stringify(b):b)}`).join(' · ');return `<tr><td class="l">${esc(k)}</td><td class="l">${f}</td></tr>`}
+   return `<tr><td class="l">${esc(k)}</td><td class="l">${esc(v)}</td></tr>`}).join('')+`</tbody></table>`}
+ let state='';if(e.state){state=`<h2 style="margin-top:12px">Snapshot${e.state.when?' · '+esc(e.state.when):''}</h2><table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(v)}</td></tr>`).join('')+`</tbody></table>`}
+ let blade='';
+ if(bt)blade+=`<div style="margin-top:10px"><span class="badge bt">BLADE alignment target</span><div class="note mono">${bt.map(esc).join('<br>')}</div></div>`;
+ if(e.tomo){const cams=Object.entries(P.profile.cameras||{}).filter(([k,v])=>v.hutch===e.hutch);
+  blade+=`<div class="note" style="margin-top:8px">Profile cameras in hutch ${esc(e.hutch)}: ${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (${v.pixel_um} µm/px)`).join(', '):'none'}. Which camera sits on this detector is <b>not established</b> in the twin.</div>`}
+ const ph=(e.src||[]).map(id=>t.photos.find(p=>p.id===id)).filter(Boolean);
+ const thumbs=ph.length?`<h2 style="margin-top:12px">Source photos</h2><div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`:'';
+ el.innerHTML=`<h2>Element</h2><div style="font-size:17px;font-weight:700">${esc(e.name)}</div><div class="mono mute">${esc(e.id)}</div><dl class="kv" style="margin-top:8px">${kv.join('')}</dl>
+  ${e.notes?`<div class="note" style="color:var(--ink)">${esc(e.notes)}</div>`:''}${blade}${ctl}${state}${thumbs}
+  <div style="margin-top:12px"><button class="chip" id="clr">← profile &amp; twin info</button></div>`;
+ $('clr').onclick=()=>{sel=null;hash();side();paint()};
+}
+function twinCard(){
+ const t=P.twin,f=t.frame;
+ return `<h2 style="margin-top:14px">Twin ${esc(t.id)}</h2><div class="note" style="margin-top:0">${esc(t.name)}</div>
+  <dl class="kv" style="margin-top:6px"><dt>frame</dt><dd>y: ${esc(f.y)}<br>z: ${esc(f.z)}<br>x: ${esc(f.x)}</dd>
+  <dt>checks</dt><dd>${t.check.errors.length?`<span style="color:var(--bad)">${t.check.errors.length} errors</span>`:'valid'}${t.check.warnings.length?`, ${t.check.warnings.length} warnings`:''}</dd></dl>`;
+}
+init();
+</script></body></html>

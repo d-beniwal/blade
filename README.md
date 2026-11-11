@@ -10,7 +10,7 @@ alignment pin on a tomo camera, rotating it, and correcting the stage motors unt
 
 | Path | What |
 |---|---|
-| `blade/` | the Python package: `config.py` (profile loader), `session.py` (runs), `cli.py`, `gui.py`/`gui.html`, `paths.py` |
+| `blade/` | the Python package: `config.py` (profile loader), `session.py` (runs), `cli.py`, `gui.py`/`gui.html` (run monitor), `twin_api.py`/`twin.html` (twin viewer), `paths.py` |
 | `blade/backends/` | `sim` (simulator, default) and `epics` (real beamline: pvapy camera frames + pyepics motors) |
 | `blade/alignment/` | the alignment module: `cli.py` (commands), `measure.py`, `pinfit.py` (pin detection), `beam_center.py`, `axis_align.py` |
 | `blade/registry.py`, `blade/mcp_server.py`, `blade/*/tools.py` | the MCP server (`blade mcp`): every capability is registered as a tool here; this is how other agents use BLADE |
@@ -28,7 +28,7 @@ conda activate blade
 pip install -e .          # gives the `blade` command; `python -I launch.py ...` works without it
 ```
 
-Commands: `blade align <cmd>` (alignment), `blade gui` (monitor on http://localhost:8765), `blade profiles` (list beamlines). Runs are written to `runs/<id>/` (override with `BLADE_RUNS`).
+Commands: `blade align <cmd>` (alignment), `blade gui` (monitor on http://localhost:8765; beamline twin viewer with a profile switcher on http://localhost:8765/twin), `blade profiles` (list beamlines). Runs are written to `runs/<id>/` (override with `BLADE_RUNS`).
 
 ## Running on the Sector 1 beamline
 

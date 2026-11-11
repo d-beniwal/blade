@@ -1,5 +1,5 @@
-"""Local web GUI (stdlib only): follows runs/<id>/events.jsonl live. Read-only - it never moves anything.
-Run:  python -I gui.py [--port 8765]   then open http://localhost:8765"""
+"""Local web GUI (stdlib only): follows runs/<id>/events.jsonl live (/) and shows the beamline twin of any profile (/twin). Read-only - it never moves anything.
+Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (twin viewer: http://localhost:8765/twin)"""
 import json
 import mimetypes
 import sys
@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from .paths import RUNS_DIR
 from . import config as cfg
+from . import twin_api
 
 
 
@@ -36,6 +37,21 @@ class H(BaseHTTPRequestHandler):
         rid = q.get("run") or _latest()
         if u.path == "/":
             return self._send((Path(__file__).parent / "gui.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/twin":
+            return self._send((Path(__file__).parent / "twin.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/api/profiles":
+            return self._send(twin_api.profile_list())
+        if u.path == "/api/twin":                      # pure read of profile + twin files; does not change the globally loaded profile
+            try:
+                return self._send(twin_api.twin_payload(q.get("profile") or cfg.PROFILE))
+            except ValueError as e:
+                return self._send({"error": str(e)}, code=404)
+        if u.path.startswith("/twin-photo/"):          # /twin-photo/<twin>/<photo id or file>: only photos indexed in the twin's photos.json
+            parts = u.path.split("/")[2:]
+            f = twin_api.photo_file(parts[0], parts[1]) if len(parts) == 2 else None
+            if f:
+                return self._send(f.read_bytes(), mimetypes.guess_type(str(f))[0] or "image/jpeg")
+            return self._send({"error": "photo not found"}, code=404)
         if u.path == "/api/config":
             try:
                 st = json.loads((RUNS_DIR / rid / "state.json").read_text()) if rid else {}

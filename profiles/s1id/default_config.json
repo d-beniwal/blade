@@ -1,6 +1,7 @@
 {
   "beamline": "APS 1-ID",
   "description": "Sector 1 (1-ID) MPE beamline; tomo cameras in B/C/E. Stage motors + geometry are per hutch under `stations` (only E, the samE stage, is described so far).",
+  "twin": "1-ID",
   "backends": [
     "sim",
     "epics"

@@ -1,0 +1,16 @@
+{
+  "hutch": "A",
+  "note": "Not photographed. Order follows the user-taught schematic (CLAUDE DOMAIN notes); the 1-ID-Main panel was not captured.",
+  "elements": [
+    {"id": "wbSlits", "name": "WB_slits", "kind": "slit", "conf": "seen", "src": ["p15"], "dev": "WB_hsize/WB_vsize (read-only signals)", "pv": "1ida:Slit1",
+     "controls": {"hsize": {"pv": "1ida:Slit1Ht2.C", "access": "read-only in mpe_bluesky"}, "vsize": {"pv": "1ida:Slit1Vt2.C", "access": "read-only in mpe_bluesky"}},
+     "state": {"when": "2026-10-20", "hsize_mm": 0.3, "vsize_mm": 0.3, "hcenter_mm": 0.0, "vcenter_mm": 0.0, "step_h_size": 0.05, "step_v_size": 0.05},
+     "z_m": null, "notes": "White-beam slits. Operator panel allows setting; mpe_bluesky treats them as read-only."},
+    {"id": "shutter_a", "name": "A shutter (FES)", "kind": "shutter", "conf": "code", "dev": "shutter_a", "pv": "S01ID-PSS:FES:",
+     "controls": {"status": "S01ID-PSS:FES:BeamBlockingM", "open": "S01ID-PSS:FES:OpenEPICSC"},
+     "z_m": null, "notes": "PSS name FES suggests the front-end shutter; its physical position relative to the WB slits is unverified (order here follows the user-taught schematic). PSS PVs changed in the 2026 Phase II upgrade (old PA:01ID:STA_A_FES_OPEN_PL no longer used)."},
+    {"id": "hem", "name": "HEM monochromator", "kind": "mono", "conf": "inferred", "dev": "hem_energy (userTran record)", "pv": "1id:userTran3",
+     "controls": {"energy_keV": {"pv": "1id:userTran3 (field .a)", "access": "set via record; mpe_bluesky reads hem_energy.a"}},
+     "z_m": null, "notes": "Position is not confirmed: 'in or upstream of A' (user notes). It must be upstream of hutch B, where the beam is already monochromatic (B panel starts with IC1, 71.676 keV shown on every panel)."}
+  ]
+}

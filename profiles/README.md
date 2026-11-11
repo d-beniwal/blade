@@ -16,6 +16,7 @@ Select a profile with `--profile <name>` on `blade align new-run` (stored in the
 |---|---|
 | `beamline`, `description` | labels shown in the GUI |
 | `backends` | `sim` and/or `epics` (real hardware) |
+| `twin` | optional: id of the beamline twin (`beamline_twins/<id>/`) the GUI's twin viewer (`/twin`) shows for this profile; omit if there is none |
 | `cameras` | per camera: `pixel_um`, `pv_prefix` (pvAccess `<prefix><camera_pva_suffix>`; `null` = simulator only), `hutch`; `default_camera` |
 | `stations` | **per hutch/station** (key = hutch, e.g. `E`): `description`, `motors`, `geometry` (below). `default_station` picks one |
 | `stations.<S>.motors` | logical roles `omega, x, y, z, base` -> EPICS motor `pv` + display `name` (units must read back as mm) |

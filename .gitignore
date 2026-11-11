@@ -21,3 +21,6 @@ __pycache__/
 build/
 *.egg-info/
 dist/
+
+# Beamline-twin reference photos (local only: screens show hostnames/IPs/usernames; the tracked index is sources/photos.json)
+beamline_twins/*/sources/photos/

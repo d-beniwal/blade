@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "id": "1-ID",
+  "name": "APS Sector 1, beamline 1-ID (MPE)",
+  "beam_direction": "left to right on every operator panel (CS-Studio); hutch order downstream is SRC > A > B > C > E",
+  "hutch_order": ["SRC", "A", "B", "C", "E"],
+  "hutches": {
+    "SRC": "Source: undulator and front end (not photographed)",
+    "A": "First optics hutch: white-beam slits, A (front-end) shutter, HEM monochromator (not photographed; from code + earlier user notes)",
+    "B": "Mono-beam hutch: ICs, CRLs, HRM, foil/attenuator, lens stacks, B fast shutter, Cork, Kohzu slit, B-TOM tomo stage",
+    "C": "Beam-conditioning (ICs, slit, lens stacks L1-L6, attenuator, slit 2) then LabMotion sample stage, DBA, Tomo D1, stop, Varex D2, Lens7",
+    "E": "Beam-conditioning (IC1+2, slit US, FS, Lens1-4, slit DS) then Aero SMS sample stage, Tomo D1, NF D2, D3, Hydra D4, VFF D5, Radiograph, SAXS D6"
+  },
+  "frame": {
+    "y": "vertical, + up",
+    "z": "along the beam, + downstream",
+    "x": "horizontal. Looking downstream +x points LEFT (hardware-confirmed 2026-10-28 on samE: +x moves the pin image left). Drawn on the Aero_SMS/Aero_Trans panels as +X into the screen with +Z to the right and +Y up (right-handed).",
+    "omega": "samE.ry (1ide:m9): left-handed stage, +omega is clockwise seen from above (BLADE ROT_SIGN=+1)",
+    "src": ["p16", "p18"],
+    "conf": "confirmed"
+  },
+  "snapshot": {
+    "date": "2026-10-20",
+    "note": "Operator-screen values at photo time. They are a snapshot of one state, NOT defaults or targets.",
+    "energy_keV": 71.676,
+    "ring_current_mA": {"C_panel": 200.121, "E_panel": 200.059},
+    "panel_header_unlabelled_mm": 10.012,
+    "panel_header_unlabelled_note": "'Delivered Beam 200.1 mA 10.012 mm 71.676 keV'; the mm value has no label on the panel, probably the undulator gap (unverified)",
+    "mode": {"C_panel": "USER OPERATION, Shutters Disabled", "E_panel": "USER OPERATION, Shutters Enabled"},
+    "station_status": {"A": "OPEN", "B": "OPEN", "C": "Closed", "E": "OPEN"},
+    "fast_shutters": "FS_B indicator dark, FS_E indicator bright green (open/closed colour convention not confirmed)",
+    "src": ["p13", "p14"]
+  },
+  "operator_screens": {
+    "note": "CS-Studio tabs visible on the beamline workstation (p12-p18). Panels photographed: B, C, E, All Slits, Aero_SMS, SAXS_D6, Aero_Trans. NOT photographed: 1-ID-Main (A hutch / mono / undulator).",
+    "tabs": ["1-ID-Main", "1-ID-B", "1-ID-C", "1-ID-E", "1ID All Slits", "Aero_SMS", "SAXS_D6", "Aero_Trans"],
+    "panel_layout_dates": {"C": "2026-08-31", "E": "2026-03-04"}
+  },
+  "workstation_viewers": {
+    "note": "Image windows open on the workstation (p11-p18), shown only as titles",
+    "items": ["GE2:Pva1:Image (2048x2048, 16-bit)", "1idGH1:Pva1:Image", "s1_pixirad", "WV-S6130 Network Camera (hutch CCTV)", "ImageJ"],
+    "src": ["p11", "p12"]
+  },
+  "coverage": {
+    "SRC": "code only",
+    "A": "code + user notes; no photo",
+    "B": "panel photo (order + IC readings) + code",
+    "C": "panel photo (order + IC readings) + slit table + code; no hutch photos",
+    "E": "panel + hutch photos (sample stack, lens stacks, tomo stage, monitor) + motor panels + code"
+  }
+}

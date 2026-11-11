@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "samE",
+  "name": "Hutch E sample stage (Aero SMS) with its Aero translation base",
+  "element": "samE",
+  "hutch": "E",
+  "conf": "seen",
+  "src": ["p01", "p02", "p03", "p04", "p05", "p16", "p18"],
+  "note": "Listed TOP to BOTTOM, which is also the order of the green buttons on the Aero_SMS panel (sam_Rx, sam_Rz, samZ, samX, samY, Aero Rot (Ry)) and matches the hardware (p01: pin holder > Kohzu M3&M4 tilt stack > E34/E36 stages > E35 > Aerotech rotation > E101 Aero X). Limits/readbacks are the operator-panel values at 2026-10-20 (snapshot, not defaults). Panel caution: 'motor orientation valid only when Aero Rot (Ry) = 0'.",
+  "axes": "+Y up, +Z beam direction, +X into the screen (right-handed); looking downstream +x is to the left",
+  "aero_table_tilts": {"RotX_deg": 0.0, "RotX_offset_A1": 0.92, "RotZ_deg": -0.008, "RotZ_offset_A2": 0.003, "label": "AeroTab (-)RotX / (-)RotZ", "src": ["p16"]},
+  "stack_top_to_bottom": [
+    {"level": 1, "name": "pin holder", "kind": "sample_holder", "src": ["p01", "p10"], "notes": "Brass screw with the pin on top (BLADE alignment pin). Pin silhouette is what the tomo camera sees."},
+    {"level": 2, "name": "samTh (Rx)", "role": "tilt about x", "motor": "1ide1:m87", "device": "samE.rx", "units": "deg", "limits": [-10.0, 10.0], "readback": -1.09995, "velocity": "1.0 deg/s", "tweak": 0.1, "hardware": "Kohzu M3&M4 tilt stack (tag E86 0.5 Deg/S, 0.00012 Deg/Step)", "src": ["p16", "p01"]},
+    {"level": 3, "name": "samChi (Rz)", "role": "tilt about z", "motor": "1ide1:m86", "device": "samE.rz", "units": "deg", "limits": [-8.1, 8.1], "readback": 0.0, "velocity": "0.8 deg/s", "tweak": 0.1, "hardware": "Kohzu M3&M4 tilt stack", "src": ["p16"]},
+    {"level": 4, "name": "samZE", "role": "translate along the beam", "motor": "1ide1:m36", "device": "samE.z", "units": "mm", "limits": [-9.971, 10.129], "dial_limits": [-0.1, 20.0], "readback": 0.9588, "velocity": "1.5 mm/s", "tweak": 1.0, "hardware": "tag E36 (5W)", "src": ["p16", "p01"], "blade_role": "z: cancels the sin(omega) term b"},
+    {"level": 5, "name": "samXE", "role": "translate horizontally", "motor": "1ide1:m34", "device": "samE.x", "units": "mm", "limits": [-9.907, 10.193], "dial_limits": [-0.1, 20.0], "readback": -0.2343, "velocity": "1.5 mm/s", "tweak": 1.0, "hardware": "tag E34 (10W)", "src": ["p16", "p04"], "blade_role": "x: cancels the cos(omega) term a"},
+    {"level": 6, "name": "samYE", "role": "translate vertically", "motor": "1ide1:m35", "device": "samE.y", "units": "mm", "limits": [-0.1, 29.810085], "readback": 13.8471, "velocity": "0.5 mm/s", "tweak": 3.0, "hardware": "tag E35 (5W, +/-15 mm, 0.05 um/step, max speed 0.5)", "src": ["p16", "p01"], "blade_role": "y: find-pin only"},
+    {"level": 7, "name": "Aero Rot (Ry)", "role": "rotation about the vertical axis (omega)", "motor": "1ide:m9", "device": "samE.ry", "units": "deg", "limits": [-186.0, 186.0], "readback": 0.0, "velocity": "60 deg/s", "tweak": 90.0, "hardware": "Aerotech Accudex ABRS-300MP (tag PO73994). 'Aero 0 point: to calib/home, move to 5 deg then HomF'", "src": ["p16", "p03"], "blade_role": "omega (alignment uses -90..+90)"},
+    {"level": 8, "name": "Aero Z (in E)", "role": "base translation along the beam", "motor": "1ide1:m102", "device": "samE.aeroz", "units": "mm", "limits": [-21.0, 0.608], "dial_limits": [-21.608, 0.0], "readback": -0.0, "velocity": "0.2 mm/s", "tweak": 1.0, "src": ["p18"], "notes": "Not visible in the photos; position in the stack below the rotation relative to Aero X is not established."},
+    {"level": 9, "name": "Aero X (in E)", "role": "base translation, moves the whole rotation axis horizontally", "motor": "1ide1:m101", "device": "samE.aerox", "units": "mm", "limits": [-8.585548, 8.497152], "dial_limits": [-11.844404, 5.238296], "readback": 0.000016, "velocity": "0.25 mm/s", "tweak": 0.003, "hardware": "tag E101 ('Aero X')", "src": ["p18", "p01"], "blade_role": "base: moves the axis column c (-1431 px/mm on gh1, measured 2026-10-28)"}
+  ]
+}
