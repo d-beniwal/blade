@@ -1,11 +1,20 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BLADE beamline twin</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
 <style>
-:root{--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace;
- --c0:#2160c4;--c1:#168a4a;--c2:#a96a08;--c3:#6b3fa0;--c4:#c0352b;--c5:#0e8a8a;--beam:#d6342a}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2;--agentbg:#2a2038;--beam:#ff6a5e;
- --c0:#6ea4ff;--c1:#4cc380;--c2:#e3a549;--c3:#b994f2;--c4:#ff7064;--c5:#4fd1d1}}
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace;--beam:#d6342a;
+ --c0:#2160c4;--c1:#168a4a;--c2:#a96a08;--c3:#6b3fa0;--c4:#c0352b;--c5:#0e8a8a;
+ --k-source:#d6336c;--k-shutter:#e03131;--k-slit:#0c8599;--k-ic:#2f9e44;--k-optic:#1c7ed6;--k-mono:#ae3ec9;--k-atten:#e08600;--k-stage:#5c7080;--k-detector:#f76707;--k-stop:#343a40;--k-unknown:#8a94a3}
+:root[data-theme=dark],:root[data-theme=midnight]{color-scheme:dark;
+ --c0:#6ea4ff;--c1:#4cc380;--c2:#e3a549;--c3:#b994f2;--c4:#ff7064;--c5:#4fd1d1;
+ --k-source:#f06595;--k-shutter:#ff6b6b;--k-slit:#22b8cf;--k-ic:#51cf66;--k-optic:#4dabf7;--k-mono:#da77f2;--k-atten:#fcc419;--k-stage:#9db0c2;--k-detector:#ff922b;--k-stop:#e5eaf1;--k-unknown:#8d99aa}
+:root[data-theme=dark]{--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2;--agentbg:#2a2038;--beam:#ff6a5e}
+:root[data-theme=midnight]{--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--accbg:#14325e;--agent:#c4a3ff;--agentbg:#2b2250;--beam:#ff7466}
+:root[data-theme=paper]{--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--accbg:#dfe8f2;--agent:#6b3fa0;--agentbg:#ece3f3;--beam:#b8322a}
+:root[data-theme=contrast]{--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--accbg:#dbe5ff;--agent:#5a00a0;--agentbg:#eadcff;--beam:#cc0000;
+ --c0:#0033cc;--c1:#006400;--c2:#7a4b00;--c3:#5a00a0;--c4:#b00000;--c5:#005f73;
+ --k-source:#b0004a;--k-shutter:#b00000;--k-slit:#005f73;--k-ic:#0b6b1d;--k-optic:#0043a8;--k-mono:#7a0099;--k-atten:#8a5200;--k-stage:#333;--k-detector:#b34700;--k-stop:#000;--k-unknown:#555}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
 a{color:var(--acc)}
 .wrap{max-width:1500px;margin:0 auto;padding:12px 16px;display:grid;gap:12px}
@@ -24,13 +33,19 @@ select#prof{font-weight:600;border-color:var(--acc)}
 .side{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}
 .scroll{overflow-x:auto}
 svg text{fill:var(--mute);font:11px var(--mono)}svg text.nm{fill:var(--ink);font:11px system-ui}
-.g *{fill:var(--panel);stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
-.g.cf-code *{stroke:var(--acc)}.g.cf-inferred *{stroke:var(--warn);stroke-dasharray:4 3}.g.cf-unseen *{stroke:var(--mute);stroke-dasharray:2 3}.g.cf-confirmed *{stroke:var(--ok)}
-.g .fillink{fill:var(--ink)}.g .tomo{fill:var(--agent);stroke:none}
+.kg-source{--k:var(--k-source)}.kg-shutter{--k:var(--k-shutter)}.kg-slit{--k:var(--k-slit)}.kg-ic{--k:var(--k-ic)}.kg-optic{--k:var(--k-optic)}.kg-mono{--k:var(--k-mono)}
+.kg-atten{--k:var(--k-atten)}.kg-stage{--k:var(--k-stage)}.kg-detector{--k:var(--k-detector)}.kg-stop{--k:var(--k-stop)}.kg-unknown{--k:var(--k-unknown)}
+.g *{fill:color-mix(in srgb,var(--k) 20%,var(--panel));stroke:var(--k);stroke-width:1.8;stroke-linejoin:round}
+.g.cf-code *{stroke-dasharray:7 2.5}.g.cf-inferred *{stroke-dasharray:4 3}.g.cf-unseen *{stroke-dasharray:1.5 3}
+.g .fillink{fill:var(--k)}.g .tomo{fill:var(--agent);stroke:none}.g .cdot{fill:var(--cdot);stroke:var(--panel);stroke-width:1.2;stroke-dasharray:none}
 .g.sel *{stroke-width:2.6}.g.sel .halo{stroke:var(--acc);stroke-width:3;fill:var(--accbg);stroke-dasharray:none}
 .g.bt .halo{stroke:var(--agent);stroke-width:2.5;fill:var(--agentbg);stroke-dasharray:none}
 .g.dim{opacity:.13}.item{cursor:pointer}.item:hover .halo{fill:var(--accbg)}
 .halo{fill:transparent;stroke:none}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid var(--k);background:color-mix(in srgb,var(--k) 25%,var(--panel));vertical-align:-1px;margin-right:6px}
+.kchip{font:12.5px system-ui;padding:3px 10px 3px 8px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.kchip:hover{border-color:var(--k)}.kchip.on{background:color-mix(in srgb,var(--k) 22%,var(--panel));border-color:var(--k)}.kchip.off{opacity:.4}
+.legend{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
 .beamline{stroke:var(--beam);stroke-width:2.2;stroke-dasharray:7 5;fill:none}
 .conn{stroke:var(--mute);stroke-width:1;stroke-dasharray:3 3;fill:none}
 .hh{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:4px}.hh b{font-size:15px}.hh span{color:var(--mute);font-size:12.5px}
@@ -57,6 +72,7 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
  <span class="pill" id="pbl"></span><span class="pill" id="pn"></span><span class="pill" id="pe"></span>
  <span class="sp"></span><span id="confs" class="mono"></span>
  <a href="/">← alignment monitor</a>
+ <label class="mute" title="colour theme (remembered in this browser)">theme <select id="theme"></select></label>
 </div>
 
 <div id="body"></div>
@@ -65,12 +81,30 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const j=async u=>{const r=await fetch(u);return r.json()};
+const KG={source:'source',shutter:'shutter',fast_shutter:'shutter',slit:'slit',ic:'ic',lens:'optic',crl:'optic',mono:'mono',foil:'atten',attenuator:'atten',stage:'stage',sample_stage:'stage',sample_holder:'stage',detector:'detector',beamstop:'stop'};
+const grp=k=>KG[k]||'unknown';
+const GLAB={source:'source',shutter:'shutters',slit:'slits',ic:'ion chambers',optic:'lenses / CRLs',mono:'monochromators',atten:'foil / attenuator',stage:'stages',detector:'detectors',stop:'beamstops',unknown:'unknown'};
+const THEMES=[['auto','Auto (system)'],['light','Light'],['dark','Dark'],['midnight','Midnight'],['paper','Paper'],['contrast','High contrast']];
+let themeChoice='auto';try{themeChoice=localStorage.getItem('blade.theme')||'auto'}catch(e){}
+const _tp=new URLSearchParams(location.hash.slice(1)).get('theme');if(_tp)themeChoice=_tp;
+if(!THEMES.some(t=>t[0]===themeChoice))themeChoice='auto';
+const resolveTheme=c=>c==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c;
+function setTheme(c,save=true){themeChoice=c;document.documentElement.setAttribute('data-theme',resolveTheme(c));if(save){try{localStorage.setItem('blade.theme',c)}catch(e){}}}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeChoice==='auto')setTheme('auto',false)})}catch(e){}
+setTheme(themeChoice,false);
+function legend(t){
+ const n={};t.elements.forEach(e=>{const g=grp(e.kind);n[g]=(n[g]||0)+1});
+ const order=Object.keys(GLAB).filter(g=>n[g]);
+ return `<div class="card legend"><span class="mute" style="font-size:12px">Component type</span>${order.map(g=>`<button class="kchip ${F.group===g?'on':F.group?'off':''}" data-grp="${g}" style="--k:var(--k-${g})" title="click to show only ${GLAB[g]}; click again to clear"><span class="sw" style="--k:var(--k-${g})"></span>${GLAB[g]} ${n[g]}</button>`).join('')}
+  <span class="sp"></span><span class="mute" style="font-size:12px">outline: solid = seen · long dash = code · short dash = inferred · dotted = unseen</span></div>`;
+}
 const CONFCOL={confirmed:'var(--ok)',seen:'var(--ink)',code:'var(--acc)',inferred:'var(--warn)',unseen:'var(--mute)'};
 const CONFTXT={confirmed:'confirmed by user/hardware',seen:'seen in a photo or operator panel',code:'only in mpe_bluesky code',inferred:'inferred (see notes)',unseen:'known to exist, not seen'};
 const HASH0=location.hash.slice(1);
-let first=true,P=null,sel=null,view='path',F={conf:new Set(),kind:'',q:''},EL={};
+let first=true,P=null,sel=null,view='path',F={conf:new Set(),kind:'',group:'',q:''},EL={};
 
 async function init(){
+ const th=$('theme');th.innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');th.value=themeChoice;th.onchange=()=>setTheme(th.value);
  const L=await j('/api/profiles');const s=$('prof');
  s.innerHTML=L.profiles.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}${p.twin?'':'  (no twin)'}</option>`).join('');
  let want=new URLSearchParams(location.search).get('profile');
@@ -83,7 +117,7 @@ async function load(name){
  try{localStorage.setItem('blade.twin.profile',name)}catch(e){}
  P=await j('/api/twin?profile='+encodeURIComponent(name));EL={};
  if(P.twin)P.twin.elements.forEach(e=>EL[e.id]=e);
- F={conf:new Set(),kind:'',q:''};
+ F={conf:new Set(),kind:'',group:'',q:''};
  const h=new URLSearchParams(first?HASH0:'');first=false;
  if(['path','slits','stage'].includes(h.get('view')))view=h.get('view');
  if(h.get('sel')&&EL[h.get('sel')])sel=h.get('sel');
@@ -118,12 +152,13 @@ function filters(){
  f.querySelectorAll('.chip').forEach(c=>{c.classList.toggle('off',F.conf.size>0&&!F.conf.has(c.dataset.c))});
 }
 function match(e){
- if(F.conf.size&&!F.conf.has(e.conf))return false;if(F.kind&&e.kind!==F.kind)return false;
+ if(F.conf.size&&!F.conf.has(e.conf))return false;if(F.kind&&e.kind!==F.kind)return false;if(F.group&&grp(e.kind)!==F.group)return false;
  if(F.q){const s=[e.id,e.name,e.pv,e.dev,e.notes].join(' ').toLowerCase();if(!s.includes(F.q.toLowerCase()))return false}return true;
 }
 function paint(){const v=$('view');v.innerHTML=view==='path'?pathView():view==='slits'?slitsView():stageView();bind()}
 function bind(){
  document.querySelectorAll('[data-id]').forEach(n=>n.onclick=()=>{sel=n.dataset.id;hash();side();paint()});
+ document.querySelectorAll('[data-grp]').forEach(n=>n.onclick=()=>{F.group=F.group===n.dataset.grp?'':n.dataset.grp;paint()});
 }
 
 /* ---------- beam path ---------- */
@@ -150,7 +185,7 @@ function glyph(e,x,y){
  return s;
 }
 function pathView(){
- const t=P.twin,DX=62;let out='';const zfmt=z=>(+z).toFixed(1);
+ const t=P.twin,DX=62;let out=legend(t);const zfmt=z=>(+z).toFixed(1);
  const bt=t.blade_targets||{};
  for(const h of t.hutch_order){
   const els=t.elements.filter(e=>e.hutch===h);if(!els.length)continue;
@@ -165,21 +200,21 @@ function pathView(){
    const x=pos[e.id],ic=e.kind==='ic',above=ic||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above');
    const below=!ic&&e.placement==='retractable'&&e.side==='below';
    const gy=above?LY-62:below?LY+62:LY;
-   const dim=!match(e),cls=`g cf-${e.conf}${sel===e.id?' sel':''}${bt[e.id]?' bt':''}${dim?' dim':''}`;
+   const dim=!match(e),cls=`g kg-${grp(e.kind)} cf-${e.conf}${sel===e.id?' sel':''}${bt[e.id]?' bt':''}${dim?' dim':''}`;
    const conn=gy!==LY?`<line class="conn" x1="${x}" x2="${x}" y1="${gy+(above?20:-20)}" y2="${LY+(above?-2:2)}"/>`:'';
    const nm=e.name.length>24?e.name.slice(0,23)+'…':e.name;
    let lab;
    if(above)lab=`<text class="nm" transform="translate(${x-4},${gy-26}) rotate(-38)">${esc(nm)}</text>`;
    else lab=`<text class="nm" transform="translate(${x-4},${gy+(below?26:36)}) rotate(38)">${esc(nm)}</text>`;
    const tip=`${e.name} [${e.kind}] — ${e.conf}${e.state&&e.state.counts!=null?' — count '+e.state.counts:''}`;
-   g+=`<g class="item" data-id="${esc(e.id)}"><title>${esc(tip)}</title>${conn}<g class="${cls}"><circle class="halo" cx="${x}" cy="${gy}" r="27"/>${glyph(e,x,gy)}</g><g class="${dim?'dim':''}">${lab}</g></g>`;
+   g+=`<g class="item" data-id="${esc(e.id)}"><title>${esc(tip)}</title>${conn}<g class="${cls}"><circle class="halo" cx="${x}" cy="${gy}" r="27"/>${glyph(e,x,gy)}<circle class="cdot" cx="${x+14}" cy="${gy-20}" r="3.8" style="--cdot:${CONFCOL[e.conf]}"><title>${esc(e.conf)}</title></circle></g><g class="${dim?'dim':''}">${lab}</g></g>`;
   });
   const hd=t.hutches[h];
   els.filter(e=>e.z_m!=null).forEach(e=>{const x=pos[e.id];g+=`<g class="${match(e)?'':'dim'}"><line class="conn" x1="${x}" x2="${x}" y1="${H-24}" y2="${H-18}"/><text x="${x-16}" y="${H-6}" style="fill:var(--ink)">${zfmt(e.z_m)} m</text></g>`});
   out+=`<div class="card"><div class="hh"><b>Hutch ${esc(h)}</b><span>${esc(hd.description)}</span></div><div class="mute" style="font-size:12px;margin-bottom:4px">coverage: ${esc(hd.coverage)}</div>
    <div class="scroll"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path class="beamline" d="M0,${LY} H${W-8}"/><path d="M${W-8},${LY-5} l9,5 l-9,5z" fill="var(--beam)"/>${g}</svg></div></div>`;
  }
- out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?`only ${t.elements.filter(e=>e.z_m!=null).length} of ${t.elements.length} distances are known; those are printed under the row in m from the source`:'no distances known yet; z_m is not set'}). Stroke colour = confidence (solid black seen · blue code · amber dashed inferred); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
+ out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?`only ${t.elements.filter(e=>e.z_m!=null).length} of ${t.elements.length} distances are known; those are printed under the row in m from the source`:'no distances known yet; z_m is not set'}). Colour = component type (click a type in the legend to filter); outline style and the corner dot = confidence (solid seen · long dash code · short dash inferred · dotted unseen); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
  return `<div style="display:grid;gap:12px">${out}</div>`;
 }
 
@@ -223,7 +258,7 @@ function side(){
  const el=$('side');if(!el)return;const t=P.twin,e=sel&&EL[sel];
  if(!e){el.innerHTML=profileCard()+`<div class="note">Click an element for its details, controls and source photos.</div>`+twinCard();return}
  const bt=(t.blade_targets||{})[e.id],kv=[],add=(k,v)=>{if(v!=null&&v!=='')kv.push(`<dt>${k}</dt><dd>${v}</dd>`)};
- add('kind',esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
+ add('kind',`<span class="sw" style="--k:var(--k-${grp(e.kind)})"></span>`+esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
  add('confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)} <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
  add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
  if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));

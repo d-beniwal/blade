@@ -26,6 +26,11 @@ loaded_before = (cfg.PROFILE, cfg.STATION)
 
 st, ct, body = get("/twin")
 assert st == 200 and "text/html" in ct and b"beamline twin" in body
+for must in (b'id="theme"', b"'midnight'", b"'contrast'", b"'paper'", b"blade.theme", b"data-grp", b"--k-slit", b"--k-detector"):
+    assert must in body, must                                        # theme picker, remembered choice, type legend and per-type palette are served
+import re
+themes = set(re.findall(rb":root\[data-theme=([a-z]+)\]", body))
+assert {b"light", b"dark", b"midnight", b"paper", b"contrast"} <= themes, themes     # every selectable theme has a CSS block
 st, _, body = get("/")
 assert st == 200 and b'href="/twin"' in body                       # the monitor links to the twin viewer
 
