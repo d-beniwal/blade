@@ -1,9 +1,14 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>BLADE alignment monitor</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
 <style>
-:root{--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--badbg:#fbe9e7;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--badbg:#3a1d1a;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--agent:#b994f2;--agentbg:#2a2038}}
+/* themes: same set as the twin page; choice shared via localStorage 'blade.theme' */
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--badbg:#fbe9e7;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--agent:#6b3fa0;--agentbg:#f0e9f8;--hl:#e8590c;--hlbg:#fff0e6;--mono:ui-monospace,Menlo,Consolas,monospace}
+:root[data-theme=dark]{color-scheme:dark;--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--badbg:#3a1d1a;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--agent:#b994f2;--agentbg:#2a2038;--hl:#ff922b;--hlbg:#3a2412}
+:root[data-theme=midnight]{color-scheme:dark;--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--badbg:#3a1a2a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--agent:#c4a3ff;--agentbg:#2b2250;--hl:#ffa94d;--hlbg:#3a2a18}
+:root[data-theme=paper]{color-scheme:light;--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--badbg:#f6dcd3;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--agent:#6b3fa0;--agentbg:#ece3f3;--hl:#c2410c;--hlbg:#fbe3cf}
+:root[data-theme=contrast]{color-scheme:light;--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--badbg:#ffdada;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--agent:#5a00a0;--agentbg:#eadcff;--hl:#b34700;--hlbg:#ffe3cc}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
 .wrap{max-width:1400px;margin:0 auto;padding:12px 16px;display:grid;gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
@@ -39,8 +44,12 @@ h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute
 /* main visuals */
 .vis{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
 @media(max-width:1000px){.vis{grid-template-columns:1fr}}
-.tabs{display:flex;gap:6px;margin-bottom:8px}.tabs button{font:12px system-ui;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer}
-.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.vhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.vhead h2{margin:0}
+.tabs{display:inline-flex;border:2px solid var(--hl);border-radius:99px;overflow:hidden;background:var(--panel)}
+.tabs button{font:700 13px system-ui;padding:6px 18px;border:0;background:none;color:var(--hl);cursor:pointer}
+.tabs button+button{border-left:2px solid var(--hl)}
+.tabs button:hover{background:var(--hlbg)}
+.tabs button.on{background:var(--hl);color:#fff}
 #cam,#live{width:100%;display:block;border-radius:6px;background:#000;min-height:80px}
 .cap{font:12px var(--mono);color:var(--mute);margin-top:6px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--mute);margin-top:6px}.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
@@ -59,7 +68,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:12px;font-weight:700;
 <div class="card top">
  <h1>BLADE <span id="bl" style="font-weight:400;opacity:.7"></span></h1><span class="pill" id="run">no run</span><span class="pill" id="status">–</span>
  <span class="sp"></span>
- <a href="/twin" style="font-size:13px">beamline twin →</a><span class="pill" id="pos" title="current stage positions">–</span><span class="pill" id="cnt"></span><span class="pill" id="pix"></span><span class="pill" id="sim">simulated backend</span>
+ <label class="mute" style="font-size:12px;color:var(--mute)" title="colour theme (remembered in this browser)">theme <select id="theme"></select></label> <a href="/twin" style="font-size:13px">beamline twin →</a><span class="pill" id="pos" title="current stage positions">–</span><span class="pill" id="cnt"></span><span class="pill" id="pix"></span><span class="pill" id="sim">simulated backend</span>
 </div>
 
 <div class="card"><h2>Progress</h2><div class="steps" id="steps"></div></div>
@@ -73,8 +82,7 @@ details summary{cursor:pointer;color:var(--mute);font-size:12px;font-weight:700;
 </div>
 
 <div class="vis">
- <div class="card"><h2>Tomo camera</h2>
-  <div class="tabs"><button id="tabM" class="on">Last measurement</button><button id="tabL">Live view</button></div>
+ <div class="card"><div class="vhead"><h2>Tomo camera</h2><div class="tabs"><button id="tabM" class="on">Last measurement</button><button id="tabL">Live view</button></div></div>
   <img id="cam" alt="" style="display:none"><img id="live" alt="" style="display:none">
   <div class="cap" id="camcap">no frame yet</div>
   <div class="legend" id="legend"><span><i style="background:#ffc800"></i>pin sides</span><span><i style="background:#ff5050"></i>pin top edge / axis column</span><span><i style="background:#50c878"></i>beam footprint &amp; centre</span></div>
@@ -94,6 +102,15 @@ details summary{cursor:pointer;color:var(--mute);font-size:12px;font-weight:700;
 </div>
 <script>
 const $=id=>document.getElementById(id);
+const THEMES=[['auto','Auto (system)'],['light','Light'],['dark','Dark'],['midnight','Midnight'],['paper','Paper'],['contrast','High contrast']];
+let themeChoice='auto';try{themeChoice=localStorage.getItem('blade.theme')||'auto'}catch(e){}
+const _tp=new URLSearchParams(location.hash.slice(1)).get('theme');if(_tp)themeChoice=_tp;
+if(!THEMES.some(x=>x[0]===themeChoice))themeChoice='auto';
+const resolveTheme=c=>c==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c;
+function setTheme(c,save=true){themeChoice=c;document.documentElement.setAttribute('data-theme',resolveTheme(c));if(save){try{localStorage.setItem('blade.theme',c)}catch(e){}}}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeChoice==='auto')setTheme('auto',false)})}catch(e){}
+setTheme(themeChoice,false);
+{const th=$('theme');th.innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');th.value=themeChoice;th.onchange=()=>setTheme(th.value)}
 let since=0,run=null,cfg={},S;
 const STEPS=[["locate","1 · Find pin"],["fit","2 · Measure axis"],["cal","3 · Calibrate motors"],["pin","4 · Pin onto axis"],["base","5 · Axis onto beam"],["verify","6 · Verify"]];
 function reset(){S={sweeps:[],beam:null,moves:[],notes:[],ev:0,phase:{locate:0,fit:0,cal:0,pin:0,base:0,verify:0},finished:null,lastEv:null,movesAfterFit:0,frames:0,lastNote:null,started:null,calActive:false};
