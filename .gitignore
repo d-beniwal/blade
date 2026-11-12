@@ -27,3 +27,7 @@ beamline_twins/*/sources/photos/
 
 # Experiment-log index (extracted text + SQLite from users' unpublished experiment logs; local only)
 beamline_twins/*/logs_index/
+
+# Agent context (local only; not published)
+AGENTS.md
+.context/
