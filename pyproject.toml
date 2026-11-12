@@ -13,6 +13,7 @@ dependencies = ["numpy>=1.26", "scipy", "pillow"]
 [project.optional-dependencies]
 epics = ["pvapy==5.4.1", "pyepics==3.5.10"]   # real-beamline backend only
 mcp = ["mcp>=1.2"]                            # `blade mcp` server (agents reach every capability through it)
+physics = ["xraydb==4.5.8"]                   # blade.physics: edges, attenuation, delta (same version as the beamline's mpe_bluesky env; works with numpy 1.26)
 dev = ["h5py", "matplotlib"]                  # tests that read the HDF5 scans
 
 [project.scripts]

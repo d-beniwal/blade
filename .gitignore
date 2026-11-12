@@ -24,3 +24,6 @@ dist/
 
 # Beamline-twin reference photos (local only: screens show hostnames/IPs/usernames; the tracked index is sources/photos.json)
 beamline_twins/*/sources/photos/
+
+# Experiment-log index (extracted text + SQLite from users' unpublished experiment logs; local only)
+beamline_twins/*/logs_index/

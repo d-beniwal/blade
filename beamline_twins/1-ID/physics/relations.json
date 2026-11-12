@@ -1,0 +1,577 @@
+{
+ "schema": 1,
+ "note": "Machine-readable cause->effect relations for the 1-ID twin simulator. 'function' points into blade.physics (or blade.alignment) where a validated implementation exists; 'evidence' keys are defined in README.md; 'confidence' says how the relation was established.",
+ "relations": [
+  {
+   "id": "undulator_gap_to_energy",
+   "control": "PMU gap (mm) at fixed harmonic n",
+   "twin_elements": [
+    "undulator"
+   ],
+   "physical_effect": "Moves the harmonic peak; E rises with gap (smaller K). Flux at the mono energy is maximal only when the harmonic peak sits on it.",
+   "formula": "E_n = n*0.9496*E_ring^2/(lambda_u(1+K^2/2)), K=0.0934*B0*lambda_u, B0=a*exp(b g/lam + c (g/lam)^2)",
+   "function": "blade.physics.undulator.harmonic_energy_keV",
+   "sensitivity": "dE/dgap = +8.3 keV/mm (n=7, 71.7 keV), +12 keV/mm (n=9, 80.7 keV); flux peak ~0.07-0.1 mm wide in gap (n=7)",
+   "typical": "n=9 gap 8.995 mm -> 80.725 keV; n=7 gap 8.82-8.84/9.28/10.02-10.025 mm -> 61.3/65.4/71.7 keV; n=5 gap 10.158 mm -> ~52 keV",
+   "evidence": [
+    "S25b:L25,L34",
+    "M26a:L44,L59-63",
+    "B26",
+    "A24:L210-253"
+   ],
+   "confidence": "model fitted to logs (21.9 mm period, 0.17% rms, 5 points); device spec not available",
+   "caveats": "ring energy 6 GeV and Halbach coefficients are assumptions"
+  },
+  {
+   "id": "undulator_gap_hysteresis",
+   "control": "gap scan/set procedure",
+   "twin_elements": [
+    "undulator"
+   ],
+   "physical_effect": "The gap readback depends on approach direction; scans started from the previous end do not overlay.",
+   "formula": "(operating rule)",
+   "function": null,
+   "sensitivity": "peak gap differs by ~0.004 mm between scans/days",
+   "typical": "open to ~9.5 mm first, setundgap, scan high->low",
+   "evidence": [
+    "M24:L56-70,L102,L251"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "scu_current_to_energy",
+   "control": "SCU current (A) at fixed harmonic (2022-2023 only)",
+   "twin_elements": [
+    "undulator"
+   ],
+   "physical_effect": "Higher current = higher field = larger K = LOWER photon energy.",
+   "formula": "same harmonic formula with K(I)",
+   "function": null,
+   "sensitivity": "about -0.12 to -0.13 keV per A at h=5 near 71.7 keV",
+   "typical": "h5: 353.9 A->65.38 keV, 302.27 A->71.70, 267.9 A->76.32; h7 425.2 A -> 80.8 keV",
+   "evidence": [
+    "O22:L24,L60",
+    "D22:L58",
+    "J22:L38",
+    "L23:L191-278"
+   ],
+   "confidence": "observed",
+   "caveats": "SCU is not modelled in blade.physics; quenches near 815/826 A"
+  },
+  {
+   "id": "steering_to_flux",
+   "control": "storage-ring steering (Xp, Yp urad)",
+   "twin_elements": [
+    "undulator",
+    "wbSlits"
+   ],
+   "physical_effect": "Beam angle at the source decides how much of the undulator cone passes the WB slits and the best gap.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "-11 urad (IB) restored a 2.5x flux shortfall and the expected gap (9.080 -> 8.985 mm)",
+   "typical": "Xp 5-20 urad, Yp -17.5..+2 urad across sessions",
+   "evidence": [
+    "M26a:L33-44",
+    "O22:L24,L60",
+    "T26:L94"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "ring_current_to_flux",
+   "control": "ring current",
+   "twin_elements": [
+    "icB1"
+   ],
+   "physical_effect": "Photon flux, hence IC rates and detector counts, scale linearly with ring current.",
+   "formula": "rate ~ I_ring",
+   "function": null,
+   "sensitivity": "150 -> 200 mA: x1.33",
+   "typical": "200 mA standard (65 quoted values, median ~200)",
+   "evidence": [
+    "S25a:L37-41"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "hem_energy_to_angle",
+   "control": "HEM energy",
+   "twin_elements": [
+    "hem"
+   ],
+   "physical_effect": "Th1 = theta_Bragg(Si 111) + offset; the angle must follow E to stay on the Bragg condition.",
+   "formula": "Th1 = asin(hc/(2 d E)) + offset, d=3.1356 A",
+   "function": "blade.physics.core.hem_th1_deg",
+   "sensitivity": "dTh1/dE: 1 mdeg = -24 eV (52 keV), -45 eV (71.7), -72 eV (90.5)",
+   "typical": "offset 0.4863-0.4963 deg across 2022-2026",
+   "evidence": [
+    "S23 screenshots",
+    "M26a",
+    "D22",
+    "S25b"
+   ],
+   "confidence": "model validated vs logs",
+   "caveats": ""
+  },
+  {
+   "id": "hem_fixed_exit_z2",
+   "control": "HEM energy",
+   "twin_elements": [
+    "hem"
+   ],
+   "physical_effect": "The second crystal slides along the beam to keep a constant exit offset.",
+   "formula": "Z2 = D/tan(2 theta_B), D = 32.91 mm",
+   "function": "blade.physics.core.hem_z2_mm",
+   "sensitivity": "Z2 595.9 mm at 71.7 keV, 431.9 at 52, 831.8 at 100",
+   "typical": "D constant to 0.7% over 51-90 keV, 2022-2025",
+   "evidence": [
+    "S23 screenshots",
+    "O22:L60",
+    "D22:L164",
+    "S25b screenshots"
+   ],
+   "confidence": "model validated vs logs",
+   "caveats": "derived by this project from log values, not a drawing"
+  },
+  {
+   "id": "hem_offset_to_energy",
+   "control": "Th1 offset / Th2 tweak",
+   "twin_elements": [
+    "hem"
+   ],
+   "physical_effect": "A small crystal-angle change shifts the energy scale at fixed set energy.",
+   "formula": "dE = E_new - E, E ~ 1/sin(theta)",
+   "function": "blade.physics.core.energy_shift_from_angle_keV",
+   "sensitivity": "+0.00055 deg Th1 -> -25 eV at 71.7 keV (matches log); 0.008 deg -> ~460 eV",
+   "typical": "Th1 offset drifted 0.4944 -> 0.4963 deg in 2022 = +35 eV at Re",
+   "evidence": [
+    "S25b screenshots",
+    "S25a:L23",
+    "O22",
+    "D22"
+   ],
+   "confidence": "model validated vs logs",
+   "caveats": ""
+  },
+  {
+   "id": "foil_mu_t_to_energy",
+   "control": "HEM energy near a foil K edge",
+   "twin_elements": [
+    "hem",
+    "foilB"
+   ],
+   "physical_effect": "mu_t of the calibration foil is a steep function of energy across the edge; the operators hold it at ~1.4 to fix the energy scale.",
+   "formula": "mu_t = ln(I_out/I_in); edge from xraydb",
+   "function": "blade.physics.core.edge_keV",
+   "sensitivity": "+35 eV across the Re edge changed mu_t 0.946 -> 1.402; mu_t resolves ~few eV",
+   "typical": "ut 1.35-1.45 (median 1.37); edge width 0.048-0.058 keV",
+   "evidence": [
+    "O22:L34,L65",
+    "S25b:L96,L323-326",
+    "T26:L431-433"
+   ],
+   "confidence": "observed",
+   "caveats": "readout offset from nominal edge is 25-160 eV and varies by day (Au 0, Re -25..-75, Yb -57..-73, Hf -70 eV)"
+  },
+  {
+   "id": "mono_thermal_drift",
+   "control": "WB slit size / gap / beam dump",
+   "twin_elements": [
+    "hem"
+   ],
+   "physical_effect": "Crystal heating shifts the Bragg angle; after a cold start flux and energy recover only after thermalisation and a Th2 + gap re-peak.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "C1 +3 K at 0.4x0.4 mm, +10 K at 0.8x0.7 mm; mu_t 1.4 -> 1.5 -> 1.7 after dumps; Th2 +0.036 deg Jul->Sep 2026",
+   "typical": "re-tune Th2, gap, then mu_t",
+   "evidence": [
+    "T26:L318,L323,L421-424,L472-480,L554-556",
+    "A24:L84-90,L188-191"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "wb_slit_size_to_flux",
+   "control": "WB slit size",
+   "twin_elements": [
+    "wbSlits"
+   ],
+   "physical_effect": "Sets acceptance, flux and heat load; flux is less than proportional to area because the beam is peaked.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "0.3x0.3 -> 0.5x0.5 mm: IC_B1 174 -> 300 kHz (x1.72 vs area x2.78)",
+   "typical": "0.3x0.3 or 0.5x0.5 mm most common",
+   "evidence": [
+    "S25b:L35,L119-124"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "wb_slit_centre",
+   "control": "WB slit centre vs steering/undulator",
+   "twin_elements": [
+    "wbSlits"
+   ],
+   "physical_effect": "Best centre follows the beam; wrong centre clips the beam and costs flux.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "centre moved ~0.8 mm H with SCU current; ~8 um V over three weeks; table yaw 0.7 mm",
+   "typical": "[-0.02,-0.08] Jan25; [0.04,-0.23] Jun25; [0,-0.07] Feb26 (mm)",
+   "evidence": [
+    "L23:L218-278",
+    "M26a",
+    "T26:L52-56",
+    "M26b:L160-179"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "kohzu_slit_beam_definition",
+   "control": "Kohzu slit size",
+   "twin_elements": [
+    "slitB",
+    "slitCus",
+    "slitCds",
+    "slitEus",
+    "slitEds"
+   ],
+   "physical_effect": "Upstream slit defines the beam, downstream slit removes scatter; edge penumbra/scatter adds ~10 um.",
+   "formula": "(geometry)",
+   "function": null,
+   "sensitivity": "slit 0.110 mm -> 0.120 mm beam at the sample",
+   "typical": "C US 0.2x0.2 mm define, DS 0.3x0.3 mm clean-up",
+   "evidence": [
+    "D22:L178",
+    "S25a:L202-217",
+    "M26a:L620-626"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "slit_zero_vs_beam_motion",
+   "control": "beam position (steering, dumps, APS-U)",
+   "twin_elements": [
+    "slitB",
+    "slitCus",
+    "slitCds",
+    "slitEus",
+    "slitEds"
+   ],
+   "physical_effect": "Slit centre zero is tied to the beam; when the beam moves, slits must be re-zeroed on the tomo camera hot spot.",
+   "formula": "(procedure)",
+   "function": null,
+   "sensitivity": "beam moved 2.5-2.8 mm H / 0.36-0.44 mm V at B slits (APS-U), 1.7 mm IB in E; +20/-10 um after dumps",
+   "typical": "100 um in the slit control = 100 um on the tomo",
+   "evidence": [
+    "M24:L153-154",
+    "S25a:L190,L279",
+    "S25b:L189-203"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "lens_tilt_to_focus",
+   "control": "lens tilt (th or phi per orientation)",
+   "twin_elements": [
+    "lens1E",
+    "lens2E",
+    "lens3E",
+    "lens4E",
+    "lens1C",
+    "lens2C",
+    "lens3C",
+    "lens4C",
+    "stackB1",
+    "stackB2"
+   ],
+   "physical_effect": "Tilting a saw-tooth lens changes its focal length; the focus moves along the beam.",
+   "formula": "f = h sin(tilt)/delta; 1/f = 1/p + 1/q",
+   "function": "blade.physics.lens.prism_focal_length_m",
+   "sensitivity": "~41 mm of focus shift per mdeg (lens1E, 71.5 m focus)",
+   "typical": "tilts 0.05-0.2 deg",
+   "evidence": [
+    "M26a:L611-615"
+   ],
+   "confidence": "model validated vs logs (4 predictions exact; measured optima within 0.002-0.010 deg)",
+   "caveats": ""
+  },
+  {
+   "id": "lens_energy_to_focus",
+   "control": "mono energy",
+   "twin_elements": [
+    "lens1E",
+    "lens2E",
+    "lens3E",
+    "lens4E"
+   ],
+   "physical_effect": "delta ~ 1/E^2, so at fixed tilt the focus moves with energy; refocus by re-tilting.",
+   "formula": "tilt(E) from prism_tilt_for_focus_deg with delta(E)",
+   "function": "blade.physics.lens.focus_motor_target",
+   "sensitivity": "lens1E tilt 0.1727/0.1053/0.0856/0.0652 deg at 52.0/65.4/71.7/80.7 keV; 76 eV drift = 8.5 mm",
+   "typical": "delta Si 9.376e-8 at 71.676 keV",
+   "evidence": [
+    "M26a:L611-615"
+   ],
+   "confidence": "model validated vs logs",
+   "caveats": ""
+  },
+  {
+   "id": "lens_clipping",
+   "control": "lens/CRL support position vs beam",
+   "twin_elements": [
+    "lens1E",
+    "lens2E",
+    "stackB1"
+   ],
+   "physical_effect": "A support or aperture in the beam truncates it: lower flux, cut focus edge.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "B3 420 -> 650 kHz after removing CRL; OB edge cut moves with WB slits",
+   "typical": "after APS-U beam moved 1-2 mm IB",
+   "evidence": [
+    "T26:L466-471",
+    "A24:L64",
+    "M24:L266-268"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "attenuator_transmission",
+   "control": "attenuator/foil wheel",
+   "twin_elements": [
+    "attenB",
+    "attenC",
+    "foilB"
+   ],
+   "physical_effect": "Beer-Lambert attenuation of the beam.",
+   "formula": "I/I0 = exp(-sum mu_i t_i)",
+   "function": "blade.physics.core.transmission",
+   "sensitivity": "Cu 1.016 mm: 0.40 at 71.7, 0.51 at 80.7, 0.12 at 52 keV",
+   "typical": "B atten pos 2 = 1.016 mm Cu",
+   "evidence": [
+    "S25b:L273-292",
+    "T26:L431-433"
+   ],
+   "confidence": "model validated (Pb foil ln(441/252)=0.559 matches ut 0.56)",
+   "caveats": "re-check wheel after an energy change"
+  },
+  {
+   "id": "ic_rate",
+   "control": "ion chamber preamp / flux",
+   "twin_elements": [
+    "icB1",
+    "icB3",
+    "icB8"
+   ],
+   "physical_effect": "IC count rate ~ photon flux x gain; dark floor 0.8-2.1 kHz; scaler clips near 1e6/s.",
+   "formula": "rate = k*flux + dark",
+   "function": null,
+   "sensitivity": "IC_B1 174-178 kHz at 50 nA/V, 200 mA, WB 0.3x0.3",
+   "typical": "IC_B3 ~477 kHz at 200 mA",
+   "evidence": [
+    "S25b:L21-35,L518-526",
+    "O22:L164-171"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "detector_saturation",
+   "control": "exposure time x attenuator",
+   "twin_elements": [
+    "d2C",
+    "hydra",
+    "tomoE"
+   ],
+   "physical_effect": "Counts scale with exposure and transmission; saturation sets the maximum.",
+   "formula": "N ~ t * phi * T",
+   "function": null,
+   "sensitivity": "Varex saturated at 0.1 s, attenC=1.0; ok at pos 2 / 0.32 s",
+   "typical": "exposures 0.1-0.5 s common",
+   "evidence": [
+    "S25a:L346-348",
+    "D22:L336-350",
+    "S25b:L281-286"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "rotation_axis_offset",
+   "control": "Aero X / samE.x / samE.z",
+   "twin_elements": [
+    "samE"
+   ],
+   "physical_effect": "Pin column vs omega is a sinusoid; x cancels a, z cancels b, Aero X moves c (axis column).",
+   "formula": "x(w) = c + a cos w + b sin w",
+   "function": "blade.alignment.axis_align",
+   "sensitivity": "Aero X -1431 px/mm on GH1",
+   "typical": "aeroXE -2.426 mm after APS-U",
+   "evidence": [
+    "S25a:L594-600",
+    "M26a:L145-151"
+   ],
+   "confidence": "in-project model, hardware-confirmed 2026-10-28",
+   "caveats": ""
+  },
+  {
+   "id": "axis_tilt_wedge",
+   "control": "rx/rz tilt of the rotation axis",
+   "twin_elements": [
+    "samE",
+    "samC"
+   ],
+   "physical_effect": "A tilted axis makes the pin tip move vertically with omega.",
+   "formula": "tilt = atan(delta/L)",
+   "function": null,
+   "sensitivity": "3 px (3.51 um) over 16 mm = 0.015 deg (C); E wedge ~0 (0.5 px/16 mm)",
+   "typical": "~0.015 deg",
+   "evidence": [
+    "S25b:L169-188",
+    "M26a:L168"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "detector_distance_ring_radius",
+   "control": "detector distance L",
+   "twin_elements": [
+    "hydra",
+    "d2C",
+    "d2E"
+   ],
+   "physical_effect": "Powder ring radius grows linearly with L.",
+   "formula": "R = L tan(2 theta)",
+   "function": "blade.physics.detector.ring_radius_mm",
+   "sensitivity": "CeO2 (111) 277 px at 1 m, 200 um px, 71.676 keV",
+   "typical": "distances 765.9-1167 mm (calibrated), Hydra 2200-3578 mm",
+   "evidence": [
+    "A24:L308-319",
+    "S25a:L202-217",
+    "S25b:L337-343"
+   ],
+   "confidence": "textbook; consistent with logs",
+   "caveats": ""
+  },
+  {
+   "id": "energy_to_ring_radius",
+   "control": "mono energy",
+   "twin_elements": [
+    "hydra",
+    "d2C"
+   ],
+   "physical_effect": "Rings shrink as energy rises (2 theta ~ lambda/d).",
+   "formula": "2 theta = 2 asin(lambda/2d)",
+   "function": "blade.physics.detector.two_theta_deg",
+   "sensitivity": "(111) CeO2 2 theta 3.17 deg at 71.676 keV",
+   "typical": "recalibrate distance/centre/tilts at each new edge",
+   "evidence": [
+    "S25b:L337-343"
+   ],
+   "confidence": "textbook",
+   "caveats": ""
+  },
+  {
+   "id": "camera_pixel_size",
+   "control": "objective magnification / sensor",
+   "twin_elements": [
+    "tomoB",
+    "tomoC",
+    "tomoE"
+   ],
+   "physical_effect": "Pixel size at the scintillator = sensor pitch / magnification; FOV = n_pixels x pixel size.",
+   "formula": "p = pitch/M",
+   "function": "blade.physics.detector.object_pixel_um",
+   "sensitivity": "PG1 5X 1.172, GH1 5X 0.69, Retiga 5X 1.48 um/px (all reproduced)",
+   "typical": "GH1 FOV 1.03 x 1.34 mm",
+   "evidence": [
+    "headers 2022-2026",
+    "M26a:L127"
+   ],
+   "confidence": "model validated vs logs",
+   "caveats": "profile retiga2 has 1.0 um/px; logs give 1.48 for the NF Retiga 5X"
+  },
+  {
+   "id": "fast_shutter_timing",
+   "control": "fast shutter vs camera exposure",
+   "twin_elements": [
+    "fsB",
+    "fsE"
+   ],
+   "physical_effect": "At short exposures the shutter opening time/jitter sets the delivered dose per frame.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "1 frame -> 0,1 or 2 pulses; opens late at 0.1 s frames",
+   "typical": "keep_open or sweep modes avoid it",
+   "evidence": [
+    "M26a:L439-471"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "beam_motion_ring",
+   "control": "ring RF/booster voltage sag",
+   "twin_elements": [
+    "slitCus",
+    "slitCds",
+    "tomoC"
+   ],
+   "physical_effect": "The beam hot spot jumps on the tomo camera.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "3-15 px (~10 um at 0.69 um/px) every ~20 min",
+   "typical": "limits alignment accuracy",
+   "evidence": [
+    "M24:L248-458"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "detector_distance_vs_sample_position",
+   "control": "sample position relative to the true axis",
+   "twin_elements": [
+    "samC",
+    "d2C"
+   ],
+   "physical_effect": "An off-axis sample changes the effective distance.",
+   "formula": "(geometry)",
+   "function": null,
+   "sensitivity": "613.2/612.8/611.8 mm for rotXC -65.85/-26.05/+14.00 (~0.7 mm per 80 deg)",
+   "typical": "",
+   "evidence": [
+    "M26b:L47-58"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  },
+  {
+   "id": "brightness_mode",
+   "control": "ring fill mode",
+   "twin_elements": [
+    "undulator"
+   ],
+   "physical_effect": "Smaller vertical emittance: smaller focused beam, ~10% fewer IC counts after steering.",
+   "formula": "(empirical)",
+   "function": null,
+   "sensitivity": "vertical FWHM 17 vs 23 um (-26%), horizontal 30 vs 27 um (+9%)",
+   "typical": "",
+   "evidence": [
+    "B26:L44,L55,L65"
+   ],
+   "confidence": "observed",
+   "caveats": ""
+  }
+ ]
+}

@@ -38,3 +38,5 @@ dependencies:
     - "pyepics==3.5.10"
     # MCP server (`blade mcp`): how other agents reach BLADE workflows. Supports mcp 1.x (FastMCP) and 2.x (MCPServer).
     - "mcp>=1.2"
+    # blade.physics (edges, attenuation, refractive delta). 4.5.8 = the version in the beamline's own mpe_bluesky env; newer xraydb needs numpy>=2 (breaks the pvapy pin above).
+    - "xraydb==4.5.8"

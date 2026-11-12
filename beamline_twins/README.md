@@ -10,7 +10,8 @@ A *twin* is the machine-readable map of one beamline: what is on the beam path, 
 4. **Snapshots are labelled snapshots.** Slit sizes, IC counts, readbacks are stored under `state` with a date. They are the state at photo time, not defaults or targets.
 5. **Controls link to the instrument by name, not by copy.** `dev` = device name in `mpe_bluesky` (read-only reference), `pv`/`controls` = EPICS names. The twin does not replace `profiles/<bl>/` (BLADE's runtime config: limits, signs, tolerances); later the profile should reference twin element ids instead of repeating PVs.
 6. **Multi-part hardware is an assembly.** `assemblies/<id>.json` holds a stack (e.g. the hutch E sample stage, bottom to top with limits and roles) and is referenced from its element by `assembly`.
-7. **Photos stay local.** `sources/photos/` is git-ignored (the repo is public; screens show hostnames, IPs, usernames). The tracked `sources/photos.json` indexes them (what each shows, which elements, caveats). Originals: `s1_data/pictures/`.
+7. **Experiment logs stay local too.** The index of the users' experiment logs (`logs_index/`) is git-ignored for the same reason; only aggregate statistics and instrument-physics notes without names are tracked (`physics/`).
+8. **Photos stay local.** `sources/photos/` is git-ignored (the repo is public; screens show hostnames, IPs, usernames). The tracked `sources/photos.json` indexes them (what each shows, which elements, caveats). Originals: `s1_data/pictures/`.
 
 ## Layout
 
@@ -25,7 +26,10 @@ beamline_twins/
     sources/photos.json         photo index (photos/ itself is git-ignored)
     layout.md                   GENERATED human view (strips, tables, slits, detectors)
     README.md                   status, coverage, open questions
+    physics/                    what happens physically when a setting changes (README + 01..08 notes + relations.json); 07 is generated
+    logs_index/                 LOCAL, git-ignored: extracted text + SQLite/FTS index of the experiment logs, catalog.md, reading notes
 ```
+Log tools (stdlib only): `tools/logextract.py` (docx/xlsx/ods -> text), `tools/logindex.py` (build/search/topic/params/show/outline/images), `tools/logstats.py` (aggregates -> `physics/07_typical_parameters.md`). The executable physics lives in `blade/physics/` (needs `xraydb`, extra `physics`).
 
 ## Element fields
 

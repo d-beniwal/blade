@@ -10,6 +10,8 @@ Built 2026-11-11 from the 18 photos of 2026-10-20 plus read-only `mpe_bluesky`. 
 - **Slits (6):** WB (A), B Kohzu, C US/DS, E US/DS.
 - **Hutch E sample stage** (`assemblies/samE.json`): full stack top to bottom with motors, limits, readbacks.
 
+- **Physics** (`physics/`): cause->effect notes for source, mono, slits, lenses, flux/attenuation, sample stage, detectors, built from the startup logs 2022-2026; `blade.physics` implements and validates the formulas against numbers in the logs.
+
 ## What is NOT known (needs the user, drawings or more photos)
 
 1. **Most distances.** Known (m from the source, all from `mpe_bluesky`): source 0, lens stacks B 38.8/38.9 (stack-to-lens4B/5B mapping is a guess), C 59.2-59.7, E 67.7-68.5, default sample position in E 71.5. Missing: every IC, slit, shutter, foil/attenuator, mono (HEM, HRM), detector, hutch wall, and the C sample stage - source-to-element distances from drawings or a survey, hutch entry/exit positions at least.
