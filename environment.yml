@@ -2,6 +2,8 @@ name: blade
 
 # Environment for BLADE (Beamline Automation and Device Experiments): the `blade` CLI/GUI, blade/ package, tests/.
 #   conda env create -f environment.yml && conda activate blade && pip install -e .
+#   (`pip install -e .` is a separate step: it installs BLADE itself, giving the `blade` and `blade-gui` commands; conda does not do it.)
+#   Quick GUI without activating anything: `./blade-gui` (see README: it finds this env by itself).
 #
 # Versions follow the user's `midas-gui` environment so the two stay interchangeable: numpy is held at 1.26.4 because
 # pvapy 5.4.1 (the last release before the numpy>=2 floor) is paired with it there.
@@ -26,7 +28,8 @@ dependencies:
   - matplotlib-base=3.10.*
   - cmcrameri=1.9          # the user's scientific-plotting colormaps (conda package 1.9; the module's __version__ string says 1.8)
 
-  # ── the web GUI (blade gui) is stdlib-only; nothing to install for it ──
+  # ── the web GUI (blade gui / blade-gui, incl. the beamline twin viewer) and beamline_twins/tools/twin.py are stdlib-only; nothing to install for them ──
+  #    (the twins are JSON on purpose, so there is no YAML dependency)
 
   - pip
   - pip:

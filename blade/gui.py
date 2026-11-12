@@ -3,6 +3,9 @@ Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (twin vi
 import json
 import mimetypes
 import sys
+import threading
+import urllib.request
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -85,12 +88,42 @@ class H(BaseHTTPRequestHandler):
         self._send({"error": "not found"}, code=404)
 
 
-def serve(port=8765):
-    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
-    print(f"BLADE GUI on http://localhost:{port}  (runs dir: {RUNS_DIR})", flush=True)
-    srv.serve_forever()
+PAGES = {"monitor": "/", "twin": "/twin"}
+
+
+def _is_blade_gui(port):
+    """True if a BLADE GUI already answers on this port (so a second launch can just open it)."""
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/profiles", timeout=1.5) as r:
+            return "profiles" in json.loads(r.read())
+    except Exception:
+        return False
+
+
+def serve(port=8765, open_page=None):
+    """Serve the GUI. open_page = None | "monitor" | "twin": also open it in the default browser. If a BLADE GUI is already running on the
+    port, do not start a second one: just open it (or print its address) and return."""
+    if open_page not in (None, *PAGES):
+        raise ValueError(f"page must be one of {sorted(PAGES)}")
+    url = f"http://localhost:{port}{PAGES.get(open_page, '/')}"
+    try:
+        srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    except OSError:
+        if _is_blade_gui(port):
+            print(f"BLADE GUI is already running: {url}", flush=True)
+            if open_page:
+                webbrowser.open(url)
+            return
+        raise SystemExit(f"port {port} is in use by something else; choose another with --port N")
+    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
+    if open_page:                                   # the socket is already listening, so the browser's request just queues until serving starts
+        threading.Timer(0.3, webbrowser.open, (url,)).start()
+    try:
+        srv.serve_forever()
+    except KeyboardInterrupt:
+        print("\nBLADE GUI stopped", flush=True)
 
 
 if __name__ == "__main__":
     port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8765
-    serve(port)
+    serve(port, "monitor" if "--open" in sys.argv else None)

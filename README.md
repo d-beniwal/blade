@@ -25,8 +25,18 @@ alignment pin on a tomo camera, rotating it, and correcting the stage motors unt
 ```
 conda env create -f environment.yml
 conda activate blade
-pip install -e .          # gives the `blade` command; `python -I launch.py ...` works without it
+pip install -e .          # gives the `blade` and `blade-gui` commands; `python -I launch.py ...` works without it
 ```
+
+**Open the GUI with one command** (no environment activation, no URL to type):
+
+```
+./blade-gui            # from this folder: starts the GUI and opens the run monitor in your browser
+blade-gui twin         # open the beamline twin viewer instead
+blade-gui --port 8800  # any `blade gui` option works
+```
+
+To run it from anywhere: `ln -s "$PWD/blade-gui" ~/.local/bin/blade-gui` (once). The script finds the `blade` conda env by itself (or set `BLADE_PYTHON=/path/to/python`; the GUI is stdlib-only, so plain `python3` also works). If a BLADE GUI is already running on that port it just opens it. Ctrl+C stops the server. Inside the activated env, `blade gui --open [--page twin]` and `blade-gui` do the same.
 
 Commands: `blade align <cmd>` (alignment), `blade gui` (monitor on http://localhost:8765; beamline twin viewer with a profile switcher on http://localhost:8765/twin), `blade profiles` (list beamlines). Runs are written to `runs/<id>/` (override with `BLADE_RUNS`).
 

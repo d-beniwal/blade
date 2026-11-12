@@ -17,9 +17,10 @@ dev = ["h5py", "matplotlib"]                  # tests that read the HDF5 scans
 
 [project.scripts]
 blade = "blade.cli:main"
+blade-gui = "blade.cli:gui_main"   # start the GUI and open it in the browser
 
 [tool.setuptools.packages.find]
 include = ["blade*"]
 
 [tool.setuptools.package-data]
-blade = ["gui.html"]
+blade = ["gui.html", "twin.html"]

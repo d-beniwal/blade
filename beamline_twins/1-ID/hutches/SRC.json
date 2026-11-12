@@ -2,8 +2,8 @@
   "hutch": "SRC",
   "note": "Not photographed. From mpe_bluesky (read-only reference) only.",
   "elements": [
-    {"id": "undulator", "name": "PMU undulator", "kind": "source", "conf": "code", "dev": "undulator", "pv": "S01ID:DSID:GapM",
+    {"id": "undulator", "z_m": 0.0, "z_conf": "definition", "z_src": "reference point: all distances are measured from the source", "name": "PMU undulator", "kind": "source", "conf": "code", "dev": "undulator", "pv": "S01ID:DSID:GapM",
      "controls": {"gap": {"pv": "S01ID:DSID:GapM.VAL", "access": "read-only in mpe_bluesky", "units": "mm"}},
-     "z_m": null, "notes": "Gap optimises the delivered intensity (plans undsetgap/undscangap exist in the 20-ID plan set per earlier user notes)."}
+     "notes": "Gap optimises the delivered intensity (plans undsetgap/undscangap exist in the 20-ID plan set per earlier user notes)."}
   ]
 }

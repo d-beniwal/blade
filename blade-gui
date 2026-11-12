@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# One-command launcher for the BLADE GUI: no conda activation, no URL to type.
+#   blade-gui              start the GUI and open the run monitor in your browser (if one is already running, just opens it)
+#   blade-gui twin         ... open the beamline twin viewer instead
+#   blade-gui --port 8800  other port (any `blade gui` option works)
+# Python: $BLADE_PYTHON, else the conda env `blade`, else python3 (the GUI itself is stdlib-only).
+# To use it from anywhere:  ln -s "<this file>" ~/.local/bin/blade-gui
+set -e
+SRC="${BASH_SOURCE[0]}"
+while [ -L "$SRC" ]; do                      # follow symlinks (plain `readlink`, since macOS lacks `readlink -f` on older systems)
+  DIR="$(cd -P "$(dirname "$SRC")" && pwd)"; SRC="$(readlink "$SRC")"; [[ "$SRC" != /* ]] && SRC="$DIR/$SRC"
+done
+ROOT="$(cd -P "$(dirname "$SRC")" && pwd)"
+
+PY="${BLADE_PYTHON:-}"
+if [ -z "$PY" ]; then
+  BASES=()
+  [ -n "${CONDA_EXE:-}" ] && BASES+=("$(dirname "$(dirname "$CONDA_EXE")")")
+  BASES+=("$HOME/miniconda3" "$HOME/miniforge3" "$HOME/anaconda3" "$HOME/mambaforge" /opt/homebrew/Caskroom/miniconda/base /opt/conda)
+  for b in "${BASES[@]}"; do
+    if [ -x "$b/envs/blade/bin/python" ]; then PY="$b/envs/blade/bin/python"; break; fi
+  done
+fi
+[ -z "$PY" ] && PY="$(command -v python3 || command -v python)"
+[ -z "$PY" ] && { echo "blade-gui: no Python found (set BLADE_PYTHON)" >&2; exit 1; }
+
+ARGS=()
+for a in "$@"; do
+  if [ "$a" = "twin" ] || [ "$a" = "monitor" ]; then ARGS+=(--page "$a"); else ARGS+=("$a"); fi
+done
+exec "$PY" -I "$ROOT/launch.py" gui --open "${ARGS[@]}"

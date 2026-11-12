@@ -4,7 +4,7 @@
 
 Beam order: SRC > A > B > C > E. Frame: horizontal. Looking downstream +x points LEFT (hardware-confirmed 2026-10-28 on samE: +x moves the pin image left). Drawn on the Aero_SMS/Aero_Trans panels as +X into the screen with +Z to the right and +Y up (right-handed).
 
-Confidence per element: confirmed 0, seen 65, code 2, inferred 3, unseen 0 (total 70). `[name]` = retractable (moved into the beam), `(name)` = alternative position. No distances are known yet (`z_m` is null everywhere unless set).
+Confidence per element: confirmed 0, seen 65, code 2, inferred 3, unseen 0 (total 70). `[name]` = retractable (moved into the beam), `(name)` = alternative position. Distances (`z_m`) are known only where a source exists; unknown ones are blank, never guessed.
 
 ## Hutch SRC
 
@@ -16,9 +16,9 @@ Coverage: code only
 beam > - PMU undulator >
 ```
 
-| # | id | name | kind | conf | device / PV | snapshot (2026-10-20) | photos |
-|--:|---|---|---|---|---|---|---|
-| 1 | `undulator` | PMU undulator | source | code | undulator / S01ID:DSID:GapM |  |  |
+| # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
+|--:|---|---|---|---|--:|---|---|---|
+| 1 | `undulator` | PMU undulator | source | code | 0.0 | undulator / S01ID:DSID:GapM |  |  |
 
 ## Hutch A
 
@@ -30,11 +30,11 @@ Coverage: code + user notes; no photo
 beam > - WB_slits - A shutter - HEM monochromator >
 ```
 
-| # | id | name | kind | conf | device / PV | snapshot (2026-10-20) | photos |
-|--:|---|---|---|---|---|---|---|
-| 2 | `wbSlits` | WB_slits | slit | seen | WB_hsize/WB_vsize (read-only signals) / 1ida:Slit1 | hsize_mm=0.3, vsize_mm=0.3, hcenter_mm=0.0, vcenter_mm=0.0, step_h_size=0.05, step_v_size=0.05 | p15 |
-| 3 | `shutter_a` | A shutter (FES) | shutter | code | shutter_a / S01ID-PSS:FES: |  |  |
-| 4 | `hem` | HEM monochromator | mono | inferred | hem_energy (userTran record) / 1id:userTran3 |  |  |
+| # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
+|--:|---|---|---|---|--:|---|---|---|
+| 2 | `wbSlits` | WB_slits | slit | seen |  | WB_hsize/WB_vsize (read-only signals) / 1ida:Slit1 | hsize_mm=0.3, vsize_mm=0.3, hcenter_mm=0.0, vcenter_mm=0.0, step_h_size=0.05, step_v_size=0.05 | p15 |
+| 3 | `shutter_a` | A shutter (FES) | shutter | code |  | shutter_a / S01ID-PSS:FES: |  |  |
+| 4 | `hem` | HEM monochromator | mono | inferred |  | hem_energy (userTran record) / 1id:userTran3 |  |  |
 
 ## Hutch B
 
@@ -47,31 +47,31 @@ beam > - IC1 - Al CRL - IC2 - CRL - IC3 - HRM - IC4 - IC5 - Foil - Atten - IC8 -
       - B-FS - Cork - B_Kohzu - IC6 - B-TOM - BL3 - BL4 - BL5 - IC7 - (magenta marker) >
 ```
 
-| # | id | name | kind | conf | device / PV | snapshot (2026-10-20) | photos |
-|--:|---|---|---|---|---|---|---|
-| 5 | `icB1` | IC1 | ic | seen |  | counts=597 | p12 |
-| 6 | `alCRL` | Al CRL | crl | seen |  |  | p12 |
-| 7 | `icB2` | IC2 | ic | seen |  | counts=181877 | p12 |
-| 8 | `crlB` | CRL | crl | seen |  |  | p12 |
-| 9 | `icB3` | IC3 | ic | seen |  | counts=613014 | p12 |
-| 10 | `hrm` | HRM | mono | seen |  |  | p12 |
-| 11 | `icB4` | IC4 | ic | seen |  | counts=826 | p12 |
-| 12 | `icB5` | IC5 | ic | seen |  | counts=511223 | p12 |
-| 13 | `foilB` | Foil | foil | seen | foilB / 1idb:m18 | position=0 pos | p12 |
-| 14 | `attenB` | Atten | attenuator | seen | attenB / 1idb:m50 | position=0 pos | p12 |
-| 15 | `icB8` | IC8 | ic | seen |  | counts=492028 | p12 |
-| 16 | `stackB1` | Stack1 (first) | lens | inferred | lens4B (guess) / 1idb: |  | p12 |
-| 17 | `stackB2` | Stack1 (second) | lens | inferred | lens5B (guess) / 1idb: |  | p12 |
-| 18 | `fsB` | B-FS | fast_shutter | seen | fsB / 1id:softGlue:AND-1 |  | p12 |
-| 19 | `cork` | Cork | stage | seen | cork / 1idb:m41 | position_mm=112, on_off_buttons=True | p12 |
-| 20 | `slitB` | B_Kohzu (KOHZU) | slit | seen | slitB / 1idb:Slit | hsize_mm=2.0, vsize_mm=2.0, hcenter_mm=0.087, vcenter_mm=-0.115 | p12, p15 |
-| 21 | `icB6` | IC6 | ic | seen |  | counts=803 | p12 |
-| 22 | `tomoB` | B-TOM | detector* | seen | tomoB / 1idb: |  | p12 |
-| 23 | `bl3` | BL3 | unknown | seen |  |  | p12 |
-| 24 | `bl4` | BL4 | unknown | seen |  |  | p12 |
-| 25 | `bl5` | BL5 | unknown | seen |  |  | p12 |
-| 26 | `icB7` | IC7 | ic | seen |  | counts=1196 | p12 |
-| 27 | `endB` | (magenta marker) | unknown | seen |  |  | p12 |
+| # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
+|--:|---|---|---|---|--:|---|---|---|
+| 5 | `icB1` | IC1 | ic | seen |  |  | counts=597 | p12 |
+| 6 | `alCRL` | Al CRL | crl | seen |  |  |  | p12 |
+| 7 | `icB2` | IC2 | ic | seen |  |  | counts=181877 | p12 |
+| 8 | `crlB` | CRL | crl | seen |  |  |  | p12 |
+| 9 | `icB3` | IC3 | ic | seen |  |  | counts=613014 | p12 |
+| 10 | `hrm` | HRM | mono | seen |  |  |  | p12 |
+| 11 | `icB4` | IC4 | ic | seen |  |  | counts=826 | p12 |
+| 12 | `icB5` | IC5 | ic | seen |  |  | counts=511223 | p12 |
+| 13 | `foilB` | Foil | foil | seen |  | foilB / 1idb:m18 | position=0 pos | p12 |
+| 14 | `attenB` | Atten | attenuator | seen |  | attenB / 1idb:m50 | position=0 pos | p12 |
+| 15 | `icB8` | IC8 | ic | seen |  |  | counts=492028 | p12 |
+| 16 | `stackB1` | Stack1 (first) | lens | inferred | 38.8 | lens4B (guess) / 1idb: |  | p12 |
+| 17 | `stackB2` | Stack1 (second) | lens | inferred | 38.9 | lens5B (guess) / 1idb: |  | p12 |
+| 18 | `fsB` | B-FS | fast_shutter | seen |  | fsB / 1id:softGlue:AND-1 |  | p12 |
+| 19 | `cork` | Cork | stage | seen |  | cork / 1idb:m41 | position_mm=112, on_off_buttons=True | p12 |
+| 20 | `slitB` | B_Kohzu (KOHZU) | slit | seen |  | slitB / 1idb:Slit | hsize_mm=2.0, vsize_mm=2.0, hcenter_mm=0.087, vcenter_mm=-0.115 | p12, p15 |
+| 21 | `icB6` | IC6 | ic | seen |  |  | counts=803 | p12 |
+| 22 | `tomoB` | B-TOM | detector* | seen |  | tomoB / 1idb: |  | p12 |
+| 23 | `bl3` | BL3 | unknown | seen |  |  |  | p12 |
+| 24 | `bl4` | BL4 | unknown | seen |  |  |  | p12 |
+| 25 | `bl5` | BL5 | unknown | seen |  |  |  | p12 |
+| 26 | `icB7` | IC7 | ic | seen |  |  | counts=1196 | p12 |
+| 27 | `endB` | (magenta marker) | unknown | seen |  |  |  | p12 |
 
 ## Hutch C
 
@@ -84,29 +84,29 @@ beam > - IC1 - IC2 - Slit 1 - fourC - IC3 - L1 - L2 - L3 - L4 - L5 - L6 - AttenC
       - LabMotion SMS - DBA - Tomo D1 - Stop - Shield - Varex D2 - Lens7 >
 ```
 
-| # | id | name | kind | conf | device / PV | snapshot (2026-10-20) | photos |
-|--:|---|---|---|---|---|---|---|
-| 28 | `icC1` | IC1 | ic | seen |  | counts=887 | p13 |
-| 29 | `icC2` | IC2 | ic | seen |  | counts=244 | p13 |
-| 30 | `slitCus` | Slit 1 (C_Kuz_US) | slit | seen | slitCus / 1idc:Kslitus | hsize_mm=0.7, vsize_mm=0.7, hcenter_mm=0.089, vcenter_mm=0.035 | p13, p15 |
-| 31 | `fourC` | fourC | unknown | seen | 1idc: |  | p13 |
-| 32 | `icC3` | IC3 | ic | seen |  | counts=1094 | p13 |
-| 33 | `lens1C` | L1 | lens | seen | lens1C / 1idc: |  | p13 |
-| 34 | `lens2C` | L2 | lens | seen | lens2C / 1idc: |  | p13 |
-| 35 | `lens3C` | L3 | lens | seen | lens3C / 1idfoc: |  | p13 |
-| 36 | `lens4C` | L4 | lens | seen | lens4C / 1idfoc: |  | p13 |
-| 37 | `lens5C` | L5 (RD) | lens | seen |  |  | p13 |
-| 38 | `lens6C` | L6 (RD) | lens | seen |  |  | p13 |
-| 39 | `attenC` | AttenC | attenuator | seen | attenC / 1idc:m82 |  | p13 |
-| 40 | `slitCds` | Slit 2 (C_Kuz_DS) | slit | seen | slitCds / 1idc:Kslitds | hsize_mm=0.8, vsize_mm=0.8, hcenter_mm=0.141, vcenter_mm=-0.233 | p13, p15 |
-| 41 | `icC4` | IC4 | ic | seen |  | counts=899 | p13 |
-| 42 | `samC` | LabMotion SMS | sample_stage | seen | samC |  | p13 |
-| 43 | `dba` | DBA | unknown | seen |  |  | p13 |
-| 44 | `tomoC` | Tomo D1 | detector* | seen | tomoC / 1idc: |  | p13 |
-| 45 | `stopC` | Stop | beamstop | seen |  |  | p13 |
-| 46 | `shieldC` | Shield | beamstop | seen |  |  | p13 |
-| 47 | `d2C` | Varex D2 | detector | seen | d2C |  | p13 |
-| 48 | `lens7C` | Lens7 | lens | seen |  |  | p13 |
+| # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
+|--:|---|---|---|---|--:|---|---|---|
+| 28 | `icC1` | IC1 | ic | seen |  |  | counts=887 | p13 |
+| 29 | `icC2` | IC2 | ic | seen |  |  | counts=244 | p13 |
+| 30 | `slitCus` | Slit 1 (C_Kuz_US) | slit | seen |  | slitCus / 1idc:Kslitus | hsize_mm=0.7, vsize_mm=0.7, hcenter_mm=0.089, vcenter_mm=0.035 | p13, p15 |
+| 31 | `fourC` | fourC | unknown | seen |  | 1idc: |  | p13 |
+| 32 | `icC3` | IC3 | ic | seen |  |  | counts=1094 | p13 |
+| 33 | `lens1C` | L1 | lens | seen | 59.2 | lens1C / 1idc: |  | p13 |
+| 34 | `lens2C` | L2 | lens | seen | 59.3 | lens2C / 1idc: |  | p13 |
+| 35 | `lens3C` | L3 | lens | seen | 59.6 | lens3C / 1idfoc: |  | p13 |
+| 36 | `lens4C` | L4 | lens | seen | 59.7 | lens4C / 1idfoc: |  | p13 |
+| 37 | `lens5C` | L5 (RD) | lens | seen |  |  |  | p13 |
+| 38 | `lens6C` | L6 (RD) | lens | seen |  |  |  | p13 |
+| 39 | `attenC` | AttenC | attenuator | seen |  | attenC / 1idc:m82 |  | p13 |
+| 40 | `slitCds` | Slit 2 (C_Kuz_DS) | slit | seen |  | slitCds / 1idc:Kslitds | hsize_mm=0.8, vsize_mm=0.8, hcenter_mm=0.141, vcenter_mm=-0.233 | p13, p15 |
+| 41 | `icC4` | IC4 | ic | seen |  |  | counts=899 | p13 |
+| 42 | `samC` | LabMotion SMS | sample_stage | seen |  | samC |  | p13 |
+| 43 | `dba` | DBA | unknown | seen |  |  |  | p13 |
+| 44 | `tomoC` | Tomo D1 | detector* | seen |  | tomoC / 1idc: |  | p13 |
+| 45 | `stopC` | Stop | beamstop | seen |  |  |  | p13 |
+| 46 | `shieldC` | Shield | beamstop | seen |  |  |  | p13 |
+| 47 | `d2C` | Varex D2 | detector | seen |  | d2C |  | p13 |
+| 48 | `lens7C` | Lens7 | lens | seen |  |  |  | p13 |
 
 ## Hutch E
 
@@ -120,32 +120,50 @@ beam > - IC1+2 - Slit US - IC3 - FS - Lens1 - Lens2 - Lens3 - Lens4 - Slit DS - 
       - (HL-SMS) >
 ```
 
-| # | id | name | kind | conf | device / PV | snapshot (2026-10-20) | photos |
-|--:|---|---|---|---|---|---|---|
-| 49 | `icE12` | IC1+2 | ic | seen |  |  | p14 |
-| 50 | `slitEus` | Slit US (Kohzu_E_up) | slit | seen | slitEus / 1ide1:Kohzu_E_up | hsize_mm=0.59, vsize_mm=0.54, hcenter_mm=0.142, vcenter_mm=-0.563 | p14, p15 |
-| 51 | `icE3` | IC3 | ic | seen |  | counts=1083 | p14 |
-| 52 | `fsE` | FS (E fast shutter) | fast_shutter | seen | fsE / 1id:softGlue:AND-2 |  | p14 |
-| 53 | `lens1E` | Lens1 | lens | seen | lens1E / 1ide1: |  | p14, p08 |
-| 54 | `lens2E` | Lens2 | lens | seen | lens2E / 1ide1: |  | p14, p08 |
-| 55 | `lens3E` | Lens3 | lens | seen | lens3E / 1ide1: |  | p14, p07 |
-| 56 | `lens4E` | Lens4 | lens | seen | lens4E / 1ide1: |  | p14, p07 |
-| 57 | `slitEds` | Slit DS (Kohzu_E_dn) | slit | seen | slitEds / 1ide1:Kohzu_E_dn | hsize_mm=0.88, vsize_mm=0.7 | p14, p15 |
-| 58 | `icE4` | IC4 | ic | seen |  | counts=667 | p14 |
-| 59 | `samE` | Aero SMS (+ Aero_Tr base) | sample_stage | seen | samE |  | p14, p01, p02, p03, p04, p05, p16, p18 |
-| 60 | `tomoE` | Tomo D1 | detector* | seen | tomoEus / tomoEds / 1ide1: |  | p14, p04, p05 |
-| 61 | `d2E` | NF D2 | detector | seen | d2E / 1ide1: |  | p14 |
-| 62 | `icE5` | IC5 | ic | seen |  | counts=430 | p14 |
-| 63 | `d3` | D3 | detector | seen |  |  | p14 |
-| 64 | `icE6` | IC6 | ic | seen |  | counts=738 | p14 |
-| 65 | `hydra` | Hydra D4 | detector | seen | ff / 1ide1: |  | p14 |
-| 66 | `vff` | VFF D5 | detector | seen | vff / 1ide1: |  | p14 |
-| 67 | `radiograph` | Radiograph | detector | seen |  |  | p14, p09, p10 |
-| 68 | `icE8` | IC8 | ic | seen |  | counts=6566 | p14 |
-| 69 | `saxs` | SAXS D6 | detector | seen | saxs / saxs_pin / 1ide1: |  | p14, p17 |
-| 70 | `hl_sms` | HL-SMS | sample_stage | seen |  |  | p14 |
+| # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
+|--:|---|---|---|---|--:|---|---|---|
+| 49 | `icE12` | IC1+2 | ic | seen |  |  |  | p14 |
+| 50 | `slitEus` | Slit US (Kohzu_E_up) | slit | seen |  | slitEus / 1ide1:Kohzu_E_up | hsize_mm=0.59, vsize_mm=0.54, hcenter_mm=0.142, vcenter_mm=-0.563 | p14, p15 |
+| 51 | `icE3` | IC3 | ic | seen |  |  | counts=1083 | p14 |
+| 52 | `fsE` | FS (E fast shutter) | fast_shutter | seen |  | fsE / 1id:softGlue:AND-2 |  | p14 |
+| 53 | `lens1E` | Lens1 | lens | seen | 67.7 | lens1E / 1ide1: |  | p14, p08 |
+| 54 | `lens2E` | Lens2 | lens | seen | 67.9 | lens2E / 1ide1: |  | p14, p08 |
+| 55 | `lens3E` | Lens3 | lens | seen | 68.1 | lens3E / 1ide1: |  | p14, p07 |
+| 56 | `lens4E` | Lens4 | lens | seen | 68.5 | lens4E / 1ide1: |  | p14, p07 |
+| 57 | `slitEds` | Slit DS (Kohzu_E_dn) | slit | seen |  | slitEds / 1ide1:Kohzu_E_dn | hsize_mm=0.88, vsize_mm=0.7 | p14, p15 |
+| 58 | `icE4` | IC4 | ic | seen |  |  | counts=667 | p14 |
+| 59 | `samE` | Aero SMS (+ Aero_Tr base) | sample_stage | seen | 71.5 | samE |  | p14, p01, p02, p03, p04, p05, p16, p18 |
+| 60 | `tomoE` | Tomo D1 | detector* | seen |  | tomoEus / tomoEds / 1ide1: |  | p14, p04, p05 |
+| 61 | `d2E` | NF D2 | detector | seen |  | d2E / 1ide1: |  | p14 |
+| 62 | `icE5` | IC5 | ic | seen |  |  | counts=430 | p14 |
+| 63 | `d3` | D3 | detector | seen |  |  |  | p14 |
+| 64 | `icE6` | IC6 | ic | seen |  |  | counts=738 | p14 |
+| 65 | `hydra` | Hydra D4 | detector | seen |  | ff / 1ide1: |  | p14 |
+| 66 | `vff` | VFF D5 | detector | seen |  | vff / 1ide1: |  | p14 |
+| 67 | `radiograph` | Radiograph | detector | seen |  |  |  | p14, p09, p10 |
+| 68 | `icE8` | IC8 | ic | seen |  |  | counts=6566 | p14 |
+| 69 | `saxs` | SAXS D6 | detector | seen |  | saxs / saxs_pin / 1ide1: |  | p14, p17 |
+| 70 | `hl_sms` | HL-SMS | sample_stage | seen |  |  |  | p14 |
 
-`*` = tomo detector.
+`*` = tomo detector. Distances (z, m from the source): 12 of 70 elements known.
+
+## Known distances (m from the source)
+
+| z (m) | element | hutch | basis | source |
+|--:|---|---|---|---|
+| 0.0 | `undulator` PMU undulator | SRC | definition | reference point: all distances are measured from the source |
+| 38.8 | `stackB1` Stack1 (first) | B | inferred | mpe_bluesky lens4B._from_source_m (source-to-lens, m); the panel label 'Stack1' -> lens4B is a guess |
+| 38.9 | `stackB2` Stack1 (second) | B | inferred | mpe_bluesky lens5B._from_source_m (source-to-lens, m); the panel label 'Stack1' -> lens5B is a guess |
+| 59.2 | `lens1C` L1 | C | code | mpe_bluesky lens1C._from_source_m (source-to-lens, m) |
+| 59.3 | `lens2C` L2 | C | code | mpe_bluesky lens2C._from_source_m (source-to-lens, m) |
+| 59.6 | `lens3C` L3 | C | code | mpe_bluesky lens3C._from_source_m (source-to-lens, m) |
+| 59.7 | `lens4C` L4 | C | code | mpe_bluesky lens4C._from_source_m (source-to-lens, m) |
+| 67.7 | `lens1E` Lens1 | E | code | mpe_bluesky lens1E._from_source_m (source-to-lens, m) |
+| 67.9 | `lens2E` Lens2 | E | code | mpe_bluesky lens2E._from_source_m (source-to-lens, m) |
+| 68.1 | `lens3E` Lens3 | E | code | mpe_bluesky lens3E._from_source_m (source-to-lens, m) |
+| 68.5 | `lens4E` Lens4 | E | code | mpe_bluesky lens4E._from_source_m (source-to-lens, m) |
+| 71.5 | `samE` Aero SMS (+ Aero_Tr base) | E | code | mpe_bluesky calculator_tilt.py default_focus_pos = 71.5 ('default to focus at sample position in E'); a default, not a survey |
+
 
 ## Slits (size / centre, mm, snapshot)
 

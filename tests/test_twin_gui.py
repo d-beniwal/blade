@@ -40,6 +40,10 @@ assert t["hutch_order"] == ["SRC", "A", "B", "C", "E"]
 assert [e["index"] for e in t["elements"]] == list(range(len(t["elements"])))      # beam order, contiguous
 assert {e["id"] for e in t["elements"] if e["kind"] == "slit"} >= {"wbSlits", "slitB", "slitCus", "slitCds", "slitEus", "slitEds"}
 assert "samE" in t["blade_targets"] and any("samE.ry" in m for m in t["blade_targets"]["samE"]), t["blade_targets"]
+zs = {e["id"]: e["z_m"] for e in t["elements"] if e.get("z_m") is not None}
+assert zs["undulator"] == 0.0 and zs["samE"] == 71.5 and zs["lens1E"] == 67.7 and len(zs) == 12, zs     # known distances only; none invented
+assert all(e.get("z_conf") and e.get("z_src") for e in t["elements"] if e.get("z_m") is not None)
+assert list(zs.values()) == sorted(zs.values())                       # monotone along the beam
 assert "samE" in t["assemblies"] and t["assemblies"]["samE"]["stack_top_to_bottom"]
 assert d["profile"]["cameras"]["gh1"]["hutch"] == "E"
 

@@ -2,6 +2,7 @@
   "schema": 1,
   "id": "1-ID",
   "name": "APS Sector 1, beamline 1-ID (MPE)",
+  "distances": "z_m = distance from the source along the beam (m); z_conf/z_src give provenance. Known so far (2026-11-11): the source (0) and the lens stacks in B/C/E and the default sample position in E, all from mpe_bluesky (~0.1 m resolution). Everything else is null (not guessed).",
   "beam_direction": "left to right on every operator panel (CS-Studio); hutch order downstream is SRC > A > B > C > E",
   "hutch_order": ["SRC", "A", "B", "C", "E"],
   "hutches": {

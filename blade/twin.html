@@ -150,7 +150,7 @@ function glyph(e,x,y){
  return s;
 }
 function pathView(){
- const t=P.twin,DX=62;let out='';
+ const t=P.twin,DX=62;let out='';const zfmt=z=>(+z).toFixed(1);
  const bt=t.blade_targets||{};
  for(const h of t.hutch_order){
   const els=t.elements.filter(e=>e.hutch===h);if(!els.length)continue;
@@ -159,7 +159,7 @@ function pathView(){
   els.forEach(e=>{if(e.near&&pos[e.near]!=null)pos[e.id]=pos[e.near];else if(e.near)pos[e.id]=46+(slot++)*DX});
   const W=Math.max(300,46+slot*DX+30);
   const isAbove=e=>e.kind==='ic'||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above'),isBelow=e=>e.kind!=='ic'&&e.placement==='retractable'&&e.side==='below';
-  const LY=els.some(isAbove)?175:50,H=LY+(els.some(isBelow)?200:120);
+  const LY=els.some(isAbove)?175:50,H=LY+(els.some(isBelow)?200:120)+(els.some(e=>e.z_m!=null)?26:0);
   let g='';
   els.forEach(e=>{
    const x=pos[e.id],ic=e.kind==='ic',above=ic||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above');
@@ -175,10 +175,11 @@ function pathView(){
    g+=`<g class="item" data-id="${esc(e.id)}"><title>${esc(tip)}</title>${conn}<g class="${cls}"><circle class="halo" cx="${x}" cy="${gy}" r="27"/>${glyph(e,x,gy)}</g><g class="${dim?'dim':''}">${lab}</g></g>`;
   });
   const hd=t.hutches[h];
+  els.filter(e=>e.z_m!=null).forEach(e=>{const x=pos[e.id];g+=`<g class="${match(e)?'':'dim'}"><line class="conn" x1="${x}" x2="${x}" y1="${H-24}" y2="${H-18}"/><text x="${x-16}" y="${H-6}" style="fill:var(--ink)">${zfmt(e.z_m)} m</text></g>`});
   out+=`<div class="card"><div class="hh"><b>Hutch ${esc(h)}</b><span>${esc(hd.description)}</span></div><div class="mute" style="font-size:12px;margin-bottom:4px">coverage: ${esc(hd.coverage)}</div>
    <div class="scroll"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path class="beamline" d="M0,${LY} H${W-8}"/><path d="M${W-8},${LY-5} l9,5 l-9,5z" fill="var(--beam)"/>${g}</svg></div></div>`;
  }
- out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?'only some distances known':'no distances known yet; z_m is not set'}). Stroke colour = confidence (solid black seen · blue code · amber dashed inferred); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
+ out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?`only ${t.elements.filter(e=>e.z_m!=null).length} of ${t.elements.length} distances are known; those are printed under the row in m from the source`:'no distances known yet; z_m is not set'}). Stroke colour = confidence (solid black seen · blue code · amber dashed inferred); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
  return `<div style="display:grid;gap:12px">${out}</div>`;
 }
 
@@ -227,7 +228,7 @@ function side(){
  add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
  if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));
  add('device',e.dev&&`<span class="mono">${esc(e.dev)}</span>`);add('PV',e.pv&&`<span class="mono">${esc(e.pv)}</span>`);
- add('z',e.z_m==null?'<span class="mute">unknown (not set)</span>':esc(e.z_m)+' m');
+ add('z',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b> from the source <span class="mute">— ${esc(e.z_conf)}</span><div class="note" style="margin-top:2px">${esc(e.z_src)}</div>`);
  let ctl='';
  if(e.controls){ctl=`<h2 style="margin-top:12px">Controls</h2><table><tbody>`+Object.entries(e.controls).map(([k,v])=>{
    if(v&&typeof v==='object'&&!Array.isArray(v)){const f=Object.entries(v).map(([a,b])=>`${esc(a)} ${esc(Array.isArray(b)?b.join('…'):typeof b==='object'?JSON.stringify(b):b)}`).join(' · ');return `<tr><td class="l">${esc(k)}</td><td class="l">${f}</td></tr>`}
