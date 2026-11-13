@@ -89,8 +89,9 @@ assert abs(f["edges_frac"][0][1] - 0.25) < 0.01 and f["edges_frac"][0][0] < f["e
 assert rh["dist_um"][0] > 0 and rh["dist_um"][-1] < rh["frame_um"] and rv["frame_um"] != rh["frame_um"]  # absolute positions inside the frame
 assert abs(rv["fit"]["centre_frac"][0] - 0.5) < 0.01                                                      # vertical profile: marker on the box mid-column
 
-# real gh1 frame (local only: s1_data/ is git-ignored). Edges read off the image: window ~310-1035 um (0.69 um/px), see playbooks/image_analysis.md
-real = ROOT / "s1_data/tomo_alignment/alignment_pin/alignment_pin_000044.h5"
+# real gh1 frame (local only: knowledge tree data/, outside the repo). Edges read off the image: window ~310-1035 um (0.69 um/px), see playbooks/image_analysis.md
+from blade import paths  # noqa: E402
+real = paths.knowledge_dir("data") / "tomo_alignment/alignment_pin/alignment_pin_000044.h5"
 if real.exists():
     import h5py
     with h5py.File(real) as h:

@@ -16,6 +16,7 @@ alignment pin on a tomo camera, rotating it, and correcting the stage motors unt
 | `blade/registry.py`, `blade/mcp_server.py`, `blade/*/tools.py` | the MCP server (`blade mcp`): every capability is registered as a tool here; this is how other agents use BLADE |
 | `profiles/<name>/default_config.json` | cameras, pixel sizes, per-hutch `stations` (motor PVs/names, signs), limits, tolerances, pin shape. See `profiles/README.md` |
 | `playbooks/alignment.md` | the agent's instructions for the alignment module — **the agent reads this** |
+| `knowledge.example.json` | template for the git-ignored `knowledge.json`: where the (private) knowledge tree is |
 | `AGENTS.md`, `.context/` | project context for agents (state, decisions, domain notes) |
 | `tests/` | simulator end-to-end test and detection tests |
 | `launch.py` | run from a checkout without installing: `python -I launch.py align ...` |
@@ -65,15 +66,32 @@ Notes:
 ```
 python -I tests/scripted_agent.py            # full alignment on the simulator, ~20 s
 python -I tests/test_detection.py            # detection logic on simulated frames
-python -I tests/test_identity.py             # pin vs holder/other objects (needs the local s1_data/ folder)
-python -I tests/test_partial.py              # partly visible pin (needs s1_data/)
+python -I tests/test_identity.py             # pin vs holder/other objects (needs real frames in the knowledge tree, data/)
+python -I tests/test_partial.py              # partly visible pin (needs the same)
+python -I tests/test_cs_registry.py          # twin + profile vs the CS-Studio display registry
 blade align new-run --profile demo           # the generic simulator-only profile
 ```
+
+## Code vs knowledge (two isolated trees)
+
+This repo is the **code**: profiles, playbooks, twin descriptions, tools. It is meant to be shared with other people and beamlines, so nothing
+sensitive or unpublished lives in it. Everything that may be - experiment logs and their index, the knowledge base built from them, raw beamline
+data, reference photos/screenshots, alignment run folders, scratch work - lives in a separate **knowledge tree** whose location is configuration:
+
+```
+<knowledge root>/<beamline>/{kb, logs_index, logs_src, data, twin_photos, runs, scratch}      e.g. S1ID/blade_knowledge/1-ID/...
+```
+
+Point BLADE at it with `knowledge.json` (copy `knowledge.example.json`; git-ignored, or `~/.config/blade/knowledge.json`), or `$BLADE_KNOWLEDGE`.
+Single folders can be re-pointed (`paths` in that file, or `$BLADE_KB`, `$BLADE_RUNS`, `$BLADE_DATA`, ...) - e.g. `cs_displays`, the folder with the
+beamline's CS-Studio `.bob` displays (ground truth for PV names, read by `beamline_twins/tools/csdisplays.py`). `python -m blade.paths` prints
+what resolves where. With nothing configured the fallback is an empty, git-ignored `knowledge_local/`, so a fresh clone never touches anyone else's data.
+(`runs/<id>/` in this documentation means the `runs` folder of the knowledge tree.)
 
 ## Taking BLADE to another beamline
 
 1. `cp -r profiles/demo profiles/<name>` and fill in `default_config.json` (cameras and PVs, a station per hutch with motors and signs, limits). Details and the checklist: `profiles/README.md`.
-2. Machine-specific overrides go in the git-ignored `profiles/<name>/active_config.json`; a profile folder can also live outside the repo (`BLADE_PROFILES_DIR`).
+2. Machine-specific overrides go in the git-ignored `profiles/<name>/active_config.json`; a profile folder can also live outside the repo (`BLADE_PROFILES_DIR`). Give the new beamline its own folder in the knowledge tree (`<root>/<twin id>/`) - nothing of another beamline is shared.
 3. Prove it on the simulator (`--profile <name>`), then on hardware with `--backend epics --camera <name>`.
 
 ## What a run produces

@@ -4,7 +4,7 @@
 #   blade-gui twin         ... open the beamline twin viewer instead
 #   blade-gui vbl          ... open the VIRTUAL BEAMLINE (simulated 1-ID control room: tomo camera, slits, energy/flux, pin)
 #   blade-gui physics      ... open the PHYSICS MODELS page of the virtual beamline (equations, live parameters, curves)
-#   blade-gui kb           ... open the KNOWLEDGE BASE viewer (procedures, labelled log images, log text; needs the local kb_1ID data)
+#   blade-gui kb           ... open the KNOWLEDGE BASE viewer (procedures, labelled log images, log text; needs the knowledge tree, see `python -m blade.paths`)
 #   blade-gui --port 8800  other port (any `blade gui` option works)
 # Python: $BLADE_PYTHON, else the conda env `blade`, else python3 (the GUI itself is stdlib-only).
 # To use it from anywhere:  ln -s "<this file>" ~/.local/bin/blade-gui

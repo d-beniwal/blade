@@ -49,7 +49,7 @@ def photo_file(tid, photo_id_or_file):
     t = _twin_module().load(tid, paths.TWINS_DIR)
     for p in t["photos"].values():
         if photo_id_or_file in (p["id"], p["file"]):
-            f = t["dir"] / "sources" / "photos" / p["file"]
+            f = _twin_module().photos_dir(tid) / p["file"]
             return f if f.is_file() else None
     return None
 
@@ -93,7 +93,7 @@ def twin_payload(profile):
         "elements": els, "assemblies": t["assemblies"],
         **{k: bl[k] for k in ("detector_iocs", "ioc_panels", "header_pvs", "beam_types", "ic_readout") if k in bl},
         "overview": bl.get("operator_screens", {}).get("overview_cs01"),
-        "photos": [{**p, "local": (t["dir"] / "sources" / "photos" / p["file"]).is_file()} for p in t["photos"].values()],
+        "photos": [{**p, "local": (tm.photos_dir(tid) / p["file"]).is_file()} for p in t["photos"].values()],
         "conf_order": list(tm.CONF), "conf_counts": {c: sum(1 for e in els if e["conf"] == c) for c in tm.CONF},
         "blade_targets": _blade_targets(prof, els), "check": {"errors": errs, "warnings": warns},
         "any_distance": any(isinstance(e.get("z_m"), (int, float)) for e in els),

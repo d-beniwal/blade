@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """BLADE knowledge base for 1-ID: images + text from the experiment logs, labelled and searchable.
 
-Needs the `blade` conda env (Pillow, numpy). Data root (git-ignored / outside the repo): $KB_ROOT or <BL_instrumentation>/kb_1ID.
+Needs the `blade` conda env (Pillow, numpy). Data root (outside the repo): the "kb" folder of the knowledge tree, see blade/paths.py (`python -m blade.paths`).
 
     kb.py ingest [--doc ID ...]            # sync text from logindex's logs.sqlite, extract every embedded image (content-addressed), auto-label
     kb.py stats                            # counts per class / source / year
@@ -30,10 +30,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
-WORKSPACE = REPO.parent                                    # <BL_instrumentation>
-KB_ROOT = Path(os.environ.get("KB_ROOT", WORKSPACE / "kb_1ID"))
-LOGS_SRC = WORKSPACE / "mpe_logs" / "User_experiment_logs" / "1ID"
-LOGS_DB = REPO / "beamline_twins" / "1-ID" / "logs_index" / "logs.sqlite"
+sys.path.insert(0, str(REPO))
+from blade import paths  # noqa: E402   (knowledge locations are configuration, see blade/paths.py)
+KB_ROOT = paths.knowledge_dir("kb")
+LOGS_SRC = paths.knowledge_dir("logs_src")
+LOGS_DB = paths.knowledge_dir("logs_index") / "logs.sqlite"
 DB = KB_ROOT / "kb.sqlite"
 
 IMG_RE = re.compile(r"\[IMG ([^\]]+)\]")

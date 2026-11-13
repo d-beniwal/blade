@@ -3,7 +3,7 @@
 All 1,182 legible, value-rich EPICS/MEDM panel screenshots of the experiment logs (2021-2026, 94 logs) were transcribed, number by number, from the
 pixels (53 packs, sonnet agents, full-size reads), then gated for reliability, aggregated, and used to fit and check the physics. Code: `knowledge_base/`
 `facts.py` (packs, strict loader, blind audit), `factnorm.py` (device parsing + reliability tiers), `factstats.py` (registry, limits, steps, baselines),
-`factphysics.py` (fits). Raw per-image values stay in the private KB (`kb_1ID/`); this folder gets aggregates only
+`factphysics.py` (fits). Raw per-image values stay in the private KB (knowledge tree, `1-ID/kb/`); this folder gets aggregates only
 (`fits/facts_hem.json`, `fits/facts_gap.json`, `../panel_registry.json`, `../panel_baseline.json`). Tests: `tests/test_fit_facts_hem.py`, `tests/test_facts_reliability.py`.
 
 ## 12.1 Reliability: what is used, and how we know it is accurate

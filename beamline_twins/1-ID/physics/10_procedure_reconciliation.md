@@ -1,6 +1,6 @@
 # 10. Procedure knowledge base vs the virtual beamline (reconciliation, 2026-11-12)
 
-Source: the 14 procedure records built from the logs (`knowledge_base/`, data in `kb_1ID/procedures/`; 743 logged numbers, each with a log citation). Each record has `vbl_relevance`
+Source: the 14 procedure records built from the logs (`knowledge_base/`, data in the knowledge tree, `1-ID/kb/procedures/`; 743 logged numbers, each with a log citation). Each record has `vbl_relevance`
 notes; this page checks them against `sim.json` / `blade.vbl` / `blade.physics`. **Status: partial.** Checks and one test are done; the sim.json changes are prepared but NOT adopted
 (file `sim_proposed_2026-11-12.json` next to `sim.json`), because the end-to-end pin alignment (`align_adaptive`) fails in `tests/test_vbl.py` (see 10.4) and I did not want to
 change the sim while that is unexplained.

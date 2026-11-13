@@ -48,12 +48,12 @@ Citation `[S25b:L35]` = document key + line number in the extracted log text. Ke
 | S25a / S25b | 2025-startup_jan25_explog / 2025-startup1id_jun2025_explog | startups Jan, Jun 2025 |
 | M26a / B26 / T26 / M26b | 2026-mpe_jan26 / 2026-Brightness_mode_feb26 / 2026-techcomm_jun26_explog / 2026-mpe_sep26 | 2026 logs |
 
-The index and the full extracted text are **local only** (`beamline_twins/1-ID/logs_index/`, git-ignored: the logs are users' unpublished records and the repo is public). Rebuild and query with `beamline_twins/tools/logindex.py` (`build`, `search`, `topic`, `params`, `show`, `outline`, `images`); `logstats.py` regenerates file 07. The per-period reading notes written while building this (with more detail than these files) are in `logs_index/notes/` (local).
+The index and the full extracted text are **local only** (the `logs_index/` folder of the knowledge tree, outside the repo - `python -m blade.paths`: the logs are users' unpublished records and the repo is public). Rebuild and query with `beamline_twins/tools/logindex.py` (`build`, `search`, `topic`, `params`, `show`, `outline`, `images`); `logstats.py` regenerates file 07. The per-period reading notes written while building this (with more detail than these files) are in `logs_index/notes/` (local).
 
 ## Coverage (read this before trusting a gap)
 - **Read line by line:** the 16 startup/commissioning/setup logs (2022-2026) plus the alignment-reference spreadsheet. **Screenshots were only partly examined** (roughly 12-28 images per log of 20-130 each; the ones carrying operator-panel values were prioritised), so settings that exist only in a picture may be missing.
 - **Statistics only (not read line by line):** the 86 user-experiment logs and 19 spreadsheets, through their header blocks and regex-extracted parameters (`07_typical_parameters.md`). Their start-of-beamtime alignment sections are findable with `logindex.py topic alignment --kind user` but were not digested.
-- **Not covered:** logs before 2022 and any year not in `mpe_logs/User_experiment_logs/1ID`.
+- **Not covered:** logs before 2022 and any year not in the knowledge tree's `logs_src/`.
 
 ## Confidence conventions
 **observed**: stated in a log with numbers. **model validated**: a `blade.physics` function reproduces logged numbers (test in `tests/test_physics.py`). **inferred**: this project's reading; flagged INFERRED where the text allows. Where two logs disagree, both are kept in the notes. Do not use a number from here for hardware motion without checking the live PV limits: BLADE's protection rules (`AGENTS.md`) still apply.

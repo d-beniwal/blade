@@ -14,7 +14,8 @@ from scipy import ndimage as ndi  # noqa: E402
 from blade.alignment import measure as M  # noqa: E402
 from blade import config as cfg  # noqa: E402
 
-D = ROOT / "s1_data/tomo_alignment/"
+from blade import paths  # noqa: E402
+D = paths.knowledge_dir("data") / "tomo_alignment"
 if not (D / "alignment_pin/alignment_pin_000044.h5").exists():
     print("SKIP: s1_data not available"); sys.exit(0)
 

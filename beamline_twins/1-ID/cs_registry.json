@@ -1,0 +1,2981 @@
+{
+ "schema": 1,
+ "beamline": "1-ID",
+ "source": "CS-Studio/Phoebus .bob displays (1id/*.bob), parsed by beamline_twins/tools/csdisplays.py",
+ "display_dates": {
+  "1ID_MAIN.bob": "07-20-2026",
+  "1idc_layout.bob": "8-31-2026",
+  "1ide_layout.bob": "03-04-2026"
+ },
+ "elements": {
+  "icB1": {
+   "hutch": "B",
+   "label": "IC1",
+   "x": 14,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC1-B PreAmp",
+     "ic": {
+      "preamp": "1id:A1",
+      "scaler": "1id:S1:scaler1",
+      "channel": 3,
+      "counts_pv": "1id:S1:scaler1.S3"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "alCRL": {
+   "hutch": "B",
+   "label": "Al CRL",
+   "x": 70,
+   "devices": [
+    {
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m20",
+       "name": null
+      },
+      {
+       "pv": "1idb:m21",
+       "name": null
+      },
+      {
+       "pv": "1idb:m23",
+       "name": null
+      },
+      {
+       "pv": "1idb:m31",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB2": {
+   "hutch": "B",
+   "label": "IC2",
+   "x": 130,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC2-B PreAmp",
+     "ic": {
+      "preamp": "1id:A2",
+      "scaler": "1id:S1:scaler1",
+      "channel": 4,
+      "counts_pv": "1id:S1:scaler1.S4"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "crlB": {
+   "hutch": "B",
+   "label": "CRL",
+   "x": 180,
+   "devices": [
+    {
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m24",
+       "name": null
+      },
+      {
+       "pv": "1idb:m25",
+       "name": null
+      },
+      {
+       "pv": "1idb:m26",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB3": {
+   "hutch": "B",
+   "label": "IC3",
+   "x": 227,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC3-B PreAmp",
+     "ic": {
+      "preamp": "1id:A3",
+      "scaler": "1id:S1:scaler1",
+      "channel": 5,
+      "counts_pv": "1id:S1:scaler1.S5"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "hrmC1": {
+   "hutch": "B",
+   "label": "HRM",
+   "x": 269,
+   "devices": [
+    {
+     "panel": "hrSeqCtl_All.bob",
+     "P": "1ida:"
+    }
+   ]
+  },
+  "hrmC2": {
+   "hutch": "B",
+   "label": "HRM",
+   "x": 269,
+   "devices": [
+    {
+     "panel": "hrSeqCtl_All.bob",
+     "P": "1ida:"
+    }
+   ]
+  },
+  "icB4": {
+   "hutch": "B",
+   "label": "IC4",
+   "x": 294,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC4-B PreAmp",
+     "ic": {
+      "preamp": "1id:A4",
+      "scaler": "1id:S1:scaler1",
+      "channel": 6,
+      "counts_pv": "1id:S1:scaler1.S6"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "icB5": {
+   "hutch": "B",
+   "label": "IC5",
+   "x": 349,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC5-B PreAmp",
+     "ic": {
+      "preamp": "1id:A5",
+      "scaler": "1id:S1:scaler1",
+      "channel": 7,
+      "counts_pv": "1id:S1:scaler1.S7"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "foilB": {
+   "hutch": "B",
+   "label": "Foil",
+   "x": 382,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idb:",
+     "title": "Foil_wheel_in_B",
+     "motors": [
+      {
+       "pv": "1idb:m18",
+       "name": "Foil_wheel_in_B"
+      }
+     ]
+    },
+    {
+     "panel": "1id_all_atten_wheel.bob"
+    }
+   ]
+  },
+  "attenB": {
+   "hutch": "B",
+   "label": "Atten",
+   "x": 421,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idb:",
+     "title": "Atten_wheel_in_B",
+     "motors": [
+      {
+       "pv": "1idb:m50",
+       "name": "Atten_wheel_in_B"
+      }
+     ]
+    },
+    {
+     "panel": "1id_all_atten_wheel.bob"
+    }
+   ]
+  },
+  "icB8": {
+   "hutch": "B",
+   "label": "IC8",
+   "x": 453,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC8-B PreAmp",
+     "ic": {
+      "preamp": "1id:A8",
+      "scaler": "1id:S1:scaler1",
+      "channel": 8,
+      "counts_pv": "1id:S1:scaler1.S8"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "stackB1": {
+   "hutch": "B",
+   "label": "Stack1",
+   "x": 478,
+   "devices": [
+    {
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m43",
+       "name": null
+      },
+      {
+       "pv": "1idb:m45",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "stackB2": {
+   "hutch": "B",
+   "label": "Stack1",
+   "x": 518,
+   "devices": [
+    {
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m25",
+       "name": null
+      },
+      {
+       "pv": "1idb:m64",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "fsB": {
+   "hutch": "B",
+   "label": "B-FS",
+   "x": 552,
+   "devices": [
+    {
+     "panel": "motor2x_more_stack.bob",
+     "P": "1idb:",
+     "title": "FS_in_B",
+     "motors": [
+      {
+       "pv": "1idb:m27",
+       "name": "FS_X"
+      },
+      {
+       "pv": "1idb:m28",
+       "name": "FS_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "cork": {
+   "hutch": "B",
+   "label": "Cork",
+   "x": 588,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idb:",
+     "title": "B_Cork_X",
+     "motors": [
+      {
+       "pv": "1idb:m41",
+       "name": "B_Cork_X"
+      }
+     ]
+    }
+   ]
+  },
+  "slitB": {
+   "hutch": "B",
+   "label": "KOHZU B",
+   "x": 632,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1idb:",
+     "title": "DS_Kohzu",
+     "slit": {
+      "name": "Slit",
+      "pv": "1idb:Slit",
+      "h": "SlitH",
+      "v": "SlitV"
+     }
+    },
+    {
+     "panel": "4slitGraphic_lkds.bob",
+     "P": "1idb:",
+     "title": "DS_Kohzu",
+     "slit": {
+      "name": "Slit",
+      "pv": "1idb:Slit",
+      "h": "SlitH",
+      "v": "SlitV"
+     }
+    },
+    {
+     "panel": "test_slits.bob",
+     "P": "1idb:",
+     "motors": [
+      {
+       "pv": "1idb:m32",
+       "name": null
+      },
+      {
+       "pv": "1idb:m58",
+       "name": null
+      },
+      {
+       "pv": "1idb:m60",
+       "name": null
+      },
+      {
+       "pv": "1idb:m61",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "1id_all_slits.bob"
+    }
+   ]
+  },
+  "icB6": {
+   "hutch": "B",
+   "label": "IC6",
+   "x": 664,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC6-B PreAmp",
+     "ic": {
+      "preamp": "1id:A6",
+      "scaler": "1id:S1:scaler1",
+      "channel": 9,
+      "counts_pv": "1id:S1:scaler1.S9"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "tomoB": {
+   "hutch": "B",
+   "label": "B-TOMO",
+   "x": 690,
+   "devices": [
+    {
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m40",
+       "name": null
+      },
+      {
+       "pv": "1idb:m52",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl3": {
+   "hutch": "B",
+   "label": "BL3",
+   "x": 780,
+   "devices": [
+    {
+     "panel": "motor5x.bob",
+     "P": "1idb:",
+     "title": "B_L3(Lengeler 2D)",
+     "motors": [
+      {
+       "pv": "1idb:m44",
+       "name": null
+      },
+      {
+       "pv": "1idb:m49",
+       "name": null
+      },
+      {
+       "pv": "1idb:m53",
+       "name": null
+      },
+      {
+       "pv": "1idb:m54",
+       "name": null
+      },
+      {
+       "pv": "1idb:m56",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl4": {
+   "hutch": "B",
+   "label": "BL4",
+   "x": 838,
+   "devices": [
+    {
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m19",
+       "name": null
+      },
+      {
+       "pv": "1idb:m20",
+       "name": null
+      },
+      {
+       "pv": "1idb:m21",
+       "name": null
+      },
+      {
+       "pv": "1idb:m22",
+       "name": null
+      },
+      {
+       "pv": "1idb:m23",
+       "name": null
+      },
+      {
+       "pv": "1idb:m24",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl5": {
+   "hutch": "B",
+   "label": "BL5",
+   "x": 890,
+   "devices": [
+    {
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m26",
+       "name": null
+      },
+      {
+       "pv": "1idb:m29",
+       "name": null
+      },
+      {
+       "pv": "1idb:m45",
+       "name": null
+      },
+      {
+       "pv": "1idb:m46",
+       "name": null
+      },
+      {
+       "pv": "1idb:m47",
+       "name": null
+      },
+      {
+       "pv": "1idb:m48",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB7": {
+   "hutch": "B",
+   "label": "IC7",
+   "x": 949,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1id:",
+     "title": "IC7-B PreAmp",
+     "ic": {
+      "preamp": "1id:A7",
+      "scaler": "1id:S1:scaler1",
+      "channel": 10,
+      "counts_pv": "1id:S1:scaler1.S10"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1id:"
+    }
+   ]
+  },
+  "icC1": {
+   "hutch": "C",
+   "label": "IC1",
+   "x": 5,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1idc:",
+     "title": "IC1-C_tiny",
+     "ic": {
+      "preamp": "1idc:A1",
+      "scaler": "1id:S1:scaler1",
+      "channel": 12,
+      "counts_pv": "1id:S1:scaler1.S12"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "title": "IC1-C"
+    }
+   ]
+  },
+  "icC2": {
+   "hutch": "C",
+   "label": "IC2",
+   "x": 36,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1idc:",
+     "title": "IC2-C",
+     "ic": {
+      "preamp": "1idc:A2",
+      "scaler": "1id:S1:scaler1",
+      "channel": 13,
+      "counts_pv": "1id:S1:scaler1.S13"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "title": "IC2-C"
+    }
+   ]
+  },
+  "slitCus": {
+   "hutch": "C",
+   "label": "Slit 1",
+   "x": 67,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1idc:",
+     "title": "Kslitus",
+     "slit": {
+      "name": "Kslitus",
+      "pv": "1idc:Kslitus",
+      "h": "KslitusH",
+      "v": "KslitusV"
+     }
+    },
+    {
+     "panel": "test_slits.bob",
+     "P": "1idc:",
+     "title": "Kslitus(C-hutch)",
+     "motors": [
+      {
+       "pv": "1idc:m39",
+       "name": null
+      },
+      {
+       "pv": "1idc:m61",
+       "name": null
+      },
+      {
+       "pv": "1idc:m62",
+       "name": null
+      },
+      {
+       "pv": "1idc:m64",
+       "name": null
+      }
+     ],
+     "slit": {
+      "name": "Kslitus",
+      "pv": "1idc:Kslitus",
+      "h": "",
+      "v": ""
+     }
+    },
+    {
+     "panel": "motor2x.bob",
+     "P": "1idc:",
+     "motors": [
+      {
+       "pv": "1idc:m59",
+       "name": null
+      },
+      {
+       "pv": "1idc:m60",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1idc:",
+     "title": "Slits in C"
+    },
+    {
+     "panel": "1id_all_slits.bob"
+    }
+   ]
+  },
+  "fourC": {
+   "hutch": "C",
+   "label": "fourc",
+   "x": 180,
+   "devices": [
+    {
+     "panel": "motorx2x3x.bob",
+     "title": "fourc table",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m2",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m3",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m4",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m5",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m6",
+       "name": null
+      },
+      {
+       "pv": "1idc:m76",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "motor5x.bob",
+     "P": "1idc:",
+     "title": "four circle",
+     "motors": [
+      {
+       "pv": "1idc:m40",
+       "name": null
+      },
+      {
+       "pv": "1idc:m74",
+       "name": null
+      },
+      {
+       "pv": "1idc:m75",
+       "name": null
+      },
+      {
+       "pv": "1idc:m85",
+       "name": null
+      },
+      {
+       "pv": "1idc:m86",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icC3": {
+   "hutch": "C",
+   "label": "IC3",
+   "x": 270,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1idc:",
+     "title": "IC3-C",
+     "ic": {
+      "preamp": "1idc:A3",
+      "scaler": "1id:S1:scaler1",
+      "channel": 14,
+      "counts_pv": "1id:S1:scaler1.S14"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "title": "IC3-C"
+    }
+   ]
+  },
+  "lens1C": {
+   "hutch": "C",
+   "label": "L1",
+   "x": 306,
+   "devices": [
+    {
+     "panel": "motor6x_V_lens_stack.bob",
+     "P": "1idc:",
+     "title": "C_L1",
+     "motors": [
+      {
+       "pv": "1idc:m99",
+       "name": "X"
+      },
+      {
+       "pv": "1idc:m100",
+       "name": "Y"
+      },
+      {
+       "pv": "1idc:m101",
+       "name": "Z"
+      },
+      {
+       "pv": "1idc:m102",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1idc:m103",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1idc:m104",
+       "name": "Rx (Theta)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens2C": {
+   "hutch": "C",
+   "label": "L2",
+   "x": 339,
+   "devices": [
+    {
+     "panel": "motor6x_V_lens_stack.bob",
+     "P": "1idc:",
+     "title": "C_L2",
+     "motors": [
+      {
+       "pv": "1idc:m65",
+       "name": "X"
+      },
+      {
+       "pv": "1idc:m66",
+       "name": "Y"
+      },
+      {
+       "pv": "1idc:m67",
+       "name": "Z"
+      },
+      {
+       "pv": "1idc:m68",
+       "name": "Rx (Theta)"
+      },
+      {
+       "pv": "1idc:m69",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1idc:m70",
+       "name": "Rz (Chi)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens3C": {
+   "hutch": "C",
+   "label": "L3",
+   "x": 374,
+   "devices": [
+    {
+     "panel": "motor6x_H_lens_stack.bob",
+     "P": "1idfoc:",
+     "title": "C_L3",
+     "motors": [
+      {
+       "pv": "1idfoc:m1",
+       "name": "X"
+      },
+      {
+       "pv": "1idfoc:m2",
+       "name": "Y"
+      },
+      {
+       "pv": "1idfoc:m3",
+       "name": "Z"
+      },
+      {
+       "pv": "1idfoc:m4",
+       "name": "Rx"
+      },
+      {
+       "pv": "1idfoc:m5",
+       "name": "Phi (Ry)"
+      },
+      {
+       "pv": "1idfoc:m6",
+       "name": "Rz"
+      }
+     ]
+    }
+   ]
+  },
+  "lens4C": {
+   "hutch": "C",
+   "label": "L4",
+   "x": 409,
+   "devices": [
+    {
+     "panel": "motor6x_H_lens_stack.bob",
+     "P": "1idfoc:",
+     "title": "C_L4",
+     "motors": [
+      {
+       "pv": "1idfoc:m7",
+       "name": "x"
+      },
+      {
+       "pv": "1idfoc:m8",
+       "name": "Y"
+      },
+      {
+       "pv": "1idfoc:m9",
+       "name": "Z"
+      },
+      {
+       "pv": "1idfoc:m10",
+       "name": "Theta (Rx)"
+      },
+      {
+       "pv": "1idfoc:m11",
+       "name": "Phi (Ry)"
+      },
+      {
+       "pv": "1idfoc:m12",
+       "name": "Chi (Rz)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens5C": {
+   "hutch": "C",
+   "label": "L5(RD)",
+   "x": 443,
+   "devices": [
+    {
+     "panel": "motor6x.bob",
+     "P": "1idc:",
+     "title": "C_L5",
+     "motors": [
+      {
+       "pv": "1idc:m99",
+       "name": null
+      },
+      {
+       "pv": "1idc:m100",
+       "name": null
+      },
+      {
+       "pv": "1idc:m101",
+       "name": null
+      },
+      {
+       "pv": "1idc:m102",
+       "name": null
+      },
+      {
+       "pv": "1idc:m103",
+       "name": null
+      },
+      {
+       "pv": "1idc:m104",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "lens6C": {
+   "hutch": "C",
+   "label": "L6(RD)",
+   "x": 478,
+   "devices": [
+    {
+     "panel": "motor6x.bob",
+     "P": "1idfoc:",
+     "title": "C_L6",
+     "motors": [
+      {
+       "pv": "1idfoc:m13",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m14",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m15",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m16",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m17",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m18",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "attenC": {
+   "hutch": "C",
+   "label": "AttenC",
+   "x": 527,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idc:",
+     "title": "atten_C",
+     "motors": [
+      {
+       "pv": "1idc:m82",
+       "name": "atten_C"
+      }
+     ]
+    },
+    {
+     "panel": "1id_all_atten_wheel.bob"
+    }
+   ]
+  },
+  "slitCds": {
+   "hutch": "C",
+   "label": "Slit 2",
+   "x": 565,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1idc:",
+     "title": "Kslitds(C-hutch)",
+     "slit": {
+      "name": "Kslitds",
+      "pv": "1idc:Kslitds",
+      "h": "KslitdsH",
+      "v": "KslitdsV"
+     }
+    },
+    {
+     "panel": "test_slits.bob",
+     "P": "1idc:",
+     "title": "Kslitds(C-hutch) ind",
+     "motors": [
+      {
+       "pv": "1idc:m32",
+       "name": null
+      },
+      {
+       "pv": "1idc:m71",
+       "name": null
+      },
+      {
+       "pv": "1idc:m97",
+       "name": null
+      },
+      {
+       "pv": "1idc:m98",
+       "name": null
+      }
+     ],
+     "slit": {
+      "name": "Kslitds",
+      "pv": "1idc:Kslitds",
+      "h": "",
+      "v": ""
+     }
+    },
+    {
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1idc:",
+     "title": "Slits in C"
+    },
+    {
+     "panel": "1id_all_slits.bob"
+    }
+   ]
+  },
+  "icC4": {
+   "hutch": "C",
+   "label": "IC4",
+   "x": 607,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1idc:",
+     "title": "IC4-C",
+     "ic": {
+      "preamp": "1idc:A4",
+      "scaler": "1id:S1:scaler1",
+      "channel": 15,
+      "counts_pv": "1id:S1:scaler1.S15"
+     }
+    },
+    {
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "title": "IC4-C"
+    }
+   ]
+  },
+  "samC": {
+   "hutch": "C",
+   "label": "LabMotion SMS",
+   "x": 645,
+   "devices": [
+    {
+     "panel": "1idc_SMS_stack.bob",
+     "P": "1idc:",
+     "title": "LabMotion_SMS",
+     "motors": [
+      {
+       "pv": "1idELMO:m1",
+       "name": "Labmotion"
+      },
+      {
+       "pv": "1idc:m25",
+       "name": "samZ"
+      },
+      {
+       "pv": "1idc:m26",
+       "name": "samY"
+      },
+      {
+       "pv": "1idc:m27",
+       "name": "samX"
+      },
+      {
+       "pv": "1idc:m28",
+       "name": "Rx"
+      },
+      {
+       "pv": "1idc:m29",
+       "name": "Rz"
+      },
+      {
+       "pv": "1idc:m31",
+       "name": "LabMotion_TransX"
+      }
+     ]
+    },
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idc:",
+     "title": "Sample_Wheel_in_C",
+     "motors": [
+      {
+       "pv": "1idc:m30",
+       "name": "Sample_Wheel_in_C"
+      }
+     ]
+    }
+   ]
+  },
+  "dba": {
+   "hutch": "C",
+   "label": "DBA",
+   "x": 720,
+   "devices": [
+    {
+     "panel": "motorx3x3x.bob",
+     "motors": [
+      {
+       "pv": "1mini2:hxp:c0:m1",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m2",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m3",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m4",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m5",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m6",
+       "name": null
+      },
+      {
+       "pv": "1idc:m83",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "tomoC": {
+   "hutch": "C",
+   "label": "Tomo D1",
+   "x": 750,
+   "devices": [
+    {
+     "panel": "motor3x.bob",
+     "P": "1idc:",
+     "title": "Tomo_C",
+     "motors": [
+      {
+       "pv": "1idc:m77",
+       "name": null
+      },
+      {
+       "pv": "1idc:m79",
+       "name": null
+      },
+      {
+       "pv": "1idc:m84",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "ADSpinnaker.bob",
+     "P": "1idSP5:",
+     "title": "TomoC (1idSP5)",
+     "camera": {
+      "prefix": "1idSP5:",
+      "driver": "ADSpinnaker",
+      "model": "PGR_GS3_U3_23S6M"
+     }
+    },
+    {
+     "panel": "pointGrey.bob",
+     "P": "1idPG5:",
+     "title": "TomoC (1idPG5)",
+     "camera": {
+      "prefix": "1idPG5:",
+      "driver": "pointGrey",
+      "model": null
+     }
+    }
+   ]
+  },
+  "stopC": {
+   "hutch": "C",
+   "label": "Stop",
+   "x": 795,
+   "devices": [
+    {
+     "panel": "motor2x.bob",
+     "P": "1idcAMCI:",
+     "title": "WAXS_Stop",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m9",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m10",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "shieldC": {
+   "hutch": "C",
+   "label": "Shield",
+   "x": 820,
+   "devices": [
+    {
+     "panel": "motorx_more.bob",
+     "P": "1idcAMCI:",
+     "title": "D2_Shield",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m11",
+       "name": "D2_Shield"
+      }
+     ]
+    }
+   ]
+  },
+  "d2C": {
+   "hutch": "C",
+   "label": "Varex D2",
+   "x": 862,
+   "devices": [
+    {
+     "panel": "motor3x.bob",
+     "title": "D2",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m7",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m8",
+       "name": null
+      },
+      {
+       "pv": "1idc:m78",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "motor3x3x.bob",
+     "title": "D2_in_C",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m7",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m8",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m9",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m10",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m11",
+       "name": null
+      },
+      {
+       "pv": "1idc:m78",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "PerkinElmer.bob",
+     "P": "1idVarex1:",
+     "title": "Varex_in_C",
+     "camera": {
+      "prefix": "1idVarex1:",
+      "driver": "PerkinElmer",
+      "model": null
+     }
+    }
+   ]
+  },
+  "lens7C": {
+   "hutch": "C",
+   "label": "Lens7",
+   "x": 970,
+   "devices": [
+    {
+     "panel": "motor5x.bob",
+     "P": "1idc:",
+     "title": "Lens7",
+     "motors": [
+      {
+       "pv": "1idc:m42",
+       "name": null
+      },
+      {
+       "pv": "1idc:m43",
+       "name": null
+      },
+      {
+       "pv": "1idc:m44",
+       "name": null
+      },
+      {
+       "pv": "1idc:m45",
+       "name": null
+      },
+      {
+       "pv": "1idc:m46",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icE12": {
+   "hutch": "E",
+   "label": "IC1+2",
+   "x": 30,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1ide1:",
+     "title": "SIC1_Y",
+     "motors": [
+      {
+       "pv": "1ide1:m19",
+       "name": "SIC1_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "slitEus": {
+   "hutch": "E",
+   "label": "Slit US",
+   "x": 70,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_up",
+     "slit": {
+      "name": "Kohzu_E_up",
+      "pv": "1ide1:Kohzu_E_up",
+      "h": "Kohzu_E_upH",
+      "v": "Kohzu_E_upV"
+     }
+    },
+    {
+     "panel": "4slitGraphic_lkds.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_up",
+     "slit": {
+      "name": "Kohzu_E_up",
+      "pv": "1ide1:Kohzu_E_up",
+      "h": "Kohzu_E_upH",
+      "v": "Kohzu_E_upV"
+     }
+    },
+    {
+     "panel": "motor4x.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_up",
+     "motors": [
+      {
+       "pv": "1ide1:m20",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m21",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m22",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m23",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1ide1:",
+     "title": "Slits in E"
+    },
+    {
+     "panel": "1id_all_slits_RBV.bob"
+    }
+   ]
+  },
+  "icE3": {
+   "hutch": "E",
+   "label": "IC3",
+   "x": 108,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1ide:",
+     "title": "IC3-E",
+     "ic": {
+      "preamp": "1ide:A3",
+      "scaler": "1ide2:S1:scaler1",
+      "channel": 5,
+      "counts_pv": "1ide2:S1:scaler1.S5"
+     }
+    }
+   ]
+  },
+  "fsE": {
+   "hutch": "E",
+   "label": "FS",
+   "x": 146,
+   "devices": [
+    {
+     "panel": "motor2x_more_stack.bob",
+     "P": "1ide1:",
+     "title": "FastShutter",
+     "motors": [
+      {
+       "pv": "1ide1:m75",
+       "name": "FS_X"
+      },
+      {
+       "pv": "1ide1:m77",
+       "name": "FS_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "lens1E": {
+   "hutch": "E",
+   "label": "Lens1",
+   "x": 183,
+   "devices": [
+    {
+     "panel": "motor5x_V_lens_stack.bob",
+     "P": "1ide1:",
+     "title": "E_L1 (V)",
+     "motors": [
+      {
+       "pv": "1ide1:m28",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m30",
+       "name": "Rx"
+      },
+      {
+       "pv": "1ide1:m31",
+       "name": "Rz"
+      },
+      {
+       "pv": "1ide1:m117",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m119",
+       "name": "Ry"
+      }
+     ]
+    }
+   ]
+  },
+  "lens2E": {
+   "hutch": "E",
+   "label": "Lens2",
+   "x": 221,
+   "devices": [
+    {
+     "panel": "motor5x_V_lens_stack.bob",
+     "P": "1ide1:",
+     "title": "E_L2 (V)",
+     "motors": [
+      {
+       "pv": "1ide1:m29",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m32",
+       "name": "Rx (Th)"
+      },
+      {
+       "pv": "1ide1:m33",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m118",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m120",
+       "name": "Ry (Phi)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens3E": {
+   "hutch": "E",
+   "label": "Lens3",
+   "x": 259,
+   "devices": [
+    {
+     "panel": "motor6x_V_lens_stack.bob",
+     "P": "1ide1:",
+     "title": "E_L3 (H-IB)",
+     "motors": [
+      {
+       "pv": "1ide1:m44",
+       "name": "Rx (Th)"
+      },
+      {
+       "pv": "1ide1:m45",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m81",
+       "name": "Z"
+      },
+      {
+       "pv": "1ide1:m82",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m83",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1ide1:m89",
+       "name": "Y"
+      }
+     ]
+    }
+   ]
+  },
+  "lens4E": {
+   "hutch": "E",
+   "label": "Lens4",
+   "x": 300,
+   "devices": [
+    {
+     "panel": "motor6x_V_lens_stack.bob",
+     "P": "1ide1:",
+     "title": "E_L4 (H-OB)",
+     "motors": [
+      {
+       "pv": "1ide1:m84",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m85",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m88",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1ide1:m114",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m115",
+       "name": "Z"
+      },
+      {
+       "pv": "1ide1:m116",
+       "name": "Rx (Th)"
+      }
+     ]
+    }
+   ]
+  },
+  "slitEds": {
+   "hutch": "E",
+   "label": "Slit DS",
+   "x": 338,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_dn",
+     "slit": {
+      "name": "Kohzu_E_dn",
+      "pv": "1ide1:Kohzu_E_dn",
+      "h": "Kohzu_E_dnH",
+      "v": "Kohzu_E_dnV"
+     }
+    },
+    {
+     "panel": "4slitGraphic_lkds.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_dn",
+     "slit": {
+      "name": "Kohzu_E_dn",
+      "pv": "1ide1:Kohzu_E_dn",
+      "h": "Kohzu_E_dnH",
+      "v": "Kohzu_E_dnV"
+     }
+    },
+    {
+     "panel": "motor4x.bob",
+     "P": "1ide1:",
+     "title": "Kohzu_E_dn",
+     "motors": [
+      {
+       "pv": "1ide1:m24",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m25",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m26",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m27",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1ide1:",
+     "title": "Slits in E"
+    },
+    {
+     "panel": "1id_all_slits_RBV.bob"
+    }
+   ]
+  },
+  "icE4": {
+   "hutch": "E",
+   "label": "IC4",
+   "x": 376,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1ide:",
+     "title": "IC4-E",
+     "ic": {
+      "preamp": "1ide:A4",
+      "scaler": "1ide2:S1:scaler1",
+      "channel": 7,
+      "counts_pv": "1ide2:S1:scaler1.S7"
+     }
+    }
+   ]
+  },
+  "samE": {
+   "hutch": "E",
+   "label": "Aero SMS",
+   "x": 427,
+   "devices": [
+    {
+     "panel": "motor6x_Aero_stack.bob",
+     "P": "1ide1:",
+     "title": "Aero_SMS",
+     "motors": [
+      {
+       "pv": "1ide:m9",
+       "name": "Aero Rot (Ry)"
+      },
+      {
+       "pv": "1ide1:m34",
+       "name": "samX"
+      },
+      {
+       "pv": "1ide1:m35",
+       "name": "samY"
+      },
+      {
+       "pv": "1ide1:m36",
+       "name": "samZ"
+      },
+      {
+       "pv": "1ide1:m86",
+       "name": "sam_Rz"
+      },
+      {
+       "pv": "1ide1:m87",
+       "name": "sam_Rx"
+      }
+     ]
+    }
+   ]
+  },
+  "hl_sms": {
+   "hutch": "E",
+   "label": "HL-SMS",
+   "x": 429,
+   "devices": [
+    {
+     "panel": "1ide_MTS_table.bob",
+     "P": "1ide1:",
+     "title": "MTS Table",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "panel": "1ide_MTS_table_w_furnace.bob",
+     "P": "1ide1:",
+     "title": "MTS Table w/ IR Furnace",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "panel": "motor8x_MTS_SMS_stack.bob",
+     "P": "1ide1:",
+     "title": "HL-SMS Table",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "panel": "1ide_MTS_table_w_Ystage.bob"
+    }
+   ]
+  },
+  "tomoE": {
+   "hutch": "E",
+   "label": "Tomo D1",
+   "x": 494,
+   "devices": [
+    {
+     "panel": "motor4x_more_tomo_stack.bob",
+     "P": "1ide1:",
+     "title": "Tomo_E",
+     "motors": [
+      {
+       "pv": "1ide1:m38",
+       "name": "E-Tomo Rz"
+      },
+      {
+       "pv": "1ide1:m40",
+       "name": "E-Tomo Y"
+      },
+      {
+       "pv": "1ide1:m62",
+       "name": "E-Tomo Z"
+      },
+      {
+       "pv": "1ide1:m63",
+       "name": "E-Tomo X"
+      }
+     ],
+     "camera_prefix": "1idGH1:"
+    },
+    {
+     "panel": "ADSpinnaker.bob",
+     "P": "1idGH1:",
+     "camera": {
+      "prefix": "1idGH1:",
+      "driver": "ADSpinnaker",
+      "model": "PGR_GS3-U3-123S6M"
+     }
+    },
+    {
+     "panel": "motorx_more.bob",
+     "P": "1ide1:",
+     "title": "tomo_E_shielding",
+     "motors": [
+      {
+       "pv": "1ide1:m47",
+       "name": "tomo_E_shielding"
+      }
+     ]
+    }
+   ]
+  },
+  "d2E": {
+   "hutch": "E",
+   "label": "NF D2",
+   "x": 494,
+   "devices": [
+    {
+     "panel": "motor8x.bob",
+     "P": "1ide1:",
+     "title": "NF_D2",
+     "motors": [
+      {
+       "pv": "1ide1:m5",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m6",
+       "name": null
+      },
+      {
+       "pv": "1ide:m6",
+       "name": null
+      },
+      {
+       "pv": "1ide:m7",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m12",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m39",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m59",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m104",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icE5": {
+   "hutch": "E",
+   "label": "IC5",
+   "x": 573,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1ide:",
+     "title": "IC5-E",
+     "ic": {
+      "preamp": "1ide:A5",
+      "scaler": "1ide2:S1:scaler1",
+      "channel": 6,
+      "counts_pv": "1ide2:S1:scaler1.S6"
+     }
+    }
+   ]
+  },
+  "d3": {
+   "hutch": "E",
+   "label": "D3",
+   "x": 615,
+   "devices": [
+    {
+     "panel": "motor3x_keyence.bob",
+     "P": "1ide1:",
+     "title": "D3 in E",
+     "motors": [
+      {
+       "pv": "1ide1:m50",
+       "name": "GE_Z in E"
+      },
+      {
+       "pv": "1ide1:m97",
+       "name": "GE_Y in E"
+      },
+      {
+       "pv": "1ide1:m103",
+       "name": "GE_X in E"
+      }
+     ],
+     "camera_prefix": "GE5:"
+    },
+    {
+     "panel": "ADEPT.bob",
+     "P": "GE5:",
+     "title": "GE5",
+     "camera": {
+      "prefix": "GE5:",
+      "driver": "ADEPT",
+      "model": null
+     }
+    },
+    {
+     "panel": "ESL4406.bob",
+     "P": "1ide:"
+    },
+    {
+     "panel": "pilatusDetector.bob",
+     "P": "1idPil:",
+     "camera": {
+      "prefix": "1idPil:",
+      "driver": "pilatusDetector",
+      "model": null
+     }
+    },
+    {
+     "panel": "eiger2Detector.bob",
+     "P": "1idEig16M:",
+     "title": "Eiger16M",
+     "camera": {
+      "prefix": "1idEig16M:",
+      "driver": "eiger2Detector",
+      "model": null
+     }
+    }
+   ]
+  },
+  "icE6": {
+   "hutch": "E",
+   "label": "IC6",
+   "x": 710,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1ide:",
+     "title": "IC6-E",
+     "ic": {
+      "preamp": "1ide:A6",
+      "scaler": "1ide2:S1:scaler1",
+      "channel": 8,
+      "counts_pv": "1ide2:S1:scaler1.S8"
+     }
+    }
+   ]
+  },
+  "hydra": {
+   "hutch": "E",
+   "label": "Hydra D4",
+   "x": 754,
+   "devices": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idc:",
+     "title": "Hydra_D4",
+     "motors": [
+      {
+       "pv": "1idc:m7",
+       "name": "Hydra_D4"
+      }
+     ]
+    },
+    {
+     "panel": "ADEPT.bob",
+     "P": "GE1:",
+     "title": "GE1",
+     "camera": {
+      "prefix": "GE1:",
+      "driver": "ADEPT",
+      "model": null
+     }
+    },
+    {
+     "panel": "ADEPT.bob",
+     "P": "GE2:",
+     "title": "GE2",
+     "camera": {
+      "prefix": "GE2:",
+      "driver": "ADEPT",
+      "model": null
+     }
+    },
+    {
+     "panel": "ADEPT.bob",
+     "P": "GE3:",
+     "title": "GE3",
+     "camera": {
+      "prefix": "GE3:",
+      "driver": "ADEPT",
+      "model": null
+     }
+    },
+    {
+     "panel": "ADEPT.bob",
+     "P": "GE4:",
+     "title": "GE4",
+     "camera": {
+      "prefix": "GE4:",
+      "driver": "ADEPT",
+      "model": null
+     }
+    },
+    {
+     "panel": "1ide_AD_writer_status_hydra_saxs_tomo.bob"
+    }
+   ]
+  },
+  "vff": {
+   "hutch": "E",
+   "label": "VFF D5",
+   "x": 850,
+   "devices": [
+    {
+     "panel": "motor2x_more.bob",
+     "P": "1ide1:",
+     "title": "VFF_D5",
+     "motors": [
+      {
+       "pv": "1ide1:m41",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m73",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "radiograph": {
+   "hutch": "E",
+   "label": "Radiography",
+   "x": 885,
+   "devices": [
+    {
+     "panel": "motor2x_more.bob",
+     "P": "1ide1:",
+     "title": "Radiography",
+     "motors": [
+      {
+       "pv": "1ide1:m111",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m112",
+       "name": null
+      }
+     ]
+    },
+    {
+     "panel": "ADSpinnaker.bob",
+     "P": "1idPG1:",
+     "title": "SAXSRad_1idPG1",
+     "camera": {
+      "prefix": "1idPG1:",
+      "driver": "ADSpinnaker",
+      "model": "PGR_GS3_U3_23S6M"
+     }
+    }
+   ]
+  },
+  "icE8": {
+   "hutch": "E",
+   "label": "IC8",
+   "x": 930,
+   "devices": [
+    {
+     "panel": "SR570m_tiny.bob",
+     "P": "1ide:",
+     "title": "IC8-E",
+     "ic": {
+      "preamp": "1ide:A8",
+      "scaler": "1ide2:S1:scaler1",
+      "channel": 10,
+      "counts_pv": "1ide2:S1:scaler1.S10"
+     }
+    }
+   ]
+  },
+  "saxs": {
+   "hutch": "E",
+   "label": "SAXS D6",
+   "x": 960,
+   "devices": [
+    {
+     "panel": "motor5x.bob",
+     "P": "1ide1:",
+     "title": "SAXS_D6",
+     "motors": [
+      {
+       "pv": "1ide1:m51",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m52",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m53",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m54",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m66",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "filterA": {
+   "hutch": "A",
+   "label": "Filter",
+   "x": 8,
+   "devices": [
+    {
+     "panel": "2filter.bob",
+     "P": "1ida:"
+    },
+    {
+     "panel": "2filter_setup.bob",
+     "P": "1ida:"
+    }
+   ]
+  },
+  "wbSlits": {
+   "hutch": "A",
+   "label": "WB Slits",
+   "x": 49,
+   "devices": [
+    {
+     "panel": "4slitGraphic.bob",
+     "P": "1ida:",
+     "title": "WB Slits",
+     "slit": {
+      "name": "W_Beam",
+      "pv": "1ida:Slit1",
+      "h": "Slit1H",
+      "v": "Slit1V",
+      "motors": {
+       "mXp": "1ida:m5",
+       "mXn": "1ida:m3",
+       "mYp": "1ida:m4",
+       "mYn": "1ida:m6"
+      }
+     }
+    },
+    {
+     "panel": "motor4x.bob",
+     "P": "1ida:",
+     "title": "WB slits",
+     "motors": [
+      {
+       "pv": "1ida:m3",
+       "name": null
+      },
+      {
+       "pv": "1ida:m4",
+       "name": null
+      },
+      {
+       "pv": "1ida:m5",
+       "name": null
+      },
+      {
+       "pv": "1ida:m6",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "hem": {
+   "hutch": "A",
+   "label": "HE Mono",
+   "x": 99,
+   "devices": []
+  }
+ },
+ "aux": {
+  "B": {
+   "On": [],
+   "Off": []
+  },
+  "C": {
+   "IC1+2 trans": [
+    {
+     "panel": "motorx_more2.bob",
+     "P": "1idcAMCI:",
+     "title": "splitIC",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m1",
+       "name": "splitIC"
+      }
+     ]
+    }
+   ],
+   "IOCs": [],
+   "Preamps": [
+    {
+     "panel": "SR570m_tiny_4x.bob",
+     "P": "1idc:"
+    }
+   ],
+   "Scaler": [
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1id:",
+     "title": "B/C Scaler#1"
+    },
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1id:",
+     "title": "B/C Scaler#2"
+    }
+   ],
+   "Keyence": [
+    {
+     "panel": "Keyence_more.bob",
+     "P": "1id:",
+     "title": "Keyence on (1id)"
+    },
+    {
+     "panel": "Keyence_more.bob",
+     "P": "1ide:",
+     "title": "Keyence on (1ide)"
+    }
+   ],
+   "Furnace": [
+    {
+     "panel": "1id_linkam_furnace.bob",
+     "P": "1idc:",
+     "title": "Linkam in C"
+    }
+   ],
+   "Shutter": [
+    {
+     "panel": "shutter_control_1ID.bob"
+    }
+   ],
+   "Labmotion": [
+    {
+     "panel": "motor2x_more_stack.bob",
+     "P": "1idELMO:",
+     "title": "LabMotion Rotation",
+     "motors": [
+      {
+       "pv": "1idELMO:m1",
+       "name": "Labmotion Rot (Ry)"
+      },
+      {
+       "pv": "1idc:m31",
+       "name": "Trans_X"
+      }
+     ]
+    }
+   ]
+  },
+  "E": {
+   "IOCs": [],
+   "Preamps": [
+    {
+     "panel": "SR570m_tiny_4x.bob",
+     "P": "1ide:",
+     "title": "Preamps_1-4_E"
+    },
+    {
+     "panel": "SR570m_tiny_4x.bob",
+     "P": "1ide:",
+     "title": "Preamps_5-8_E"
+    },
+    {
+     "panel": "SR570m_tiny_8x.bob",
+     "P": "1ide:",
+     "title": "Preamps_All_in_E"
+    }
+   ],
+   "Scaler": [
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1ide:",
+     "title": "E scaler#1"
+    },
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1ide:",
+     "title": "E scaler#2"
+    },
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1ide:",
+     "title": "E scaler#3"
+    },
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1id:",
+     "title": "1ID scaler #1"
+    },
+    {
+     "panel": "scaler32_full_calc.bob",
+     "P": "1id:",
+     "title": "1ID scaler #2"
+    }
+   ],
+   "Furnace": [
+    {
+     "panel": "Furnace_CMU.bob"
+    },
+    {
+     "panel": "1id_linkam_furnace.bob",
+     "P": "1ide1:",
+     "title": "Linkam in E"
+    }
+   ],
+   "Temperature": [
+    {
+     "panel": "TC32_module.bob",
+     "P": "1idSoft:TC32:",
+     "title": "TC32 in E"
+    }
+   ],
+   "Keyence": [
+    {
+     "panel": "Keyence_more.bob",
+     "P": "1id:",
+     "title": "Keyence on (1id)"
+    },
+    {
+     "panel": "Keyence_more.bob",
+     "P": "1ide:",
+     "title": "Keyence on (1ide)"
+    }
+   ],
+   "Tilt-Sensor": [
+    {
+     "panel": "USdigital_X3.bob",
+     "P": "1ide:",
+     "title": "MTS tilt sens"
+    },
+    {
+     "panel": "USdigital_X3.bob",
+     "P": "1ide:",
+     "title": "Aero tilt sens"
+    }
+   ],
+   "Keithely": [
+    {
+     "panel": "Keithley2kDMM_mf40.bob",
+     "P": "1ide:",
+     "title": "1IDE Keithley"
+    }
+   ],
+   "SoftGlue": [
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1id:",
+     "title": "1id SoftGlue"
+    },
+    {
+     "panel": "configMenu.bob",
+     "P": "1id:"
+    },
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1ide:",
+     "title": "1ide SG1"
+    },
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1ide:",
+     "title": "1ide SG2"
+    },
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1ide:",
+     "title": "1ide SG3"
+    },
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1ide:",
+     "title": "1ide SG4"
+    },
+    {
+     "panel": "softGlueZynqMenu.bob",
+     "P": "1ide:",
+     "title": "1ide SG5"
+    }
+   ],
+   "Det Writer": [
+    {
+     "panel": "1ide_AD_writer_status_hydra_saxs_tomo.bob"
+    },
+    {
+     "panel": "1idc_AD_writer_status_varex_tomo.bob"
+    },
+    {
+     "panel": "AD_FileWriter_Status_3x.bob",
+     "title": "1-ID-E AD Writer Status"
+    }
+   ],
+   "Shutter & Atten": [
+    {
+     "panel": "shutter_control_1ID.bob"
+    },
+    {
+     "panel": "1id_all_atten_wheel.bob"
+    }
+   ],
+   "CAM-1": [],
+   "CAM-5": [],
+   "User_Setup": [
+    {
+     "panel": "DED_setup.bob",
+     "P": "1ide1:",
+     "title": "DED system",
+     "motors": [
+      {
+       "pv": "1ide1:m8",
+       "name": "Chamber_X"
+      },
+      {
+       "pv": "1ide1:m79",
+       "name": "Chamber_Y"
+      }
+     ]
+    },
+    {
+     "panel": "AM_setup.bob"
+    },
+    {
+     "panel": "compact_loadframe_setup.bob"
+    }
+   ],
+   "Aero_Trans": [
+    {
+     "panel": "motor2x_more_stack.bob",
+     "P": "1ide1:",
+     "title": "Aero_Trans",
+     "motors": [
+      {
+       "pv": "1ide1:m101",
+       "name": "Aero_X"
+      },
+      {
+       "pv": "1ide1:m102",
+       "name": "Aero_Z"
+      }
+     ]
+    }
+   ],
+   "CAM-9": [],
+   "CAM-7": []
+  }
+ },
+ "slits": {
+  "1ida:Slit1": {
+   "motors": {
+    "mXp": "1ida:m5",
+    "mXn": "1ida:m3",
+    "mYp": "1ida:m4",
+    "mYn": "1ida:m6"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  },
+  "1idb:Slit": {
+   "motors": {
+    "mXp": "1idb:m60",
+    "mXn": "1idb:m59",
+    "mYp": "1idb:m61",
+    "mYn": "1idb:m58"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  },
+  "1idc:Kslitds": {
+   "motors": {
+    "mXp": "1idc:m98",
+    "mXn": "1idc:m97",
+    "mYp": "1idc:m32",
+    "mYn": "1idc:m71"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  },
+  "1idc:Kslitus": {
+   "motors": {
+    "mXp": "1idc:m62",
+    "mXn": "1idc:m61",
+    "mYp": "1idc:m39",
+    "mYn": "1idc:m64"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  },
+  "1ide1:Kohzu_E_dn": {
+   "motors": {
+    "mXp": "1ide1:m25",
+    "mXn": "1ide1:m24",
+    "mYp": "1ide1:m27",
+    "mYn": "1ide1:m26"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  },
+  "1ide1:Kohzu_E_up": {
+   "motors": {
+    "mXp": "1ide1:m22",
+    "mXn": "1ide1:m23",
+    "mYp": "1ide1:m21",
+    "mYn": "1ide1:m20"
+   },
+   "from": [
+    "1ID_top_panel.bob"
+   ]
+  }
+ },
+ "cameras": {
+  "1idSP5:": {
+   "driver": "ADSpinnaker",
+   "model": "PGR_GS3_U3_23S6M",
+   "elements": [
+    "tomoC"
+   ]
+  },
+  "1idPG5:": {
+   "driver": "pointGrey",
+   "model": null,
+   "elements": [
+    "tomoC"
+   ]
+  },
+  "1idVarex1:": {
+   "driver": "PerkinElmer",
+   "model": null,
+   "elements": [
+    "d2C"
+   ]
+  },
+  "1idGH1:": {
+   "driver": "ADSpinnaker",
+   "model": "PGR_GS3-U3-123S6M",
+   "elements": [
+    "tomoE"
+   ]
+  },
+  "GE5:": {
+   "driver": "ADEPT",
+   "model": null,
+   "elements": [
+    "d3"
+   ]
+  },
+  "1idPil:": {
+   "driver": "pilatusDetector",
+   "model": null,
+   "elements": [
+    "d3"
+   ]
+  },
+  "1idEig16M:": {
+   "driver": "eiger2Detector",
+   "model": null,
+   "elements": [
+    "d3"
+   ]
+  },
+  "GE1:": {
+   "driver": "ADEPT",
+   "model": null,
+   "elements": [
+    "hydra"
+   ]
+  },
+  "GE2:": {
+   "driver": "ADEPT",
+   "model": null,
+   "elements": [
+    "hydra"
+   ]
+  },
+  "GE3:": {
+   "driver": "ADEPT",
+   "model": null,
+   "elements": [
+    "hydra"
+   ]
+  },
+  "GE4:": {
+   "driver": "ADEPT",
+   "model": null,
+   "elements": [
+    "hydra"
+   ]
+  },
+  "1idPG1:": {
+   "driver": "ADSpinnaker",
+   "model": "PGR_GS3_U3_23S6M",
+   "elements": [
+    "radiograph"
+   ]
+  }
+ },
+ "conflicts": [
+  {
+   "what": "slit 1idb:Slit: motor set differs between panels",
+   "test_slits": [
+    "1idb:m32",
+    "1idb:m58",
+    "1idb:m60",
+    "1idb:m61"
+   ],
+   "4slitGraphic": [
+    "1idb:m58",
+    "1idb:m59",
+    "1idb:m60",
+    "1idb:m61"
+   ],
+   "files": [
+    "1idb_layout.bob",
+    "1ID_top_panel.bob"
+   ]
+  },
+  {
+   "what": "fast shutter E: display labels FS_X = 1ide1:m75, FS_Y = 1ide1:m77; log-panel motor descriptions 'FS2X E' = m77, 'FS2Y E' = m75 and mpe_bluesky x_pv m77 / y_pv m75",
+   "kept": "m77 = x, m75 = y (descriptions + code)"
+  },
+  {
+   "what": "LabMotion SMS (C): display labels m25 samZ, m27 samX; log-panel descriptions samXC = m25, samZC = m27 and mpe_bluesky x = m25, z = m27",
+   "kept": "x = m25, z = m27 (descriptions + code); y = m26 on display and logs (mpe_bluesky says 1idGalil1:m1)"
+  },
+  {
+   "what": "1idc:m31: display label LabMotion_TransX / Trans_X, log-panel description 'rotXC'",
+   "kept": "role left open"
+  },
+  {
+   "what": "Hydra D4 z: display opens P=1idc: M=m7 (Hydra_D4); mpe_bluesky has 1ide1:m7; not seen on the log panels",
+   "kept": "1idc:m7 (display; explicit PV)"
+  },
+  {
+   "what": "d2E in mpe_bluesky (P=1ide1:, x m103, z m50, shield m47) uses the D3 'GE_X/GE_Z in E' stage and the Tomo D1 shielding motor, not the NF D2 axes",
+   "kept": "twin follows the display"
+  }
+ ],
+ "ioc_control": {
+  "Detector(E)": [
+   {
+    "name": "Tomo",
+    "prefix": "1idGH1:",
+    "title": null,
+    "model": null,
+    "viewer": "../AD/ADSpinnaker/ADSpinnaker.bob"
+   },
+   {
+    "name": "SAXS",
+    "prefix": "s1_pixirad2:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "GE1",
+    "prefix": "GE1:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "GE2",
+    "prefix": "GE2:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "GE3",
+    "prefix": "GE3:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "GE4",
+    "prefix": "GE4:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "GE5",
+    "prefix": "GE5:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "Tomo",
+    "prefix": "1idPG1:",
+    "title": null,
+    "model": null,
+    "viewer": "../AD/ADSpinnaker/ADSpinnaker.bob"
+   },
+   {
+    "name": "Pilatus 2M",
+    "prefix": "1idPil:",
+    "title": null,
+    "model": null,
+    "viewer": "../AD/ADPilatus/pilatusDetector.bob"
+   },
+   {
+    "name": "Eiger16M",
+    "prefix": "1idEig16M:",
+    "title": null,
+    "model": null,
+    "viewer": "../AD/ADEiger/eiger2Detector.bob"
+   }
+  ],
+  "Detector(B/C)": [
+   {
+    "name": "Tomo",
+    "prefix": "1idSP5:",
+    "title": "Tomo_C(1idSP5)",
+    "model": "PGR_GS3_U3_23S6M",
+    "viewer": "../AD/ADSpinnaker/ADSpinnaker.bob"
+   },
+   {
+    "name": "Tomo_in_B",
+    "prefix": "QIMAGE2:",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "s1_Varex",
+    "prefix": "1idVarex1:",
+    "title": null,
+    "model": null,
+    "viewer": "../AD/ADPerkinElmer/PerkinElmer.bob"
+   }
+  ],
+  "VME Crate": [
+   {
+    "name": "1id-A",
+    "prefix": "1ida",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1id-B",
+    "prefix": "1idb",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1id-C",
+    "prefix": "1idc:",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1id-E",
+    "prefix": "1ide",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "1id-E1",
+    "prefix": "1ide1:",
+    "title": null,
+    "model": null,
+    "viewer": "../xxx/under_development.bob"
+   },
+   {
+    "name": "LabMotion",
+    "prefix": "1idELMO:",
+    "title": null,
+    "model": null,
+    "viewer": null
+   }
+  ],
+  "Misc.": [
+   {
+    "name": "Cryo Pump",
+    "prefix": "1idCC",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "PDU",
+    "prefix": "1idpdu1:",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "HEM_Z2",
+    "prefix": "1idsft1:",
+    "title": "$(NAME)",
+    "model": null,
+    "viewer": "../motors/motorx_more.bob"
+   },
+   {
+    "name": "AMCI_C",
+    "prefix": "1idcAMCI:",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1ID-C Zynq-1",
+    "prefix": "1idcMZ1",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1ID-C Zynq-2",
+    "prefix": "1idcMZ2",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1ID-E Zynq-GE",
+    "prefix": "1ideMZ_GE",
+    "title": null,
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "1idSoft",
+    "prefix": "1idSoft:",
+    "title": "$(NAME)",
+    "model": null,
+    "viewer": null
+   },
+   {
+    "name": "PI518 (HRM)",
+    "prefix": "1idPI518:",
+    "title": "$(NAME)",
+    "model": null,
+    "viewer": null
+   }
+  ]
+ }
+}

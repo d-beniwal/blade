@@ -2,10 +2,10 @@
 
 Structured, searchable record of everything in the 1-ID experiment logs (2022-2026), built to (a) train/evaluate agents on real beamline
 images + procedures and (b) calibrate the virtual beamline (`blade/vbl`, `sim.json`). **Code + schema live here (committed); the data does not**:
-it is unpublished user records, so it sits outside the repo at `<BL_instrumentation>/kb_1ID/` (override with `$KB_ROOT`). Never copy it into this repo.
+it is unpublished user records, so it sits in the **knowledge tree** outside the repo (`<knowledge root>/1-ID/kb/`, resolved by `blade/paths.py`; see the repo README "Code vs knowledge" and `python -m blade.paths`; `$BLADE_KB` / legacy `$KB_ROOT` override just this folder). Never copy it into this repo.
 
 ```
-kb_1ID/
+<knowledge root>/1-ID/kb/
   kb.sqlite        # everything below, one file (schema.sql)
   images/ab/<sha256>.<ext>   # every embedded log image once, content-addressed
   review/          # contact sheets for visual labelling
@@ -90,7 +90,7 @@ Headline: the undulator gap model reproduces 13 logged peak gaps (rms 16 um); th
 - **Documents:** per-document outline.
 - Every citation (`doc:L12`) anywhere opens a source drawer with the surrounding log lines, their headings and the images embedded there ("more above / below").
 - Links are shareable: `/kb#tab=images&cls=tomo_view&subject=pin`, `#tab=logs&lq=hot%20spot`, `#tab=procs&id=energy_calibration&cite=<doc>:L97-99`, `#img=<sha>`.
-- Data location: `$KB_ROOT` or `<workspace>/kb_1ID`; the GUI only listens on 127.0.0.1. If the folder is missing the page says how to build it.
+- Data location: the `kb` folder of the knowledge tree (`python -m blade.paths`); the GUI only listens on 127.0.0.1. If the folder is missing the page says how to build it.
 
 ## Facts layer: numbers read from the panel screenshots (2026-11-13)
 

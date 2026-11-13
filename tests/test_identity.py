@@ -12,7 +12,8 @@ import h5py  # noqa: E402
 from scipy import ndimage as ndi  # noqa: E402
 from blade.alignment import measure as M  # noqa: E402
 
-D = ROOT / "s1_data/tomo_alignment/"
+from blade import paths  # noqa: E402
+D = paths.knowledge_dir("data") / "tomo_alignment"
 f44, f46 = D / "alignment_pin/alignment_pin_000044.h5", D / "alignment_pin_off_center_0_180/alignment_pin_off_center_0_180_000046.h5"
 if not f44.exists():
     print("SKIP: s1_data not available"); sys.exit(0)

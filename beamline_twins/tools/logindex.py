@@ -4,7 +4,7 @@
 The logs (docx/xlsx/ods, years of them, ~1.7 GB mostly embedded images) are read ONCE into a local SQLite database plus per-document text
 files, so a question like "what did we do about the E-hutch slit alignment in startups" is a query, not a re-read.
 
-    python beamline_twins/tools/logindex.py build                         # extract + index (default source: ../mpe_logs/User_experiment_logs/1ID)
+    python beamline_twins/tools/logindex.py build                         # extract + index (default source: the logs_src folder of the knowledge tree)
     python beamline_twins/tools/logindex.py catalog                       # one line per document (kind, dates, energy, sizes)
     python beamline_twins/tools/logindex.py outline <doc>                 # headings with line numbers
     python beamline_twins/tools/logindex.py show <doc> [--lines 10-60 | --section "Energy"] [--ctx]
@@ -13,7 +13,7 @@ files, so a question like "what did we do about the E-hutch slit alignment in st
     python beamline_twins/tools/logindex.py params energy_keV [--kind startup]   # every extracted value + summary statistics
     python beamline_twins/tools/logindex.py images <doc> [--names image3.png ...] [--out DIR]   # pull embedded screenshots to look at
 
-Output lives in beamline_twins/<bl>/logs_index/ (GIT-IGNORED: the logs are users' unpublished experiment records; the repo is public).
+Output lives in the knowledge tree (logs_index/, outside the repo: the logs are users' unpublished experiment records; the repo is public).
 Doc ids look like '2025-startup_jan25_explog'; a citation is '<doc>:L<line>'.
 """
 import argparse
@@ -32,7 +32,9 @@ sys.path.insert(0, str(HERE))
 import logextract  # noqa: E402
 
 TWINS = HERE.parent
-DEFAULT_SRC = TWINS.parent.parent / "mpe_logs" / "User_experiment_logs" / "1ID"      # <BL_instrumentation>/mpe_logs/...
+sys.path.insert(0, str(TWINS.parent))
+from blade import paths  # noqa: E402   (knowledge locations are configuration, see blade/paths.py)
+DEFAULT_SRC = paths.knowledge_dir("logs_src")
 DEFAULT_BL = "1-ID"
 
 # ----------------------------------------------------------------------------- classification
@@ -137,8 +139,8 @@ CREATE INDEX tags_tag ON tags(tag, doc_id); CREATE INDEX params_name ON params(n
 
 
 def out_dir(bl):
-    """Index location: beamline_twins/<bl>/logs_index (git-ignored); override with $BLADE_LOGINDEX_DIR (used by the tests)."""
-    return Path(os.environ["BLADE_LOGINDEX_DIR"]) if os.environ.get("BLADE_LOGINDEX_DIR") else TWINS / bl / "logs_index"
+    """Index location: the logs_index folder of the knowledge tree (blade/paths.py); $BLADE_LOGINDEX_DIR overrides it (used by the tests)."""
+    return paths.knowledge_dir("logs_index", bl)
 
 
 def doc_id(rel):

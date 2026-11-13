@@ -33,7 +33,7 @@ beam > - A shutter - Filter - WB_slits - HEM monochromator >
 | # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
 |--:|---|---|---|---|--:|---|---|---|
 | 2 | `shutter_a` | A shutter (FES) | shutter | confirmed |  | shutter_a / S01ID-PSS:FES: |  |  |
-| 3 | `filterA` | Filter | attenuator | seen |  |  |  | cs01 |
+| 3 | `filterA` | Filter | attenuator | seen |  | 1ida: |  | cs01 |
 | 4 | `wbSlits` | WB_slits | slit | seen |  | WB_hsize/WB_vsize (read-only signals) / 1ida:Slit1 | hsize_mm=0.3, vsize_mm=0.3, hcenter_mm=0.0, vcenter_mm=0.0, step_h_size=0.05, step_v_size=0.05 | cs01, cs06, p15 |
 | 5 | `hem` | HEM monochromator | mono | seen |  | hem_energy (userTran record) / 1id:userTran3 |  | cs01, cs06 |
 
@@ -195,13 +195,13 @@ Lasers (cs04): US Laser, Mid Laser, DS Laser, Wall Laser.
 
 | id | hutch | name | tomo | placement | conf | notes |
 |---|---|---|---|---|---|---|
-| `tomoB` | B | B-TOM | yes | in_line | seen | B-hutch tomo detector translation stage. The profile camera 'retiga2' (hutch B, PV prefix not recorded) is presumably the camera on it (unco |
+| `tomoB` | B | B-TOM | yes | in_line | seen | B-hutch tomo detector translation stage. The profile camera 'retiga2' (hutch B) is presumably the camera on it (unconfirmed): the IOC Contro |
 | `tomoC` | C | Tomo D1 | yes | in_line | seen | Green bar on the panel (probably in-beam indicator). Profile camera pg5 (1idSP5:, hutch C) is presumably the camera on it (unconfirmed). Pan |
 | `d2C` | C | Varex D2 |  | in_line | seen | Green bar on the panel (probably in-beam indicator). Varex detector PV not found in mpe_bluesky. Green bar on the beam line after Shield; th |
-| `tomoE` | E | Tomo D1 | yes | retractable | seen | Tomo D1 in E. CONFIRMED by the user: the gh1 camera (IOC 1idGH1:) is on Tomo D1. 'Tomo_E' screen (cs14: E-Tomo Y, Rz, X, Z; axes +Y up, +Z b |
-| `d2E` | E | NF D2 |  | retractable | seen | Near-field detector. Retractable placement inferred from the panel layout (see tomoE). |
+| `tomoE` | E | Tomo D1 | yes | retractable | seen | Tomo D1 in E. CONFIRMED by the user AND by the CS-Studio display: the Tomo D1 button opens the 1idGH1: ADSpinnaker panel (PGR_GS3-U3-123S6M) |
+| `d2E` | E | NF D2 |  | retractable | seen | Near-field detector. Retractable placement inferred from the panel layout (see tomoE). Motors = the eight of the NF_D2 panel (CS-Studio disp |
 | `d3` | E | D3 |  | in_line | seen | Shared position: ONE of GE5, Pilatus 2M or Eiger16M is mounted at D3 at any time (user 2026-11-12). Which one is installed varies by experim |
-| `hydra` | E | Hydra D4 |  | in_line | seen | Hydra D4 is the far-field detector made of GE1, GE2, GE3 and GE4 (four panels that move together; user 2026-11-12). CAM-9 tag below it on th |
+| `hydra` | E | Hydra D4 |  | in_line | seen | Hydra D4 z motor is 1idc:m7 per the CS-Studio display (button opens motorx_more2 with P=1idc:, title Hydra_D4); mpe_bluesky has 1ide1:m7 - t |
 | `vff` | E | VFF D5 |  | in_line | seen | pg1 may be the camera of VFF D5 or of the Radiograph (user, unconfirmed). |
 | `radiograph` | E | Radiograph |  | in_line | seen | Radiograph detector on tall aluminium columns (label 'Rad Grph' in p09). A monitor in hutch E shows its live image (p09, p10): a conical pin |
 | `saxs` | E | SAXS D6 |  | in_line | seen | cs05 lists 'SAXS (s1_pixirad2:)' under Detector(E): the SAXS D6 detector is a Pixirad (IOC s1_pixirad2:). |
@@ -213,7 +213,7 @@ Lasers (cs04): US Laser, Mid Laser, DS Laser, Wall Laser.
 | label | IOC prefix | camera | twin element | note |
 |---|---|---|---|---|
 | Tomo | `1idGH1:` | gh1 | tomoE | Tomo D1 (user) |
-| Tomo | `1idPG1:` | pg1 | (one of: radiograph) | Radiograph is suspected (user inference 2026-11-13, not confirmed); left unassigned |
+| Tomo | `1idPG1:` | pg1 | radiograph | Radiograph camera: the CS-Studio display button 'Radiography' (hutch E) opens the 1idPG1 ADSpinnaker panel (SAXSRad_1idPG1) with the motors m111/m112 (display record 2026-11-13; settles the user's earlier suspicion) |
 | SAXS | `s1_pixirad2:` | pixirad2 | saxs |  |
 | Pilatus 2M | `1idPil:` | pilatus2m | d3 | mounted at D3, one at a time (user) |
 | GE1 | `GE1:` | ge1 | hydra | Hydra D4 = GE1-GE4 (user) |
@@ -222,9 +222,9 @@ Lasers (cs04): US Laser, Mid Laser, DS Laser, Wall Laser.
 | GE4 | `GE4:` | ge4 | hydra | Hydra D4 = GE1-GE4 (user) |
 | GE5 | `GE5:` | ge5 | d3 | mounted at D3, one at a time (user) |
 | Eiger16M | `1idEig16M:` | eiger16m | d3 | mounted at D3, one at a time (user) |
-| Tomo | `1idSP5:` | pg5 | (one of: tomoC) | hutch C camera (tab Detector(B/C)); element not confirmed, left unassigned |
+| Tomo | `1idSP5:` | pg5 | tomoC | hutch C camera: the display button 'Tomo D1' (hutch C) opens the 1idSP5 ADSpinnaker panel (display record 2026-11-13); a pointGrey viewer for 1idPG5 also exists |
 | s1_Varex | `1idVarex1:` | varex | d2C | tab Detector(B/C); IOC name from cs09 |
-| Tomo_in_B | (not legible) | retiga2 | (one of: tomoB) | tab Detector(B/C), label 'Tomo_in_B'; PV prefix illegible; element not confirmed, left unassigned |
+| Tomo_in_B | `QIMAGE2:` | retiga2 | (one of: tomoB) | IOC Control row 'Tomo_in_B' = prefix QIMAGE2: (Windows QImage IOC on aszu; the image-PV suffix of this IOC is not verified, so the profile keeps pv_prefix null until confirmed). Element left unassigned (the B-TOMO button opens only its stage motors) |
 
 ## Other IOC Control tabs
 

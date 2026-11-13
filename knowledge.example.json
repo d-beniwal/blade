@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy to knowledge.json (git-ignored) or ~/.config/blade/knowledge.json. 'root' holds <beamline>/{kb,logs_index,logs_src,data,twin_photos,runs,scratch}. 'paths' re-points single kinds (string, or {beamline: string}); see blade/paths.py.",
+  "root": "/path/to/blade_knowledge",
+  "paths": {
+    "cs_displays": {"1-ID": "/path/to/mpe_css_display"}
+  }
+}

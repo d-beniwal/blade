@@ -2,7 +2,7 @@
 built by `knowledge_base/kb.py` (SQLite + image files, OUTSIDE this repo: unpublished user logs). Everything here opens the database read-only,
 resolves images only through the `images` table (never a client-supplied path) and never touches hardware or `blade.config` state.
 
-KB location: $KB_ROOT, else <workspace>/kb_1ID (a sibling of this repo's parent, same default as knowledge_base/kb.py)."""
+KB location: the "kb" folder of the knowledge tree (blade/paths.py; override $BLADE_KB or legacy $KB_ROOT)."""
 import io
 import json
 import os
@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import paths
 
-KB_DIR = Path(os.environ["KB_ROOT"]).expanduser() if os.environ.get("KB_ROOT") else paths.ROOT.parent / "kb_1ID"
+KB_DIR = paths.knowledge_dir("kb")
 IMG_RE = re.compile(r"\[IMG ([^\]]+)\]")
 ALT_RE = re.compile(r"\[ALT [^\]]*\]")
 CITE_RE = re.compile(r"^(?P<doc>[^:]+):L(?P<a>\d+)(?:-(?P<b>\d+))?$")
@@ -26,7 +26,7 @@ def available():
 def _con():
     db = KB_DIR / "kb.sqlite"
     if not db.is_file():
-        raise FileNotFoundError(f"knowledge base not found at {db} (build it with knowledge_base/kb.py ingest; override the folder with $KB_ROOT)")
+        raise FileNotFoundError(f"knowledge base not found at {db} (build it with knowledge_base/kb.py ingest; point BLADE at the knowledge folder: blade/paths.py, `python -m blade.paths`)")
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True, timeout=10)
     con.row_factory = sqlite3.Row
     return con
@@ -55,7 +55,7 @@ def _has(con, table):
 # ------------------------------------------------------------------------------------------------------------------------------ status / facets
 def status():
     if not available():
-        return {"available": False, "root": str(KB_DIR), "hint": "Build the knowledge base first: python knowledge_base/kb.py ingest (see knowledge_base/README.md), or set $KB_ROOT."}
+        return {"available": False, "root": str(KB_DIR), "hint": "Build the knowledge base first: python knowledge_base/kb.py ingest (see knowledge_base/README.md), or configure the knowledge folder (knowledge.json / $BLADE_KNOWLEDGE, see `python -m blade.paths`)."}
     con = _con()
     one = lambda sql: con.execute(sql).fetchone()[0]
     out = {"available": True, "root": str(KB_DIR), "docs": one("SELECT COUNT(*) FROM docs"), "lines": one("SELECT COUNT(*) FROM lines"),

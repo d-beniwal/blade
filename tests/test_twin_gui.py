@@ -59,7 +59,8 @@ assert get("/api/twin?profile=nope")[0] == 404                      # unknown pr
 
 # photos: only indexed files; no path tricks
 st, ct, body = get("/twin-photo/1-ID/p14")
-if (ROOT / "beamline_twins/1-ID/sources/photos/PXL_20261020_210118769.jpg").exists():
+from blade import paths  # noqa: E402
+if (paths.knowledge_dir("twin_photos", "1-ID") / "PXL_20261020_210118769.jpg").exists():
     assert st == 200 and "image" in ct and body[:2] == b"\xff\xd8"
 for bad in ("/twin-photo/1-ID/../beamline.json", "/twin-photo/1-ID/..%2Fbeamline.json", "/twin-photo/../1-ID/p14", "/twin-photo/1-ID/p99", "/twin-photo/1-ID", "/twin-photo/nope/p14"):
     assert get(bad)[0] == 404, bad

@@ -14,6 +14,15 @@ import sys
 from pathlib import Path
 
 TWINS = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(TWINS.parent))
+from blade import paths  # noqa: E402   (photos live in the knowledge tree, see blade/paths.py)
+
+
+def photos_dir(bl):
+    """Folder holding the reference photos / screenshots of twin `bl` (knowledge tree, NOT the repo)."""
+    return paths.knowledge_dir("twin_photos", bl)
+
+
 KINDS = {"source", "shutter", "fast_shutter", "slit", "ic", "crl", "lens", "mono", "foil", "attenuator", "stage",
          "sample_stage", "sample_holder", "detector", "beamstop", "unknown"}
 CONF = ("confirmed", "seen", "code", "inferred", "unseen")      # strongest to weakest
@@ -42,6 +51,12 @@ def load(beamline, base=None):
             path.append({**el, "hutch": h, "index": len(path)})
     assemblies = {p.stem: rd(p) for p in sorted((d / "assemblies").glob("*.json"))}
     photos = {p["id"]: p for p in rd(d / "sources" / "photos.json")["photos"]}
+    reg = d / "cs_registry.json"          # facts read from the CS-Studio displays (csdisplays.py extract): motors, IC channels, camera prefixes
+    if reg.is_file():
+        cs = rd(reg).get("elements", {})
+        for e in path:
+            if e["id"] in cs:
+                e["cs"] = cs[e["id"]]
     return {"beamline": bl, "hutches": hutches, "path": path, "assemblies": assemblies, "photos": photos, "dir": d}
 
 
@@ -116,8 +131,8 @@ def check(t):
         for e in p.get("elements", []):
             if e not in ids:
                 errs.append(f"photos.json[{pid}]: element '{e}' does not exist")
-        if not (t["dir"] / "sources" / "photos" / p["file"]).exists():
-            warns.append(f"photos.json[{pid}]: local copy {p['file']} not present (photos are git-ignored; copy from s1_data/pictures)")
+        if not (photos_dir(t["beamline"]["id"]) / p["file"]).exists():
+            warns.append(f"photos.json[{pid}]: local copy {p['file']} not present (photos live in the knowledge tree: twin_photos/, see `python -m blade.paths`)")
     return errs, warns
 
 
