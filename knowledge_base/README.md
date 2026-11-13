@@ -91,3 +91,22 @@ Headline: the undulator gap model reproduces 13 logged peak gaps (rms 16 um); th
 - Every citation (`doc:L12`) anywhere opens a source drawer with the surrounding log lines, their headings and the images embedded there ("more above / below").
 - Links are shareable: `/kb#tab=images&cls=tomo_view&subject=pin`, `#tab=logs&lq=hot%20spot`, `#tab=procs&id=energy_calibration&cite=<doc>:L97-99`, `#img=<sha>`.
 - Data location: `$KB_ROOT` or `<workspace>/kb_1ID`; the GUI only listens on 127.0.0.1. If the folder is missing the page says how to build it.
+
+## Facts layer: numbers read from the panel screenshots (2026-11-13)
+
+All 1,182 legible, value-rich `panel_screenshot` images were transcribed (53 packs of <= 25 images, one agent per pack, full-size reads, strict JSON): **33,105 readings, 94 logs, 2021-2026.**
+```
+PY=~/miniconda3/envs/blade/bin/python
+$PY knowledge_base/facts.py build [--per 25]      # packs + BRIEF.md  -> <KB_ROOT>/facts/{packs,results}   (private, never in the repo)
+$PY knowledge_base/facts.py check|load [FILE]     # strict validation (schema, value == text, conf, every image present) and load into table `facts`
+$PY knowledge_base/facts.py audit-build / audit-score   # BLIND re-read of a random image per pack (labels only) and automatic scoring
+$PY knowledge_base/factnorm.py build|reliability|devices|show DEV   # device parsing + TIERS A/B/C -> fact_obs, fact_dev, fact_pvmap
+$PY knowledge_base/factstats.py devices|registry|baseline           # aggregated stats (tier A only) -> <KB_ROOT>/facts/analysis/
+$PY knowledge_base/factphysics.py hem|gap|lens                      # fits and model checks (tier A only)
+```
+**Reliability rule (user 2026-11-13): a value that is not reliable is not used - not when parsing, not when analysing.** `factnorm.py` assigns every reading a tier: **A** clean (conf >= 0.9, no doubt note, legible, passed the cross-checks), **B** minor doubt (counted, never used for numbers), **C** excluded
+(null, conf < 0.8, note saying guessed/assumed/inferred/unclear/covered/cursor/tooltip/differs-from-log/truncated or cropped title/no printed label, illegible image, failed cross-check). Cross-checks use the redundancy inside a window (dial-user offset agrees across readback/drive/limits, direction-aware;
+readback inside limits; hi > lo; size >= 0). Every analysis function filters `tier='A'`; image-level notes and reading notes are stored in `facts` (`note`, `image_note`) and drive the flags.
+First run: A 79.6 %, B 16.8 %, C 3.5 %; **blind audit 831/836 readings (99.4 %) identical**; the 5 misses are slit setpoint-vs-readback ambiguity (1 um), one digit-count slip, one cropped-title tile.
+Lessons: (1) agents that stall (3 of 53 packs, all with several dense 1100x1000 multi-window screenshots) succeed when the pack is split in halves (packs 049-053 are such halves); (2) some agents wrote the JSON with a script - values were still typed from the images, and the audit found no pack-level problem; (3) agents sometimes inferred PV names / labels for cropped tiles - the brief now says "(title cropped, column N)" and those are tier C; (4) a "reversed-direction" motor has dial = c - user with swapped limits - the offset check must test both.
+Results and use: `beamline_twins/1-ID/physics/12_panel_facts.md`.

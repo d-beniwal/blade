@@ -1,0 +1,649 @@
+{
+ "_about": "Undulator gap vs energy pairs from the same screenshot (tier A), compared with the sim.json gap model (period, k_coef). Built 2026-11-13 by knowledge_base/factphysics.py gap.",
+ "n": 69,
+ "excluded_readings_by_tier": {
+  "B": 44
+ },
+ "harmonic_counts": {
+  "5": 17,
+  "7": 43,
+  "9": 8,
+  "11": 1
+ },
+ "model": {
+  "period_mm": 21.0,
+  "k_coef": [
+   2.6701,
+   -3.2966,
+   0.0
+  ]
+ },
+ "resid_mm": {
+  "median": 0.0025,
+  "rms": 0.010837869730249347,
+  "max_abs": 0.0285
+ },
+ "rows": [
+  {
+   "gap": 9.3,
+   "E": 46.773,
+   "date": "2025-10-15",
+   "n": 5,
+   "gap_model": 9.2981,
+   "resid_mm": 0.0019,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.159,
+   "E": 51.93,
+   "date": "2025-06-19",
+   "n": 5,
+   "gap_model": 10.1449,
+   "resid_mm": 0.0141,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.158,
+   "E": 51.93,
+   "date": "2026-02-12",
+   "n": 5,
+   "gap_model": 10.1449,
+   "resid_mm": 0.0131,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.168,
+   "E": 51.931,
+   "date": "2025-06-25",
+   "n": 5,
+   "gap_model": 10.1451,
+   "resid_mm": 0.0229,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.168,
+   "E": 51.931,
+   "date": "2025-06-25",
+   "n": 5,
+   "gap_model": 10.1451,
+   "resid_mm": 0.0229,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.164,
+   "E": 51.935,
+   "date": "2025-11-23",
+   "n": 5,
+   "gap_model": 10.1458,
+   "resid_mm": 0.0182,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.157,
+   "E": 51.935,
+   "date": "2026-02-11",
+   "n": 5,
+   "gap_model": 10.1458,
+   "resid_mm": 0.0112,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.163,
+   "E": 51.951,
+   "date": "2025-06-24",
+   "n": 5,
+   "gap_model": 10.1485,
+   "resid_mm": 0.0145,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.163,
+   "E": 51.951,
+   "date": "2025-06-25",
+   "n": 5,
+   "gap_model": 10.1485,
+   "resid_mm": 0.0145,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.159,
+   "E": 51.998,
+   "date": "2025-06-19",
+   "n": 5,
+   "gap_model": 10.1565,
+   "resid_mm": 0.0025,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.159,
+   "E": 51.998,
+   "date": "2025-06-19",
+   "n": 5,
+   "gap_model": 10.1565,
+   "resid_mm": 0.0025,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.677,
+   "E": 54.956,
+   "date": "2025-03-04",
+   "n": 5,
+   "gap_model": 10.6705,
+   "resid_mm": 0.0065,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.678,
+   "E": 54.957,
+   "date": "2025-03-04",
+   "n": 5,
+   "gap_model": 10.6706,
+   "resid_mm": 0.0074,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.689,
+   "E": 55.02,
+   "date": "2025-03-04",
+   "n": 5,
+   "gap_model": 10.6819,
+   "resid_mm": 0.0071,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.797,
+   "E": 55.615,
+   "date": "2025-11-01",
+   "n": 5,
+   "gap_model": 10.7888,
+   "resid_mm": 0.0082,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.797,
+   "E": 55.616,
+   "date": "2025-10-28",
+   "n": 5,
+   "gap_model": 10.789,
+   "resid_mm": 0.008,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.799,
+   "E": 55.627,
+   "date": "2026",
+   "n": 5,
+   "gap_model": 10.791,
+   "resid_mm": 0.008,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 8.82,
+   "E": 61.259,
+   "date": "2026",
+   "n": 7,
+   "gap_model": 8.8196,
+   "resid_mm": 0.0004,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 8.819,
+   "E": 61.259,
+   "date": "2026",
+   "n": 7,
+   "gap_model": 8.8196,
+   "resid_mm": -0.0006,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 8.819,
+   "E": 61.259,
+   "date": "2026-02-20",
+   "n": 7,
+   "gap_model": 8.8196,
+   "resid_mm": -0.0006,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 8.825,
+   "E": 61.276,
+   "date": "2024-11-15",
+   "n": 7,
+   "gap_model": 8.8215,
+   "resid_mm": 0.0035,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.823,
+   "E": 61.276,
+   "date": "2024-11-15",
+   "n": 7,
+   "gap_model": 8.8215,
+   "resid_mm": 0.0015,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.817,
+   "E": 61.28,
+   "date": "2026-03-03",
+   "n": 7,
+   "gap_model": 8.822,
+   "resid_mm": -0.005,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 8.836,
+   "E": 61.281,
+   "date": "2024-11-15",
+   "n": 7,
+   "gap_model": 8.8221,
+   "resid_mm": 0.0139,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.837,
+   "E": 61.285,
+   "date": "2024-11-15",
+   "n": 7,
+   "gap_model": 8.8226,
+   "resid_mm": 0.0144,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.826,
+   "E": 61.292,
+   "date": "2024-11-15",
+   "n": 7,
+   "gap_model": 8.8233,
+   "resid_mm": 0.0027,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.837,
+   "E": 61.298,
+   "date": "2024-11-14",
+   "n": 7,
+   "gap_model": 8.824,
+   "resid_mm": 0.013,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.837,
+   "E": 61.3,
+   "date": "2024-11-19",
+   "n": 7,
+   "gap_model": 8.8242,
+   "resid_mm": 0.0128,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.829,
+   "E": 61.33,
+   "date": "2025-07-23",
+   "n": 7,
+   "gap_model": 8.8276,
+   "resid_mm": 0.0014,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.838,
+   "E": 61.355,
+   "date": "2024-11-13",
+   "n": 7,
+   "gap_model": 8.8304,
+   "resid_mm": 0.0076,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.837,
+   "E": 61.355,
+   "date": "2024-11-14",
+   "n": 7,
+   "gap_model": 8.8304,
+   "resid_mm": 0.0066,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 8.994,
+   "E": 62.886,
+   "date": "2025-06-10",
+   "n": 7,
+   "gap_model": 9.003,
+   "resid_mm": -0.009,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.995,
+   "E": 62.889,
+   "date": "2024-08-04",
+   "n": 7,
+   "gap_model": 9.0034,
+   "resid_mm": -0.0084,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 9.52,
+   "E": 67.332,
+   "date": "2026-03-30",
+   "n": 7,
+   "gap_model": 9.5107,
+   "resid_mm": 0.0093,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 9.809,
+   "E": 69.898,
+   "date": "2025-03-04",
+   "n": 7,
+   "gap_model": 9.8102,
+   "resid_mm": -0.0012,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.008,
+   "E": 71.56,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0075,
+   "resid_mm": 0.0005,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.01,
+   "E": 71.58,
+   "date": "2026-03-25",
+   "n": 7,
+   "gap_model": 10.0099,
+   "resid_mm": 0.0001,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.025,
+   "E": 71.631,
+   "date": "2025-02-07",
+   "n": 7,
+   "gap_model": 10.016,
+   "resid_mm": 0.009,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.031,
+   "E": 71.632,
+   "date": "2025-02-04",
+   "n": 7,
+   "gap_model": 10.0161,
+   "resid_mm": 0.0149,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.031,
+   "E": 71.632,
+   "date": "2025-02-04",
+   "n": 7,
+   "gap_model": 10.0161,
+   "resid_mm": 0.0149,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.012,
+   "E": 71.64,
+   "date": "2026-02-17",
+   "n": 7,
+   "gap_model": 10.0171,
+   "resid_mm": -0.0051,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.029,
+   "E": 71.645,
+   "date": "2025-12-13",
+   "n": 7,
+   "gap_model": 10.0177,
+   "resid_mm": 0.0113,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.029,
+   "E": 71.645,
+   "date": "2025-12-03",
+   "n": 7,
+   "gap_model": 10.0177,
+   "resid_mm": 0.0113,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.013,
+   "E": 71.65,
+   "date": "2026-03-17",
+   "n": 7,
+   "gap_model": 10.0183,
+   "resid_mm": -0.0053,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.013,
+   "E": 71.653,
+   "date": "2026-03-18",
+   "n": 7,
+   "gap_model": 10.0186,
+   "resid_mm": -0.0056,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 10.035,
+   "E": 71.67,
+   "date": "2025-11-23",
+   "n": 7,
+   "gap_model": 10.0207,
+   "resid_mm": 0.0143,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.024,
+   "E": 71.728,
+   "date": "2024-11-06",
+   "n": 7,
+   "gap_model": 10.0276,
+   "resid_mm": -0.0036,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.029,
+   "E": 71.73,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0279,
+   "resid_mm": 0.0011,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.003,
+   "E": 71.76,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0315,
+   "resid_mm": -0.0285,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.003,
+   "E": 71.76,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0315,
+   "resid_mm": -0.0285,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.003,
+   "E": 71.76,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0315,
+   "resid_mm": -0.0285,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.029,
+   "E": 71.76,
+   "date": "2024-10-30",
+   "n": 7,
+   "gap_model": 10.0315,
+   "resid_mm": -0.0025,
+   "source": "user log 2024"
+  },
+  {
+   "gap": 10.034,
+   "E": 71.772,
+   "date": "2025",
+   "n": 7,
+   "gap_model": 10.0329,
+   "resid_mm": 0.0011,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.035,
+   "E": 71.782,
+   "date": "2025-11-23",
+   "n": 7,
+   "gap_model": 10.0341,
+   "resid_mm": 0.0009,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.036,
+   "E": 71.79,
+   "date": "2025-03-14",
+   "n": 7,
+   "gap_model": 10.0351,
+   "resid_mm": 0.0009,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.036,
+   "E": 71.791,
+   "date": "2025-03-14",
+   "n": 7,
+   "gap_model": 10.0352,
+   "resid_mm": 0.0008,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.036,
+   "E": 71.793,
+   "date": "2025-03-14",
+   "n": 7,
+   "gap_model": 10.0354,
+   "resid_mm": 0.0006,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.152,
+   "E": 72.744,
+   "date": "2025-03-14",
+   "n": 7,
+   "gap_model": 10.15,
+   "resid_mm": 0.002,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.87,
+   "E": 78.423,
+   "date": "2025-07-15",
+   "n": 7,
+   "gap_model": 10.8617,
+   "resid_mm": 0.0083,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.994,
+   "E": 80.61,
+   "date": "2025-06-10",
+   "n": 9,
+   "gap_model": 8.9816,
+   "resid_mm": 0.0124,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.997,
+   "E": 80.701,
+   "date": "2025-12-10",
+   "n": 9,
+   "gap_model": 8.9896,
+   "resid_mm": 0.0074,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.989,
+   "E": 80.725,
+   "date": "2025-02-04",
+   "n": 9,
+   "gap_model": 8.9917,
+   "resid_mm": -0.0027,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 8.997,
+   "E": 80.921,
+   "date": "2025-12-10",
+   "n": 9,
+   "gap_model": 9.009,
+   "resid_mm": -0.012,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 11.253,
+   "E": 81.276,
+   "date": "2025-03-04",
+   "n": 7,
+   "gap_model": 11.2422,
+   "resid_mm": 0.0108,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 9.863,
+   "E": 90.506,
+   "date": "2026-11-02",
+   "n": 9,
+   "gap_model": 9.8687,
+   "resid_mm": -0.0057,
+   "source": "user log 2026"
+  },
+  {
+   "gap": 9.872,
+   "E": 90.606,
+   "date": "2025-12-16",
+   "n": 9,
+   "gap_model": 9.8779,
+   "resid_mm": -0.0059,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 9.873,
+   "E": 90.61,
+   "date": "2025-12-16",
+   "n": 9,
+   "gap_model": 9.8783,
+   "resid_mm": -0.0053,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 10.029,
+   "E": 92.284,
+   "date": "2025-12-13",
+   "n": 9,
+   "gap_model": 10.0334,
+   "resid_mm": -0.0044,
+   "source": "user log 2025"
+  },
+  {
+   "gap": 9.069,
+   "E": 99.895,
+   "date": "2026-03-25",
+   "n": 11,
+   "gap_model": 9.0804,
+   "resid_mm": -0.0114,
+   "source": "user log 2026"
+  }
+ ]
+}

@@ -21,7 +21,9 @@ w = fresh()
 E0 = w.energy_actual_keV()
 chk("aligned: calibrated at mu_t=b (operators convention): actual energy within 60 eV of the tabulated edge", abs(E0 - 71.676) < 0.06, f"actual={E0:.4f} readout={w.ctl('hem.energy')}")
 th = w.snapshot()["th1_deg"]
-chk("snapshot Th1 = theta_B + offset", abs(th - (pc.bragg_angle_deg(71.676, d111) + w.ctl("hem.th1_offset"))) < 1e-9)
+chk("snapshot Th1 = s*theta_B + offset (s = 1.0001973 fitted to the printed calc record)", abs(th - (pc.HEM_TH1_SCALE * pc.bragg_angle_deg(71.676, d111) + w.ctl("hem.th1_offset"))) < 1e-9)
+sn = w.snapshot()
+chk("snapshot Th2 = s2*theta_B + th2 offset; Chi2 = polynomial", abs(sn["th2_deg"] - (pc.HEM_TH2_SCALE * pc.bragg_angle_deg(71.676, d111) + w.ctl("hem.th2_offset"))) < 1e-9 and abs(sn["chi2_deg"] - 0.03217) < 2e-5, f"th2={sn['th2_deg']:.5f} chi2={sn['chi2_deg']:.5f}")
 w2 = fresh(); a = w2.energy_actual_keV(); w2.set("hem.th1_offset", w2.ctl("hem.th1_offset") + 0.001); b = w2.energy_actual_keV()
 chk("Th1 offset +1 mdeg -> ~ -45 eV", abs((b - a) * 1000 + 45) < 3, f"{(b-a)*1000:.1f} eV")
 for E in (45, 55, 71.676, 90):

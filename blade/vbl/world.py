@@ -229,8 +229,11 @@ class VirtualBeamline:
         """Energy that really leaves the mono: Th1 motor angle minus the TRUE offset (operators set the offset via the foil-edge calibration)."""
         E = self.ctl("hem.energy")
         d = pcore.d_spacing_cubic(pcore.SI_A, (1, 1, 1))
-        th_motor = pcore.bragg_angle_deg(E, d) + self.ctl("hem.th1_offset")
-        Ea = pcore.energy_from_bragg_keV(th_motor - self.th1_true_offset(), d)
+        # the Th1 calc record is Th1 = s*theta_B + offset (s = 1.0001973, fitted to the printed outputs); the crystals sit at the physical angle, so the
+        # operator-calibrated offset is the true one only at the calibration energy: reference shift (s-1)*theta_B(E_cal) keeps E_actual(E_cal) exact
+        th_motor = pcore.HEM_TH1_SCALE * pcore.bragg_angle_deg(E, d) + self.ctl("hem.th1_offset")
+        ref = (pcore.HEM_TH1_SCALE - 1.0) * pcore.bragg_angle_deg(pcore.HEM_CAL_E_KEV, d)
+        Ea = pcore.energy_from_bragg_keV(th_motor - self.th1_true_offset() - ref, d)
         # a Th2 detuning also drags the energy readout (log: Th2 tweak moved mu_t 1.299 -> 1.334): about 0.3 x the Th1 sensitivity
         k = self.sim["hem"]["th2_energy_coupling"]
         dEdth = pcore.energy_shift_from_angle_keV(E, d, 1e-3) / 1e-3          # keV per degree (negative)
@@ -639,6 +642,8 @@ class VirtualBeamline:
         out = {"controls": dict(s["ctl"]), "time_s": s["t_s"], "scenario": s["scenario"], "energy_readout_keV": s["ctl"]["hem.energy"],
                "th1_deg": pcore.hem_th1_deg(s["ctl"]["hem.energy"], s["ctl"]["hem.th1_offset"]),
                "z2_mm": pcore.hem_z2_mm(s["ctl"]["hem.energy"]),
+               "th2_deg": pcore.hem_th2_deg(s["ctl"]["hem.energy"], s["ctl"]["hem.th2_offset"]),
+               "chi2_deg": pcore.hem_chi2_deg(s["ctl"]["hem.energy"]),
                "ic_kHz": {ic: round(self.ic_kHz(ic), 2) for ic in self.sim["ic"]["ids"]}, "mu_t": self.mu_t()}
         return out
 

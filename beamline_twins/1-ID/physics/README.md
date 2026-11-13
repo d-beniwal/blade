@@ -14,6 +14,7 @@ Built 2026-11-11 from (a) the 1-ID startup/commissioning logs 2022-2026 (121 log
 | `08_open_questions.md` | what the logs do not settle, what needs a survey or the beamline staff |
 | `09_alignment_procedure.md` | how the beamline is aligned before an experiment (ordered checklist), how flux and energy are tuned, what the tomo camera shows at each step |
 | `11_model_inventory_and_gaps.md` | 2026-11-13: every physics aspect the VBL needs, status (validated / fitted / assumed / missing), what the KB let us fit, pending models and how each helps the VBL |
+| `12_panel_facts.md` | 2026-11-13: ALL 1,182 legible log panel screenshots transcribed number by number, gated for reliability (tier A/B/C, blind audit 99.4 % exact), then used: the HEM transform solved exactly (Z2 old model off by 3.5 mm), gap model validated on 69 pairs, limits / offsets / tweak steps / PVs per device (`../panel_registry.json`), per-energy slit baselines (`../panel_baseline.json`) |
 | (GUI) | the simulator's own models, their live `sim.json` values, status and curves: `./blade-gui physics` (http://localhost:8765/physics; code `blade/vbl/physics_doc.py`, page `blade/physics.html`, test `tests/test_physics_page.py`) |
 | `fits/` | per-domain fits (`source`, `mono`, `flux`, `optics`, `camera`: .md notes + .json parameters with provenance); code `blade/physics/*_fit.py`, tests `tests/test_fit_*.py` |
 | `relations.json` | 29 cause->effect relations with sensitivities, evidence, function pointers |
