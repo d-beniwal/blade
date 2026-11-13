@@ -79,12 +79,15 @@ def hem_z2_mm(energy_keV_, offset_mm=HEM_EXIT_OFFSET_MM, d_A=None):
 
 
 def material_density(material):
-    return _xdb().get_material(material)[1]
+    """Density [g/cm3]: the xraydb materials table when the name is there (Re, Au, Ta, Cu, Si, ...), else the elemental density (Yb, Tb, Ho, Hf, Pr are
+    not in that table - get_material() returns None for them)."""
+    m = _xdb().get_material(material)
+    return m[1] if m else _xdb().atomic_density(material)
 
 
 def mu_per_cm(material, energy_keV_, density=None):
     """Linear attenuation coefficient [1/cm] (xraydb, total cross section; same call the beamline's calculator_atten.py uses)."""
-    return float(_xdb().material_mu(material, energy_keV_ * 1000.0, density=density))
+    return float(_xdb().material_mu(material, energy_keV_ * 1000.0, density=material_density(material) if density is None else density))
 
 
 def transmission(material, thickness_mm, energy_keV_, density=None):

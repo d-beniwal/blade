@@ -1,0 +1,657 @@
+{
+ "schema": "blade.optics_fit/1",
+ "generated": "2026-11-13",
+ "params": {
+  "delta_si_65351": 1.12796e-07,
+  "al_over_si_delta": 1.12,
+  "tilt_c": 2.11,
+  "z_sample_E_m": 69.486,
+  "crl_B_z_m": 38.9,
+  "crl_s0_um": {
+   "v": 23.81,
+   "h": 29.24
+  },
+  "crl_defocus_b_um_per_keV2": 0.0956,
+  "crl_E_tuned_keV_nov24": 60.65,
+  "spot_fwhm_um_61p26keV": {
+   "regular": {
+    "v": 22.9,
+    "h": 27.5
+   },
+   "brightness": {
+    "v": 16.9,
+    "h": 30.1
+   }
+  },
+  "steer_lever_arm_m": 25.0,
+  "psf_px": 1.8
+ },
+ "fits": {
+  "tilt_lens": {
+   "model": "f = h sin(tilt)/(c delta(E)); thin lens, p = nominal lens z, q = z_sample - z_lens; delta = 1.12796e-7 (65.351/E)^2 (Si)",
+   "free": [
+    "z_sample_E_m",
+    "tilt_c"
+   ],
+   "z_sample_E_m": {
+    "value": 69.486,
+    "unc": 0.141
+   },
+   "tilt_c": {
+    "value": 2.11,
+    "unc": 0.162
+   },
+   "correlation": -0.997,
+   "h_over_c_um": {
+    "value": 94.8,
+    "unc": 7.3
+   },
+   "n_points": 4,
+   "sigma_theta_deg": 0.0015,
+   "chi2": 0.066,
+   "dof": 2,
+   "method": "least squares (scipy), MC (2000) gives the same sigma; sigma_theta is a conservative guess (motor step 0.0006 deg)",
+   "residuals_deg": [
+    [
+     "lens1E",
+     65.351,
+     0.0,
+     0.11875,
+     0.11865,
+     -0.0001
+    ],
+    [
+     "lens1E",
+     65.351,
+     0.205,
+     0.132,
+     0.13188,
+     -0.00012
+    ],
+    [
+     "lens2E",
+     65.351,
+     0.0,
+     0.10579,
+     0.10568,
+     -0.00011
+    ],
+    [
+     "lens2E",
+     65.351,
+     0.205,
+     0.11865,
+     0.11898,
+     0.00033
+    ]
+   ],
+   "variants": {
+    "c_fixed_2": {
+     "z_sample_E_m": 69.587,
+     "unc": 0.012,
+     "chi2": 0.527
+    },
+    "with_prior_z_sample_69p5_pm0p3": {
+     "z_sample_E_m": 69.489,
+     "tilt_c": 2.107,
+     "unc_c": 0.147
+    },
+    "c_equal_1": {
+     "note": "c=1 (code default): best fit pushes the source-lens distance to ~1e8 m and still has chi2 = 38 for 2 dof; with p fixed chi2 = 47. This is the Feb-2026 nonsense.",
+     "z_sample_E_m": 71.37,
+     "p_offset_m": 75999241.63473444,
+     "chi2": 38.3,
+     "chi2_p_fixed": 46.9
+    },
+    "p_profile": {
+     "-30": {
+      "z_s": 69.451,
+      "c": 2.195,
+      "chi2": 0.0766
+     },
+     "-10": {
+      "z_s": 69.478,
+      "c": 2.129,
+      "chi2": 0.068
+     },
+     "0": {
+      "z_s": 69.486,
+      "c": 2.11,
+      "chi2": 0.066
+     },
+     "10": {
+      "z_s": 69.492,
+      "c": 2.096,
+      "chi2": 0.0645
+     },
+     "30": {
+      "z_s": 69.5,
+      "c": 2.077,
+      "chi2": 0.0626
+     },
+     "100": {
+      "z_s": 69.514,
+      "c": 2.046,
+      "chi2": 0.0599
+     },
+     "1000": {
+      "z_s": 69.53,
+      "c": 2.009,
+      "chi2": 0.0572
+     }
+    }
+   },
+   "identifiability": "p (source-lens distance) unconstrained (chi2 flat from -30 to +1000 m offset); z_sample and c anti-correlated (-0.99) because only the ratio of two focal lengths constrains q; independent 69.5 m statement in a 2025 user log breaks the degeneracy; h and c only enter as h/c.",
+   "checks": [
+    {
+     "what": "Feb 2026 (Tb edge) raw motor",
+     "lens": "lens1E",
+     "E_keV": 51.935,
+     "observed_theta_eff_deg": 0.184,
+     "predicted_deg": 0.1879,
+     "diff_mdeg": 3.9,
+     "src": "user log 2026",
+     "note": "zero assumed unchanged since Jan 2026; tomo position assumed at sample"
+    },
+    {
+     "what": "Feb 2026",
+     "lens": "lens2E",
+     "E_keV": 51.935,
+     "observed_theta_eff_deg": 0.1675,
+     "predicted_deg": 0.1673,
+     "diff_mdeg": -0.2,
+     "src": "user log 2026",
+     "note": "zero assumed unchanged since Jan 2026; tomo position assumed at sample"
+    },
+    {
+     "what": "Oct 2026 (Bi edge 90.526 keV), tomo ImgZ=140 mm from sample (direction not stated), raw motor, zero assumed 0",
+     "lens": "lens1E",
+     "E_keV": 90.526,
+     "observed_deg": 0.072,
+     "predicted_deg_dz_plus140mm": 0.0665,
+     "predicted_deg_dz_minus140mm": 0.0571,
+     "src": "user log 2026"
+    },
+    {
+     "what": "Oct 2026 (Bi edge 90.526 keV), tomo ImgZ=140 mm from sample (direction not stated), raw motor, zero assumed 0",
+     "lens": "lens2E",
+     "E_keV": 90.526,
+     "observed_deg": 0.054,
+     "predicted_deg_dz_plus140mm": 0.0598,
+     "predicted_deg_dz_minus140mm": 0.0503,
+     "src": "user log 2026"
+    },
+    {
+     "what": "B stack, Ho edge 55.618 keV, focus plane ASSUMED = tomoB (43.0 m), |Th2|",
+     "lens": "lens4B",
+     "E_keV": 55.618,
+     "observed_deg": 0.822,
+     "predicted_deg": 0.7991,
+     "src": "user log 2026"
+    },
+    {
+     "what": "B stack, Ho edge 55.618 keV, focus plane ASSUMED = tomoB (43.0 m), |Th2|",
+     "lens": "lens5B",
+     "E_keV": 55.618,
+     "observed_deg": 0.775,
+     "predicted_deg": 0.7821,
+     "src": "user log 2026"
+    }
+   ],
+   "logged_BS_predictions": [
+    {
+     "lens": "lens1E",
+     "loc": "sample",
+     "BS": 0.105,
+     "real": 0.107,
+     "fitted_model_motor_deg": 0.1076
+    },
+    {
+     "lens": "lens1E",
+     "loc": "+205 mm",
+     "BS": 0.111,
+     "real": 0.121,
+     "fitted_model_motor_deg": 0.1209
+    },
+    {
+     "lens": "lens2E",
+     "loc": "sample",
+     "BS": -0.173,
+     "real": -0.168,
+     "fitted_model_motor_deg": -0.1684
+    },
+    {
+     "lens": "lens2E",
+     "loc": "+205 mm",
+     "BS": -0.179,
+     "real": -0.181,
+     "fitted_model_motor_deg": -0.1817
+    }
+   ]
+  },
+  "crl_spot_vs_energy": {
+   "model": "FWHM^2 = s0^2 + (b (E^2 - E_tuned^2))^2, common b, E_tuned for H and V; B CRL -> E, tomo 7.5x (0.78125 um/px), sigma_px->FWHM x 2.3548",
+   "s0_um": {
+    "v": {
+     "value": 23.81,
+     "unc": 0.49
+    },
+    "h": {
+     "value": 29.24,
+     "unc": 0.47
+    }
+   },
+   "b_um_per_keV2": {
+    "value": 0.0956,
+    "unc": 0.0125
+   },
+   "E_tuned_keV": {
+    "value": 60.65,
+    "unc": 0.19
+   },
+   "n_points": 10,
+   "sigma_fwhm_um": 0.9,
+   "chi2": 3.26,
+   "dof": 6,
+   "table": [
+    {
+     "E_keV": 61.293,
+     "sigma_px_h": 16.6,
+     "sigma_px_v": 13.7,
+     "fwhm_um_h": 30.54,
+     "fwhm_um_v": 25.2,
+     "model_h": 30.18,
+     "model_v": 24.95,
+     "src": "2024-AMsetup_nov24_explog:L226"
+    },
+    {
+     "E_keV": 62.3,
+     "sigma_px_h": 18.6,
+     "sigma_px_v": 17.1,
+     "fwhm_um_h": 34.22,
+     "fwhm_um_v": 31.46,
+     "model_h": 35.06,
+     "model_v": 30.68,
+     "src": "2024-AMsetup_nov24_explog:L229"
+    },
+    {
+     "E_keV": 60.7,
+     "sigma_px_h": 16.0,
+     "sigma_px_v": 12.95,
+     "fwhm_um_h": 29.44,
+     "fwhm_um_v": 23.82,
+     "model_h": 29.25,
+     "model_v": 23.82,
+     "src": "2024-AMsetup_nov24_explog:L233"
+    },
+    {
+     "E_keV": 60.3,
+     "sigma_px_h": 16.4,
+     "sigma_px_v": 12.8,
+     "fwhm_um_h": 30.17,
+     "fwhm_um_v": 23.55,
+     "model_h": 29.53,
+     "model_v": 24.16,
+     "src": "2024-AMsetup_nov24_explog:L237"
+    },
+    {
+     "E_keV": 61.332,
+     "sigma_px_h": 16.2,
+     "sigma_px_v": 13.5,
+     "fwhm_um_h": 29.8,
+     "fwhm_um_v": 24.84,
+     "model_h": 30.29,
+     "model_v": 25.09,
+     "src": "2024-AMsetup_nov24_explog:L264"
+    }
+   ],
+   "implied_aperture_um": "b -> effective illuminated aperture ~200 um (defocus blur = A dq/q, f0=17.1 m, dq/df=3.2): consistent with the 450 um CRL aperture and 0.43 mm beam (WB 0.3 mm at 27 m, lens at 38.9 m)"
+  },
+  "mode_comparison": {
+   "date": "Feb 2026, 61.259 keV, B CRL -> E, tomo 0.69 um/px",
+   "src": "2026-Brightness_mode_feb26:L39-65",
+   "rows": [
+    {
+     "mode": "regular",
+     "state": "before tuning",
+     "sigma_px_h": 16.5,
+     "sigma_px_v": 13.9,
+     "fwhm_um_h": 26.8,
+     "fwhm_um_v": 22.6
+    },
+    {
+     "mode": "regular",
+     "state": "tuned",
+     "sigma_px_h": 16.9,
+     "sigma_px_v": 14.1,
+     "fwhm_um_h": 27.5,
+     "fwhm_um_v": 22.9
+    },
+    {
+     "mode": "brightness",
+     "state": "as is",
+     "sigma_px_h": 19.5,
+     "sigma_px_v": 10.7,
+     "fwhm_um_h": 31.7,
+     "fwhm_um_v": 17.4
+    },
+    {
+     "mode": "brightness",
+     "state": "after steering/tuning",
+     "sigma_px_h": 18.5,
+     "sigma_px_v": 10.4,
+     "fwhm_um_h": 30.1,
+     "fwhm_um_v": 16.9
+    }
+   ],
+   "ratios": {
+    "v_bright_over_regular": 0.738,
+    "h_bright_over_regular": 1.095
+   },
+   "source_bounds_um_fwhm": {
+    "regular": {
+     "v": [
+      19.7,
+      29.1
+     ],
+     "h": [
+      0.0,
+      35.0
+     ]
+    },
+    "brightness": {
+     "v": [
+      0.0,
+      21.5
+     ],
+     "h": [
+      15.6,
+      38.3
+     ]
+    }
+   },
+   "method": "M = (z_sample - z_CRL)/z_CRL = 0.786; spot^2 = (M s)^2 + floor^2 with the same floor in both modes -> only bounds on s (logged focused-beam size is not the source size)"
+  },
+  "edge_blur": {
+   "model": "penumbra sigma = s (z_cam - z_ap)/z_ap (identical to blade.vbl world ray map, verified numerically); Fresnel scale sqrt(lambda L_eff/2); rim visibility exp(-2 pi^2 (sigma/period)^2)",
+   "source_sigma_um_assumed": 12.74,
+   "table_71p676keV": [
+    {
+     "slit": "wbSlits",
+     "camera_plane": "tomoB",
+     "pen_sigma_um": 7.55,
+     "fresnel_scale_um_71p7keV": 9.32,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "wbSlits",
+     "camera_plane": "tomoC",
+     "pen_sigma_um": 17.081,
+     "fresnel_scale_um_71p7keV": 11.57,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "wbSlits",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 21.068,
+     "fresnel_scale_um_71p7keV": 12.06,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "wbSlits",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 21.611,
+     "fresnel_scale_um_71p7keV": 12.12,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "slitB",
+     "camera_plane": "tomoB",
+     "pen_sigma_um": 0.621,
+     "fresnel_scale_um_71p7keV": 4.06,
+     "rim_visibility_first": 0.6299
+    },
+    {
+     "slit": "slitB",
+     "camera_plane": "tomoC",
+     "pen_sigma_um": 6.898,
+     "fresnel_scale_um_71p7keV": 11.16,
+     "rim_visibility_first": 0.0005
+    },
+    {
+     "slit": "slitB",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 9.524,
+     "fresnel_scale_um_71p7keV": 12.32,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "slitB",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 9.881,
+     "fresnel_scale_um_71p7keV": 12.45,
+     "rim_visibility_first": 0.0
+    },
+    {
+     "slit": "slitCus",
+     "camera_plane": "tomoC",
+     "pen_sigma_um": 1.386,
+     "fresnel_scale_um_71p7keV": 6.95,
+     "rim_visibility_first": 0.4567
+    },
+    {
+     "slit": "slitCus",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 3.274,
+     "fresnel_scale_um_71p7keV": 10.04,
+     "rim_visibility_first": 0.1225
+    },
+    {
+     "slit": "slitCus",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 3.531,
+     "fresnel_scale_um_71p7keV": 10.34,
+     "rim_visibility_first": 0.1002
+    },
+    {
+     "slit": "slitCds",
+     "camera_plane": "tomoC",
+     "pen_sigma_um": 0.503,
+     "fresnel_scale_um_71p7keV": 4.47,
+     "rim_visibility_first": 0.7788
+    },
+    {
+     "slit": "slitCds",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 2.273,
+     "fresnel_scale_um_71p7keV": 8.92,
+     "rim_visibility_first": 0.2777
+    },
+    {
+     "slit": "slitCds",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 2.514,
+     "fresnel_scale_um_71p7keV": 9.31,
+     "rim_visibility_first": 0.237
+    },
+    {
+     "slit": "slitEus",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 1.028,
+     "fresnel_scale_um_71p7keV": 6.54,
+     "rim_visibility_first": 0.6143
+    },
+    {
+     "slit": "slitEus",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 1.249,
+     "fresnel_scale_um_71p7keV": 7.16,
+     "rim_visibility_first": 0.548
+    },
+    {
+     "slit": "slitEds",
+     "camera_plane": "tomoE",
+     "pen_sigma_um": 0.338,
+     "fresnel_scale_um_71p7keV": 3.95,
+     "rim_visibility_first": 0.8656
+    },
+    {
+     "slit": "slitEds",
+     "camera_plane": "tomoEds",
+     "pen_sigma_um": 0.548,
+     "fresnel_scale_um_71p7keV": 4.99,
+     "rim_visibility_first": 0.7883
+    }
+   ],
+   "logged_edge_widths": "none quantitative in the text of the logs (edge widths exist only in screenshots)",
+   "one_tuple": {
+    "src": "2022-mpe_dec22_explog:L173-178",
+    "text": "DS slit commanded 0.110 mm, beam at sample ~0.120 mm",
+    "ratio": 1.091,
+    "predicted_ratio_z_sample_69p49_slit_60p8": 1.143,
+    "predicted_ratio_z_71p5": 1.176,
+    "note": "consistent with 69.5 m (-4 %) slightly better than 71.5 m (-7 %); +-5 um reading error makes it a weak check"
+   }
+  },
+  "hotspot": {
+   "steering": {
+    "tuples": [
+     {
+      "src": "user log 2023",
+      "steer_urad": -6.0,
+      "shift_mm": 0.15,
+      "lever_m": 25.0,
+      "note": "slits re-centred ~150 um IB after -6 urad (which slits not stated, WB assumed)"
+     },
+     {
+      "src": "2026-techcomm_jun26_explog:L140",
+      "steer_urad": 10.0,
+      "shift_mm": 0.25,
+      "lever_m": 25.0,
+      "note": "quoted by beamline staff: 0.25 mm at 25 m <-> 10 urad"
+     }
+    ],
+    "value_m": 25.0,
+    "unc_m": 2.0,
+    "method": "lever arm = shift/steer; geometry gives the WB slit distance 27 m (the two tuples are 25 m)"
+   },
+   "wb_centre_vs_energy": {
+    "rows": [
+     {
+      "src": "2025-startup1id_jun2025_explog:L24-33",
+      "E_keV": "71.676-80.725",
+      "gap_mm": "8.995-10.025",
+      "centre_mm": [
+       [
+        0.06,
+        -0.23
+       ],
+       [
+        0.04,
+        -0.23
+       ]
+      ]
+     },
+     {
+      "src": "2026-mpe_jan26:L43",
+      "E_keV": "65.351/80.725",
+      "gap_mm": 8.985,
+      "centre_mm": [
+       0.0,
+       -0.07
+      ]
+     },
+     {
+      "src": "2025-startup_jan25_explog:L35",
+      "E_keV": 61.0,
+      "centre_mm": [
+       -0.02,
+       -0.08
+      ]
+     }
+    ],
+    "result": "present undulator: centre changes by <= 0.02 mm over 52-81 keV within a session (about +-1 urad at 27 m); between sessions it moves by 0.1-0.2 mm (steering/orbit): no energy slope is resolvable",
+    "scu_2023": {
+     "src": "2023-lastlight_mpe_apr23:L238-278",
+     "rows": [
+      {
+       "I_A": 700,
+       "E_keV": 61.67,
+       "h_mm": 0.24,
+       "v_mm": -0.13
+      },
+      {
+       "I_A": 750,
+       "E_keV": 57.94,
+       "h_mm": -0.06,
+       "v_mm": -0.13
+      },
+      {
+       "I_A": 775,
+       "E_keV": 56.16,
+       "h_mm": -0.46,
+       "v_mm": -0.03
+      },
+      {
+       "I_A": 800,
+       "E_keV": 54.34,
+       "h_mm": -0.56,
+       "v_mm": 0.07
+      },
+      {
+       "I_A": 825,
+       "E_keV": 52.71,
+       "h_mm": 0.19,
+       "v_mm": 0.12
+      }
+     ],
+     "note": "SCU: hotspot moves by up to 0.8 mm (30 urad) horizontally and not monotonically (corrector saturation); not modelled"
+    }
+   }
+  },
+  "stack_absorption": {
+   "status": "not fitted: no logged transmission with the stack in/out at fixed beam; only a 650 vs 420 kHz B3 change in a 2026 log with different WB slits",
+   "model": "exp(-mu(E) t_eff), mu from xraydb table embedded (Al 0.750/cm, Si 0.747/cm at 60 keV); aperture clip erf(a/(2 sqrt2 sigma))",
+   "clip_example": {
+    "crl_aperture_um": 450,
+    "beam_sigma_at_B_lens_mm": 0.202,
+    "transmitted_fraction": 0.735,
+    "src": "2024-AMsetup_nov24_explog:L48 (aperture); beam sigma assumed from sim.json"
+   }
+  }
+ },
+ "data_tables": {
+  "lens_tilt_tuples": [
+   {
+    "lens": "lens1E",
+    "E_keV": 65.351,
+    "tomo_offset_m": 0.0,
+    "theta_eff_deg": 0.11875,
+    "src": "2026-mpe_jan26:L597"
+   },
+   {
+    "lens": "lens1E",
+    "E_keV": 65.351,
+    "tomo_offset_m": 0.205,
+    "theta_eff_deg": 0.132,
+    "src": "2026-mpe_jan26:L603"
+   },
+   {
+    "lens": "lens2E",
+    "E_keV": 65.351,
+    "tomo_offset_m": 0.0,
+    "theta_eff_deg": 0.10579,
+    "src": "2026-mpe_jan26:L598"
+   },
+   {
+    "lens": "lens2E",
+    "E_keV": 65.351,
+    "tomo_offset_m": 0.205,
+    "theta_eff_deg": 0.11865,
+    "src": "2026-mpe_jan26:L604"
+   }
+  ],
+  "lens_tilt_note": "theta_eff = (focus condition 1 - focus condition 2)/2 = tilt relative to the lens zero (zero = the midpoint: -0.01125/-0.0627 deg for lens1E/lens2E)"
+ },
+ "provenance": "startup/tables docs cited by doc_id:line; user-log values are cited as \"user log <year>\" only. All fits run read-only on kb.sqlite text; no hardware."
+}

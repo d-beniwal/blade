@@ -13,6 +13,8 @@ Built 2026-11-11 from (a) the 1-ID startup/commissioning logs 2022-2026 (121 log
 | `07_typical_parameters.md` | GENERATED statistics over all logs: edges, detectors, slit sizes, gaps, mu*t, ... |
 | `08_open_questions.md` | what the logs do not settle, what needs a survey or the beamline staff |
 | `09_alignment_procedure.md` | how the beamline is aligned before an experiment (ordered checklist), how flux and energy are tuned, what the tomo camera shows at each step |
+| `11_model_inventory_and_gaps.md` | 2026-11-13: every physics aspect the VBL needs, status (validated / fitted / assumed / missing), what the KB let us fit, pending models and how each helps the VBL |
+| `fits/` | per-domain fits (`source`, `mono`, `flux`, `optics`, `camera`: .md notes + .json parameters with provenance); code `blade/physics/*_fit.py`, tests `tests/test_fit_*.py` |
 | `relations.json` | 29 cause->effect relations with sensitivities, evidence, function pointers |
 
 ## The 15 findings that matter most (all traced to logs; model-validated ones marked V)

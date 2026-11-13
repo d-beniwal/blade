@@ -69,67 +69,76 @@
    "v": 20.0
   },
   "size_src": "log: focused beam 30 (h) / 17-23 (v) um FWHM in brightness / regular mode (2026 Feb); used here as the effective source size that sets the geometric penumbra of every slit edge",
-  "beam_sigma_at_wb_mm": 0.14,
-  "beam_sigma_src": "log: WB 0.3 -> 0.5 mm raised IC_B1 x1.72 (area x2.78): a Gaussian beam of sigma 0.14 mm at the WB slits reproduces it (blade.vbl tests)",
+  "beam_sigma_at_wb_mm": 0.147,
+  "beam_sigma_src": "fit 2026-11-13: 0.147 +- 0.009 mm (3 within-session WB-slit flux ratios agree to 1 %; H and V not separable; fits/flux.md)",
   "ring_current_mA": 200.0,
   "steering_urad_to_mm_at_E": "u = xp * z; 1 urad = 0.07 mm at 71.6 m"
  },
  "undulator": {
-  "period_mm": 21.9,
-  "period_src": "blade.physics.undulator.fit_period_mm on 5 logged (gap, n, E) points",
-  "harmonic_amplitude": {
-   "3": 1.0,
-   "5": 0.95,
-   "7": 0.8,
-   "9": 0.62,
-   "11": 0.45
-  },
-  "amplitude_src": "assumed (higher harmonics weaker); the operators choose n=7 at 71.7 keV and n=9 at 80.7 keV",
-  "rel_fwhm_per_harmonic": 0.0014,
-  "rel_fwhm_src": "log: flux peak ~0.07-0.1 mm wide in gap at n=7 with dE/dgap 8.3 keV/mm -> ~1 % of E (energy spread of the e-beam x harmonic number)",
+  "period_mm": 21.0,
+  "period_src": "fit 2026-11-13: refit of period + K(g) on 88 logged (gap, n, E) rows, n=5-11, 8.5-11.3 mm, 0.115 % rms in E (physics/fits/source.md); period 20.95 +- 0.47 (device U21). Only valid 8.5-11.3 mm",
   "gap_limits_mm": [
-   8.75,
+   8.5,
    40.0
   ],
-  "gap_limit_src": "log: gap limit 8.75 mm (Jan 2025)",
+  "gap_limit_src": "log: gap limit 8.75 mm (Jan 2025), but Pr (41.99 keV, n=5) was peaked at 8.54 mm in 2026 and the model puts that harmonic at 8.5 mm: limit lowered to 8.5 | history (fits/source.json): 8.82 Nov 2024, 8.75 Jan 2025, 8.80 Jul 2025, 8.5 Jun 2026",
   "hysteresis_mm": 0.012,
   "hysteresis_src": "log: scans from a closing direction do not overlay those from open; 'open to ~9.5 mm first' (M24:L56-69); size assumed",
-  "gap_wander_mm": 0.004,
-  "gap_wander_src": "log: peak gap wanders ~0.004 mm between scans/days",
+  "gap_wander_mm": 0.0092,
+  "gap_wander_src": "fit 2026-11-13: peak-gap wander 0.0009 mm within a session, 0.0092 mm between sessions (88 rows, fits/source.md)",
   "steering_per_gap_urad_per_mm": 3.0,
-  "steering_src": "log: best WB-slit centre moves with the ID setting (L23:L218-278); size assumed"
+  "steering_src": "log: best WB-slit centre moves with the ID setting (L23:L218-278); size assumed",
+  "k_coef": [
+   2.6701,
+   -3.2966,
+   0.0
+  ],
+  "k_coef_src": "fit 2026-11-13: B0[T] = a exp(b g/lambda_u), (a, b, c) = (2.6701, -3.2966, 0) (c unconstrained, fixed 0); physics/fits/source.json",
+  "flux_model": {
+   "harmonics": [
+    3,
+    5,
+    7,
+    9,
+    11
+   ],
+   "exponent": 0.67,
+   "src": "blade.physics.undulator.harmonic_amplitude (Kim flux factor of the harmonic at its own gap) ^ exponent. 2026-11-13: exponent 0.67 REFIT inside this function with the fitted k_coef so that the 7th/5th flux ratio at 61.3 keV = 3.07 (logged 2.95-3.2; the 0.74 in fits/source.json belongs to source_fit.harmonic_amplitude_fit, a different normalisation). One ratio only: PENDING more flux-vs-harmonic data (fits/source.md). Harmonic choice 13/13 at the logged energies"
+  },
+  "rel_fwhm": 0.0098,
+  "rel_fwhm_src": "fit 2026-11-13: relative FWHM of the flux-vs-gap peak ~0.98 %, n-independent (ASSUMED from the one logged ~0.07-0.1 mm at n=7; fits/source.md); replaces the per-harmonic scaling"
  },
  "hem": {
   "th1_offset_deg": 0.4863,
   "th2_offset_deg": 0.1562,
   "offset_src": "log: Th1 offset 0.4863 (Feb 2026), Th2 offset 0.1562 (2026)",
   "th2_rocking_fwhm_deg": 0.002,
-  "th2_src": "assumed 2 mdeg: no Th2 rocking curve exists in the logs; each 0.0002 deg tweak step is a visible flux change and the edge width corresponds to ~1.3 mdeg",
+  "th2_src": "assumed 2 mdeg, inside the range the logs allow (0.6-6 mdeg; Darwin prior 0.31 mdeg; fits/mono.md)",
   "energy_shift_ev_per_mdeg": "computed: blade.physics.core.energy_shift_from_angle_keV (-45 eV/mdeg at 71.7 keV)",
   "thermal": {
    "tau_s": 420.0,
-   "th2_shift_deg_per_kW": 0.004,
+   "th2_shift_deg_per_kW": 0.0009,
    "power_kW_per_mm2": 6.0,
-   "src": "log: first crystal heats +3 K at 0.4x0.4 mm and +10 K at 0.8x0.7 mm; flux recovers after thermalisation and a Th2 tweak (T26:L318-424). Coefficients assumed"
+   "src": "log: first crystal heats +3 K at 0.4x0.4 mm and +10 K at 0.8x0.7 mm; flux recovers after thermalisation and a Th2 tweak (T26:L318-424). Coefficients assumed | 2026-11-13: th2_shift_deg_per_kW 0.004 -> 0.0009 so that a cold->hot WB 0.3x0.3 detuning (0.49 mdeg x 0.3 coupling) gives the ~7 eV dump shifts logged (sd 9 eV, 2-12 eV; fits/mono.md). tau 420 s still ASSUMED (no relaxation series in the logs)"
   },
   "energy_range_keV": [
    40.0,
    95.0
   ],
-  "edge_width_src": "log fits: wid(E) = E*23e-6/tan(theta_B) keV (Tb 0.032, Yb 0.048, Re 0.060, Au 0.073 keV); used as the erf width of the foil edge: sigma_E = wid/sqrt(2)",
+  "edge_width_src": "fit 2026-11-13: wid(E) = E * 22.8e-6 / tan(theta_B) on 7+ logged edge fits, rms 4.1 eV (fits/mono.md); natural vs instrumental width not separable",
   "th2_energy_coupling": 0.3,
   "th2_coupling_src": "log: a Th2 tweak moved mu_t 1.299 -> 1.334 at Re (user log, Mar 2025); size assumed",
   "tweak_step_deg": {
    "th1": 0.0001,
    "th2": 0.0002
   },
-  "edge_wid_rad": 2.3e-05
+  "edge_wid_rad": 2.282e-05
  },
  "ic": {
   "ref_kHz_at_icB1": 176.0,
   "ref_src": "log: IC_B1 = 174-178.5 kHz at 200 mA, 50 nA/V, WB 0.3x0.3 mm, Au/Re edge",
   "dark_kHz": 1.0,
-  "dark_src": "log: 0.8-2.1 kHz",
+  "dark_src": "fit 2026-11-13: per-IC dark floors from startup tables (IC4-E 0.928, not 0.35); ICs not listed keep dark_kHz (fits/flux.md)",
   "max_kHz": 1000.0,
   "max_src": "log: scaler clips near 1e6 counts/s",
   "icB1_gain_note": "the IC reading is flux x gain; gains are 1 here for all ICs (the real preamp settings are not recorded)",
@@ -150,7 +159,46 @@
    "icE4",
    "icE5",
    "icE6"
-  ]
+  ],
+  "dark_kHz_by_ic": {
+   "icE12": 0.835,
+   "icE3": 0.474,
+   "icE4": 0.928,
+   "icE5": 0.218,
+   "icE6": 1.846,
+   "icB3": 0.7
+  },
+  "flux_vs_energy_knots": [
+   [
+    41.99,
+    1.04
+   ],
+   [
+    52.0,
+    2.2
+   ],
+   [
+    61.33,
+    2.13
+   ],
+   [
+    71.68,
+    1.0
+   ],
+   [
+    80.73,
+    0.99
+   ],
+   [
+    86.75,
+    0.55
+   ],
+   [
+    90.53,
+    0.34
+   ]
+  ],
+  "flux_vs_energy_src": "fit 2026-11-13: IC_B1/B3 rates at a tuned chain relative to 71.7 keV (7 knots, 10-25 % uncertainty, cross-session scatter 20-30 %; fits/flux.md). Replaces the constant 176 kHz at every energy. NOT modelled: preamp gain (rate ~ gain^-0.955), IC gas/length"
  },
  "slits": {
   "_note": "Kohzu 4-blade slits as soft axes hsize/vsize/hcenter/vcenter (mm). zero = hidden offset between the slit coordinate and the lab beam axis (what 'aligning the slit' removes). Limits and resolution assumed.",
@@ -257,36 +305,65 @@
    "Ho",
    "Ta",
    "Hf",
-   "Pr"
+   "Pr",
+   "Sm",
+   "Ir",
+   "Pt",
+   "Bi",
+   "Tm"
   ],
   "ut_default": 1.37,
   "ut_src": "log: ut 1.35-1.45, median 1.37",
   "attenB_cu_mm": [
    0.0,
-   0.25,
+   0.1016,
    1.016,
-   2.032,
-   3.048
+   1.52,
+   2.13,
+   [
+    "Pb",
+    1.5
+   ],
+   [
+    "Pb",
+    3.0
+   ],
+   [
+    "Pb",
+    5.0
+   ],
+   6.2,
+   2.0,
+   9.0
   ],
-  "attenB_src": "log: position 2 = 1.016 mm Cu; others assumed",
+  "attenB_src": "fit 2026-11-13: 11 wheel positions from the macro help (cm -> mm): Cu 0, 0.1016, 1.016, 1.52, 2.13; Pb 1.5, 3.0, 5.0; Cu 6.2, 2.0, 9.0. Entries are mm of Cu or [material, mm]. One transmission check (x1.031 thickness) not applied (fits/flux.md)",
   "attenC_cu_mm": [
    0.0,
-   0.5,
-   1.0,
-   2.0
+   2.32,
+   4.65,
+   7.07,
+   9.45,
+   11.78,
+   14.13,
+   16.45
   ],
-  "attenC_src": "assumed",
+  "attenC_src": "fit 2026-11-13: 8 positions, ~2.35 mm Cu per step, 16.45 mm at position 7 (macro help; was assumed [0,0.5,1,2]) (fits/flux.md)",
   "b": {
-   "Re": 1.4,
-   "Au": 1.37,
-   "Yb": 1.4,
-   "Tb": 0.78,
-   "Ho": 1.2,
-   "Ta": 1.3,
-   "Hf": 1.35,
-   "Pr": 1.0
+   "Re": 1.425,
+   "Au": 1.3729,
+   "Yb": 1.3909,
+   "Tb": 0.7737,
+   "Ho": 0.8276,
+   "Ta": 0.9666,
+   "Hf": 1.152,
+   "Pr": 1.0,
+   "Sm": 0.9129,
+   "Ir": 1.5912,
+   "Pt": 1.4392,
+   "Bi": 1.2452,
+   "Tm": 0.7505
   },
-  "b_src": "log: E_scan fit step b: Tb 0.777, Pr 1.0, Re 1.37-1.45, Yb 1.40, Au 1.37-1.39 (Ho/Ta/Hf assumed)"
+  "b_src": "fit 2026-11-13: logged E_scan edge steps b (mu_t above minus below the K edge) per element, fits/mono.json; Pr 1.0 unchanged (assumed)"
  },
  "cameras": {
   "_note": "Tomo cameras. pixel_um comes from the profile (profiles/s1id). Sensor sizes: gh1 1490x1940 (test data), pg1 1920x1200 and pg5 1920x1200 (ImageJ titles in the logs), retiga2 assumed. bg/full/texture/dust/halo calibrated on the log screenshots (dark floor 0.5-1.5 kcounts, mottle +-15-30 %, fixed-pattern dust, 1-5 % scatter halo).",
@@ -382,8 +459,8 @@
     -25.87,
     5.33
    ],
-   "out_x_mm": -225.0,
-   "src": "log: tomoC x 1idc:m79 Lo -224.985 Hi 31.0, in = 0, out ~ -225..-250; y 1idc:m84"
+   "out_x_mm": -224.98,
+   "src": "log: tomoC x 1idc:m79 Lo -224.985 Hi 31.0, in = 0, out ~ -225..-250 (parked at -224.98: just inside the soft limit -224.985+; -225.0 was rejected by the simulator's own limit check); y 1idc:m84"
   },
   "tomoE": {
    "x_limits_mm": [
@@ -457,24 +534,24 @@
  },
  "truth_scales": {
   "steer_err_urad": 2.5,
-  "gap_err_mm": 0.04,
-  "th1_err_mdeg": 0.5,
+  "gap_err_mm": 0.01,
+  "th1_err_mdeg": 1.5,
   "th2_err_deg": 0.0012,
   "camera_zero_mm": 0.8,
   "focus_err_mm": 0.15,
-  "src": "assumed spreads for the random 'startup' scenario (log: steering corrections of 2-6 urad; gap peak wanders 0.004-0.07 mm; Th1 offset drifts 0.5 mdeg)",
+  "src": "assumed spreads for the random 'startup' scenario (log: steering corrections of 2-6 urad; gap peak wanders 0.004-0.07 mm; Th1 offset drifts 0.5 mdeg) | 2026-11-13: gap_err 0.01 mm (rms of the refit model vs 88 logged peak gaps, fits/source.md); th1_err 1.5 mdeg = rms about zero of the legacy-era readback offset N(1.2, 1.0) mdeg from 43 E_scan fits (post-Jul-2026 reset era: N(0.19, 0.22); fits/mono.md)",
   "fs_zero_mm": 0.4
  },
  "fast_shutters": {
   "fsB": {
    "hsize": 3.0,
-   "vsize": 1.7
+   "vsize": 1.69
   },
   "fsE": {
    "hsize": 3.0,
-   "vsize": 1.7
+   "vsize": 1.69
   },
-  "src": "log: FS is 3.0 mm wide in X and 1.7 mm in Y; its centre is found from the blade edges on the tomo (user log, Feb 2026)",
+  "src": "log: FS is 3.0 mm wide in X and 1.7 mm in Y; its centre is found from the blade edges on the tomo (user log, Feb 2026) | 2026-11-13: vsize 1.7 -> 1.69 +- 0.16 (fits/flux.md); aligned-shutter leakage ~8e-5 of the open beam is not modelled",
   "centre_default": [
    0.2,
    0.28

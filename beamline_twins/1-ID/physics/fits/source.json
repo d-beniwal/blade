@@ -1,0 +1,1497 @@
+{
+ "_about": "Fitted source (undulator + ring) models for the 1-ID virtual beamline. Built 2026-11-13 from the knowledge base (logs 2022-2026). Provenance: startup/tables documents as doc_id:line, user logs as 'user log <year>' only. See source.md. Do not hand-edit: regenerate from the fit scripts.",
+ "pmu": {
+  "model": "E_n = n*0.9496*E_ring^2/(lambda_u[cm]*(1+K^2/2)), K = 0.0934*B0*lambda_u[mm], B0[T] = a*exp(b*g/lambda_u + c*(g/lambda_u)^2) with c fixed 0 (blade.physics.undulator form)",
+  "ring_GeV": {
+   "value": 6.0,
+   "status": "assumed (APS-U); not fitted"
+  },
+  "period_mm": {
+   "value": 21.0,
+   "unc": null,
+   "status": "FIXED at the device name 'U21' (2026-techcomm_jun26_explog:316, 'Closed U21 gap'); independent free fit below agrees",
+   "free_fit": {
+    "value": 20.950512233136035,
+    "unc_cov": 0.47486418951369913,
+    "unc_boot": 0.4308012302093924,
+    "method": "least squares on 16 (E,n) clusters, (lambda,a,b) free, c=0"
+   }
+  },
+  "coef_a": {
+   "value": 2.6701165331406114,
+   "unc": 0.01750701033148712,
+   "unc_boot": 0.011808312275763979,
+   "note": "ln(a) = 0.9821 +- 0.0066"
+  },
+  "coef_b": {
+   "value": -3.2966412116222417,
+   "unc": 0.014347834826293978,
+   "unc_boot": 0.009951493425812976
+  },
+  "coef_c": {
+   "value": 0.0,
+   "status": "fixed; free fit gives -0.03 +- 0.39 (unconstrained)"
+  },
+  "corr_ln_a_b": -0.9974595491211181,
+  "fit": {
+   "n_rows": 88,
+   "n_clusters": 16,
+   "method": "nonlinear least squares in relative energy; one cluster per (edge energy, harmonic) = mean gap; sigma = 0.01 mm gap wander converted to energy (+0.2-0.3% for nominal-energy rows); uncertainties from the Jacobian scaled by max(1,chi2/dof) and from a 400-sample cluster bootstrap; leave-one-cluster-out",
+   "chi2": 4.023397773600621,
+   "dof": 14,
+   "loo_rms_sigma": 0.6245332160240262,
+   "resid_rows": {
+    "gap_rms_mm": 0.00962142810014354,
+    "gap_max_mm": 0.027076036309797047,
+    "rel_E_rms": 0.0011504652402858178,
+    "rel_E_max": 0.003066766806015364
+   },
+   "resid_clusters": {
+    "gap_rms_mm": 0.007818530627742322,
+    "gap_max_mm": 0.014330242589435827
+   }
+  },
+  "alternatives": {
+   "period_only_with_default_halbach": {
+    "period_mm": 21.898458228888096,
+    "chi2": 36.38644925951063,
+    "dof": 15,
+    "loo_rms_sigma": 1.6427611542714096,
+    "note": "the existing blade.physics.undulator fit: worse by 9x in chi2 (cluster-level residual up to 0.03 mm); its 21.9 mm is a coefficient-absorbing number, not a period"
+   },
+   "a_b_c_free_at_21": {
+    "x": [
+     0.9756668005550218,
+     -3.268635847569664,
+     -0.030216128474372755
+    ],
+    "err": [
+     0.08330138595862797,
+     0.360638410619801,
+     0.3888922143525299
+    ],
+    "chi2": 4.017285861246136,
+    "dof": 13,
+    "loo_rms_sigma": 0.7543698922981066
+   },
+   "lambda_a_b_free": {
+    "x": [
+     20.950512233136035,
+     0.9818725929222336,
+     -3.276699239339656
+    ],
+    "err_cov": [
+     0.47486418951369913,
+     0.006875017916254013,
+     0.19109048005486892
+    ],
+    "boot_sd": [
+     0.4308012302093924,
+     0.004496318240196654,
+     0.16944024467706825
+    ],
+    "chi2": 4.0123344566913985,
+    "dof": 13,
+    "loo_rms_sigma": 0.7513920067172579
+   }
+  },
+  "valid_gap_range_mm": [
+   8.5,
+   11.3
+  ],
+  "valid_energy_range_keV": [
+   41.9,
+   100.0
+  ],
+  "valid_harmonics": [
+   5,
+   7,
+   9,
+   11
+  ],
+  "taper_note": "2026 logs quote a taper (+0.010..+0.060 mm) on top of the gap; it is ignored here (below the 0.01 mm scatter)"
+ },
+ "gap_limits": [
+  {
+   "from": "2024-11-14",
+   "use": true,
+   "limit_mm": 8.82,
+   "kind": "upper bound on the limit (a gap this small was used)",
+   "source": "2024-AMsetup_nov24_explog:88"
+  },
+  {
+   "from": "2025-01-27",
+   "use": true,
+   "limit_mm": 8.75,
+   "kind": "stated",
+   "source": "2025-startup_jan25_explog:27"
+  },
+  {
+   "from": "2025-01-28",
+   "use": false,
+   "limit_mm": 8.6,
+   "kind": "stated minimum gap (staff email)",
+   "source": "user log 2025"
+  },
+  {
+   "from": "2025-07-01",
+   "use": true,
+   "limit_mm": 8.8,
+   "kind": "stated (closing below 8.8 mm tripped the ID vacuum)",
+   "source": "user log 2025"
+  },
+  {
+   "from": "2026-06-01",
+   "use": true,
+   "limit_mm": 8.5,
+   "kind": "gap closed to 8.5 mm in a commissioning test",
+   "source": "2026-techcomm_jun26_explog:316"
+  },
+  {
+   "from": "2026-09-17",
+   "use": false,
+   "limit_mm": 8.54,
+   "kind": "upper bound on the limit (8.543 mm used for the Pr edge)",
+   "source": "user log 2026"
+  },
+  {
+   "from": "2026-10-28",
+   "use": false,
+   "limit_mm": 8.41,
+   "kind": "lower bound on the limit: n=11 at 90.5 keV needs 8.41 mm and was 'not reachable'",
+   "source": "user log 2026"
+  }
+ ],
+ "harmonic_rule": {
+  "rule": "highest odd n whose required gap >= the gap limit in force; at fixed energy the central-cone flux factor Q_n rises with n, so this is also the max-flux choice",
+  "tested_energies": 16,
+  "agree": 15,
+  "exceptions": [
+   {
+    "energy_keV": 81.26,
+    "logged_n": 7,
+    "rule_n": 9,
+    "note": "n=9 needs 9.04 mm (allowed), operators used n=7; the same log says the beamline's undulator calculator did not work at the 9th harmonic",
+    "source": "user log 2025"
+   },
+   {
+    "energy_keV": 78.395,
+    "logged_n": 7,
+    "rule_n": 9,
+    "note": "possible second exception: n=9 needs 8.79 mm; blocked while the limit was 8.8 mm (Mar 2026, rule agrees) but allowed with 8.5 mm (Jul 2026 log used n=7 anyway)",
+    "source": "2026-techcomm_jun26_explog:335-337"
+   }
+  ]
+ },
+ "scu": {
+  "model": "2022 - Apr 2023 superconducting undulator SCU18-3, lambda_u = 18 mm (calculator arguments 6.000 GeV, 1.8 cm: 2023-lastlight_mpe_apr23:223). K(I) = k0 + k1*I + k2*I^2 with I in A; E_n by the same E_n formula with ring 7 GeV (2022 - Mar 2023; 'old 7GeV beam', 2023-lastlight_mpe_apr23:212) or 6 GeV (last-light test 2023-04-23, :191)",
+  "k0": {
+   "value": 0.44438909897981976,
+   "unc_boot": 0.05103811900712603
+  },
+  "k1": {
+   "value": 0.002914416610446388,
+   "unc_boot": 0.00020907381922473297
+  },
+  "k2": {
+   "value": -6.224598418225607e-07,
+   "unc_boot": 1.881702546499677e-07
+  },
+  "anchor_fit": {
+   "k": [
+    0.40392642363357734,
+    0.0030926276260153968,
+    -7.74668092305261e-07
+   ],
+   "n_points": 19,
+   "rms_rel": 0.003758305935361765
+  },
+  "all_points": {
+   "n_points": 24,
+   "rms_rel": 0.01225361724917352,
+   "max_rel": 0.04783462334286581
+  },
+  "caveats": [
+   "harmonic numbers are INFERRED by consistency; the logs' labels (e.g. '6th' at 358 A, 'n=7' at 406.5 A, 'n=9' at 587 A) do not match K(I) from the 2022 n=5 series; even harmonics (6, 8) appear in the data",
+   "the 6 GeV n=11 tracking series (587-825 A) fits to 0.2-0.6 % with n=11, not the labelled n=9",
+   "one point (621 A, Apr 2023, 4.8 % low with n=8) is an outlier: field/orbit state changed or n is 9 (+6 %)",
+   "k0 != 0: K(I) is an empirical curve valid for 180-825 A only"
+  ],
+  "valid_current_A": [
+   180,
+   825
+  ],
+  "points": [
+   {
+    "I_A": 180.0,
+    "n": 5,
+    "energy_keV": 90.526,
+    "ring_GeV": 7.0,
+    "date": "2023-02-02",
+    "source": "2023-startup_jan23_explog:33",
+    "n_inferred": false,
+    "resid_rel": -0.015411863277798754
+   },
+   {
+    "I_A": 267.87,
+    "n": 5,
+    "energy_keV": 76.111,
+    "ring_GeV": 7.0,
+    "date": "2022-12-07",
+    "source": "2022-mpe_dec22_explog:63",
+    "n_inferred": false,
+    "resid_rel": 0.0008982208244403544
+   },
+   {
+    "I_A": 299.87,
+    "n": 5,
+    "energy_keV": 71.676,
+    "ring_GeV": 7.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:185",
+    "n_inferred": false,
+    "resid_rel": 0.0036195354267338775
+   },
+   {
+    "I_A": 302.13,
+    "n": 5,
+    "energy_keV": 71.676,
+    "ring_GeV": 7.0,
+    "date": "2022-12-09",
+    "source": "2022-mpe_dec22_explog:158",
+    "n_inferred": true,
+    "resid_rel": -0.00043273064661542016
+   },
+   {
+    "I_A": 335.72,
+    "n": 5,
+    "energy_keV": 67.395,
+    "ring_GeV": 7.0,
+    "date": "2022-04-14",
+    "source": "user log 2022",
+    "n_inferred": false,
+    "resid_rel": 0.0015435240264329853
+   },
+   {
+    "I_A": 335.93,
+    "n": 5,
+    "energy_keV": 67.416,
+    "ring_GeV": 7.0,
+    "date": "2022-04-05",
+    "source": "user log 2022",
+    "n_inferred": false,
+    "resid_rel": 0.0008760115596866402
+   },
+   {
+    "I_A": 353.89,
+    "n": 5,
+    "energy_keV": 65.351,
+    "ring_GeV": 7.0,
+    "date": "2022-10-03",
+    "source": "user log 2022",
+    "n_inferred": false,
+    "resid_rel": 0.00043531889861925244
+   },
+   {
+    "I_A": 353.92,
+    "n": 7,
+    "energy_keV": 90.526,
+    "ring_GeV": 7.0,
+    "date": "2023-02-07",
+    "source": "user log 2023",
+    "n_inferred": false,
+    "resid_rel": 0.011044878635143585
+   },
+   {
+    "I_A": 355.86,
+    "n": 7,
+    "energy_keV": 90.526,
+    "ring_GeV": 7.0,
+    "date": "2023-02-07",
+    "source": "user log 2023",
+    "n_inferred": false,
+    "resid_rel": 0.0076323642730842245
+   },
+   {
+    "I_A": 389.83,
+    "n": 5,
+    "energy_keV": 61.332,
+    "ring_GeV": 7.0,
+    "date": "2022-11-03",
+    "source": "2022-AMsetup_nov22:78",
+    "n_inferred": false,
+    "resid_rel": 0.0016219799004513202
+   },
+   {
+    "I_A": 397.79,
+    "n": 6,
+    "energy_keV": 71.676,
+    "ring_GeV": 7.0,
+    "date": "2023-02-11",
+    "source": "user log 2023",
+    "n_inferred": true,
+    "resid_rel": 0.014579617788176069
+   },
+   {
+    "I_A": 408.38,
+    "n": 5,
+    "energy_keV": 59.39,
+    "ring_GeV": 7.0,
+    "date": "2022-10-18",
+    "source": "user log 2022",
+    "n_inferred": false,
+    "resid_rel": 0.0021573031491191053
+   },
+   {
+    "I_A": 425.2,
+    "n": 7,
+    "energy_keV": 80.725,
+    "ring_GeV": 7.0,
+    "date": "2022-06-23",
+    "source": "2022-mpe_jun22_explog:149",
+    "n_inferred": false,
+    "resid_rel": 0.003335627781507977
+   },
+   {
+    "I_A": 445.95,
+    "n": 5,
+    "energy_keV": 55.618,
+    "ring_GeV": 7.0,
+    "date": "2022-03-29",
+    "source": "user log 2022",
+    "n_inferred": false,
+    "resid_rel": 0.004858209493804999
+   },
+   {
+    "I_A": 461.71,
+    "n": 7,
+    "energy_keV": 76.111,
+    "ring_GeV": 7.0,
+    "date": "2023-02-14",
+    "source": "user log 2023",
+    "n_inferred": false,
+    "resid_rel": 0.0017357378387936606
+   },
+   {
+    "I_A": 502.76,
+    "n": 7,
+    "energy_keV": 71.676,
+    "ring_GeV": 7.0,
+    "date": "2023-02-28",
+    "source": "user log 2023",
+    "n_inferred": true,
+    "resid_rel": -0.004216477723133827
+   },
+   {
+    "I_A": 621.39,
+    "n": 8,
+    "energy_keV": 71.676,
+    "ring_GeV": 7.0,
+    "date": "2023-04-16",
+    "source": "2023-lastlight_mpe_apr23:35",
+    "n_inferred": true,
+    "resid_rel": -0.04783462334286581
+   },
+   {
+    "I_A": 406.5,
+    "n": 8,
+    "energy_keV": 71.635,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:193",
+    "n_inferred": true,
+    "resid_rel": -0.020203245355088773
+   },
+   {
+    "I_A": 587.0,
+    "n": 11,
+    "energy_keV": 71.676,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:227",
+    "n_inferred": false,
+    "resid_rel": 0.010949683911274377
+   },
+   {
+    "I_A": 700.0,
+    "n": 11,
+    "energy_keV": 61.67,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:239",
+    "n_inferred": false,
+    "resid_rel": 0.00371031768855401
+   },
+   {
+    "I_A": 750.0,
+    "n": 11,
+    "energy_keV": 57.94,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:245",
+    "n_inferred": false,
+    "resid_rel": 0.0017520428764865592
+   },
+   {
+    "I_A": 775.0,
+    "n": 11,
+    "energy_keV": 56.16,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:252",
+    "n_inferred": false,
+    "resid_rel": 0.001983423879294177
+   },
+   {
+    "I_A": 800.0,
+    "n": 11,
+    "energy_keV": 54.34,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:259",
+    "n_inferred": false,
+    "resid_rel": 0.004747833664250356
+   },
+   {
+    "I_A": 825.0,
+    "n": 11,
+    "energy_keV": 52.71,
+    "ring_GeV": 6.0,
+    "date": "2023-04-23",
+    "source": "2023-lastlight_mpe_apr23:277",
+    "n_inferred": false,
+    "resid_rel": 0.005790071648375639
+   }
+  ]
+ },
+ "flux": {
+  "status": "PENDING (one independent ratio)",
+  "q5_over_q7": 0.2196554906108785,
+  "logged_ratio_5th_over_7th": 0.3253333333333333,
+  "exponent_fit_single_point": 0.7408515872871727,
+  "old_exponent": 0.55,
+  "note": "logged: 7th harmonic IC_B1 360 and 390 vs 5th 122 (same IC, 60.3-62.3 keV): 2024-AMsetup_nov24_explog:227-234. With the refitted K(g) the 0.55 exponent predicts 5th/7th = 0.43 (logged 0.325); exponent 0.74 reproduces it. ONE point: not a fit. IC_B1 at 80.7 keV n=9 (176-178 kHz) and 71.7 keV n=7 (174 kHz), 0.3x0.3 mm WB, 200 mA, 50 nA/V: 2025-startup1id_jun2025_explog:26,35 need the IC response ratio, not modelled here.",
+  "gaps_used_mm": {
+   "n7_60.7keV": 8.756756744408968,
+   "n5_60.3keV": 11.685169637632715
+  }
+ },
+ "gap_scan": {
+  "status": "ASSUMED from one number, not fitted",
+  "rel_fwhm": 0.0098,
+  "n_independent": true,
+  "basis": "0.07-0.1 mm wide at n=7 (quoted in physics/01_source_and_monochromator.md; the number is not in the log TEXT I could read: 2026-mpe_jan26 lines 59-65 and 108-113 contain no width, so it comes from a plot) x dE/dgap 8.3 keV/mm / 71.7 keV = 0.8-1.2 %",
+  "physics": "harmonic energy spread of the e-beam is 2*sigma_eps and independent of n, the natural width ~ 0.9/(n N) falls with n, so the total relative width should be nearly n-independent (the VBL's rel_fwhm_per_harmonic*n grows with n: right at n=7 only)",
+  "bounds_from_scans": "operators locate the peak with +-0.02 mm scans (2024-mpe_jul24_explog:44) and routinely bracket it with +-0.1..0.2 mm: FWHM_gap is between ~0.02 and ~0.2 mm"
+ },
+ "wander": {
+  "within_session_sd_mm": 0.0009116998306440578,
+  "n_within": 39,
+  "between_session_pooled_sd_mm": 0.009201853506143888,
+  "between_session_sd_by_energy": {
+   "61.332": [
+    0.00783661568883813,
+    11
+   ],
+   "80.725": [
+    0.0035696304997526094,
+    7
+   ],
+   "71.676": [
+    0.010719415666081,
+    25
+   ],
+   "51.996": [
+    0.008775229500005918,
+    9
+   ]
+  },
+  "method": "day-level means of the logged gap in the E-calibration rows (same edge, 2024-2026)",
+  "note": "between-session scatter (0.009 mm = 0.12 % in energy at n=7) is 10x the within-session value (the sim's 0.004 mm sits between); no monotonic drift: Re edge gap 10.009 (Oct 2024), 10.014-10.025 (Jun 2025), 10.046 (Sep 2025), 10.025 (Nov 2025), 10.010 (Feb-Mar 2026)",
+  "hysteresis": "PENDING: logs only say scans must go from high to low gap and to open the gap first (2024-mpe_jul24_explog:45,69); no size recorded"
+ },
+ "steering": {
+  "urad_to_mm": {
+   "per_urad_at_25m_mm": 0.025,
+   "per_urad_at_71_6m_mm": 0.0716,
+   "source": "2026-techcomm_jun26_explog:140 (0.25 mm at 25 m = 10 urad)"
+  },
+  "offaxis_redshift": {
+   "formula": "dE/E = (gamma*theta)^2/(1+K^2/2)",
+   "check": "Au edge, n=9: flux max sat at gap 9.080 instead of 8.995 mm and flux was low x2.5; steering -11 urad restored both (2026-mpe_jan26:33-39). Model: dE/dg = 11.4 keV/mm, K = 1.276 -> observed shift 0.085 mm implies theta = 12.6 urad (11 urad commanded; 11 urad predicts 0.065 mm)",
+   "status": "consistent (one point, 30 %), not a fit"
+  },
+  "flux_loss_with_offset": "x2.5 at ~11 urad offset implies a Gaussian angular width sigma ~ 8 urad (one point, effective, assumes the whole 11 urad was the offset)",
+  "gap_coupling": "PENDING: no logged urad-vs-gap numbers; the sim's 3 urad/mm is an assumption",
+  "hotspot_vs_setting": {
+   "scu_2023_wb_center_V_mm_per_A": 0.002,
+   "scu_2023_wb_center_H_spread_mm": 0.8,
+   "source": "2023-lastlight_mpe_apr23:240-278 (700-825 A, 5 points)",
+   "pmu": "WB centre for the Au edge differs by sd 0.09 mm (V) and 0.035 mm (H) between sessions (2025-startup_jan25_explog:35, 2025-startup1id_jun2025_explog:24,33, 2026-mpe_jan26:43 and user logs); the shift to Yb (gap -0.165 mm, -19 keV) is within that scatter: no resolvable gap or energy coupling"
+  }
+ },
+ "ring": {
+  "current_mA_standard": {
+   "mean": 200.08,
+   "sd": 0.22,
+   "n": 10,
+   "note": "Emon blocks Oct 2026 at beamtime start (top-up): 199.83-200.45 mA",
+   "source": "user log 2026"
+  },
+  "modes": [
+   {
+    "mode": "regular / standard lattice",
+    "current_mA": 200
+   },
+   {
+    "mode": "brightness 162-bunch high coupling",
+    "current_mA": 180,
+    "source": "2025-startup_jan25_explog:20"
+   },
+   {
+    "mode": "timing 48 bunch high coupling",
+    "current_mA": [
+     100,
+     130,
+     135,
+     140
+    ],
+    "source": "2024-AMsetup_nov24_explog:25; user log 2025"
+   }
+  ],
+  "flux_vs_current": {
+   "status": "NOT TESTED",
+   "note": "the '132 -> 175 kHz at 200 mA' numbers (2025-startup_jan25_explog:37-41) are the operators' own linear extrapolation ('Extrap'), not a measurement; no log has two currents at an otherwise identical setting; linear scaling is therefore an assumption"
+  }
+ },
+ "source_size": {
+  "status": "NOT FIT",
+  "note": "focused-spot FWHM 17-23 um (V) and 27-30 um (H) (2026-Brightness_mode_feb26:44,65) divided by the lens demagnification (3.8 m / 67.7 m = 0.056) would mean a 300-540 um 'source', so the spot is not source-limited; the sim's 30/20 um is a focal-spot size, not a source size. No literature numbers used."
+ },
+ "data": [
+  {
+   "gap_mm": 8.8369,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-19",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_chen_explog:24",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8367,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-14",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_explog:88",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8364,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-15",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_explog:184",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8256,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-26",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_explog:215",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8252,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-26",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_explog:243",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8233,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2024-11-27",
+   "device": "PMU",
+   "source": "2024-AMsetup_nov24_explog:250",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.9945,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2024-08-04",
+   "device": "PMU",
+   "source": "2024-mpe_jul24_explog:102",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 10.0248,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-04",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:96",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0215,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-05",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:323",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0144,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-05",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:326",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0143,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-06",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:366",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0143,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-06",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:376",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0144,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-06",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:457",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0144,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-06",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:482",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0155,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-06-07",
+   "device": "PMU",
+   "source": "2025-startup1id_jun2025_explog:571",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.8169,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2026-02-22",
+   "device": "PMU",
+   "source": "2026-Brightness_mode_feb26:33",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8184,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2026-02-23",
+   "device": "PMU",
+   "source": "2026-Brightness_mode_feb26:64",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 9.2794,
+   "n": 7,
+   "energy_keV": 65.351,
+   "date": "2026-02-05",
+   "device": "PMU",
+   "source": "2026-mpe_jan26:121",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Hf K)"
+  },
+  {
+   "gap_mm": 10.0088,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2024-10-30",
+   "device": "PMU",
+   "source": "user log 2024",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0079,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2024-10-30",
+   "device": "PMU",
+   "source": "user log 2024",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.8248,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2025-09-23",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 10.0464,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-09-23",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0463,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-09-23",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.9966,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-12-10",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 10.0291,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-12-03",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.9984,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-04-22",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 8.9945,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-06-10",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 8.9904,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-06-12",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 8.9871,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-06-12",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 8.9928,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-11-25",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 8.9926,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-11-25",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 10.1538,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-03-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.036,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-03-14",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.1831,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-03-19",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.183,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-03-19",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.0409,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-03-21",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0348,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-23",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.9893,
+   "n": 9,
+   "energy_keV": 80.725,
+   "date": "2025-02-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Au K)"
+  },
+  {
+   "gap_mm": 10.0309,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0267,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-05",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.026,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-05",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0263,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-05",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0294,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-07",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.1588,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-06-19",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1677,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-04-09",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1677,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-04-09",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1665,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-04-10",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1664,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-04-10",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 9.2999,
+   "n": 5,
+   "energy_keV": 46.834,
+   "date": "2025-10-15",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Sm K)"
+  },
+  {
+   "gap_mm": 10.0206,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-02-14",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.029,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-14",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0248,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-15",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0248,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-15",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0255,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-15",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0255,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-15",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0254,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-16",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0256,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2025-11-16",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.827,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2025-07-25",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 10.1668,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-11-18",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1664,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-11-18",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1663,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2025-11-19",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.012,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-02-17",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0134,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-17",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.013,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-12",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0126,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-12",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 9.5208,
+   "n": 7,
+   "energy_keV": 67.416,
+   "date": "2026-03-31",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Ta K)"
+  },
+  {
+   "gap_mm": 10.0098,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-02-20",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.8195,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2026-02-20",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.8169,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2026-02-22",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 8.817,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2026-03-03",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Yb K)"
+  },
+  {
+   "gap_mm": 10.1571,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2026-02-11",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1563,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2026-02-11",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.1579,
+   "n": 5,
+   "energy_keV": 51.996,
+   "date": "2026-02-12",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Tb K)"
+  },
+  {
+   "gap_mm": 10.0134,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-18",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0111,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-19",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0108,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-20",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 10.0104,
+   "n": 7,
+   "energy_keV": 71.676,
+   "date": "2026-03-25",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "note": "E-calibration row; E = foil edge (Re K)"
+  },
+  {
+   "gap_mm": 8.5437,
+   "n": 5,
+   "energy_keV": 41.991,
+   "date": "2026-09-17",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "E_rel_unc": 0.0,
+   "note": "Pr edge, mean of 2 logged gaps"
+  },
+  {
+   "gap_mm": 9.8631,
+   "n": 9,
+   "energy_keV": 90.526,
+   "date": "2026-10-28",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "E_rel_unc": 0.0,
+   "note": "Bi edge"
+  },
+  {
+   "gap_mm": 9.873,
+   "n": 9,
+   "energy_keV": 90.526,
+   "date": "2025-12",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.0,
+   "note": "Bi edge (mono 90.510)"
+  },
+  {
+   "gap_mm": 10.848,
+   "n": 7,
+   "energy_keV": 78.395,
+   "date": "2026-03-12",
+   "device": "PMU",
+   "source": "user log 2026",
+   "role": "fit",
+   "E_rel_unc": 0.0,
+   "note": "Pt edge assumed from context"
+  },
+  {
+   "gap_mm": 10.85,
+   "n": 7,
+   "energy_keV": 78.395,
+   "date": "2026-07",
+   "device": "PMU",
+   "source": "2026-techcomm_jun26_explog:335",
+   "role": "fit",
+   "E_rel_unc": 0.0,
+   "note": "Pt edge; ThB for 78.395 keV stated at :336, n=7 at :337"
+  },
+  {
+   "gap_mm": 8.815,
+   "n": 11,
+   "energy_keV": 96.0,
+   "date": "2025-06-25",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.003,
+   "note": "nominal HEM energy 96 keV, 11th harmonic stated"
+  },
+  {
+   "gap_mm": 9.1004,
+   "n": 11,
+   "energy_keV": 100.0,
+   "date": "2025-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.003,
+   "note": "nominal 100 keV, n=11 stated; gap after scan"
+  },
+  {
+   "gap_mm": 9.81,
+   "n": 9,
+   "energy_keV": 89.813,
+   "date": "2025-03-06",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.002,
+   "note": "nominal HEM energy"
+  },
+  {
+   "gap_mm": 9.57,
+   "n": 9,
+   "energy_keV": 87.16,
+   "date": "2025-03-06",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.002,
+   "note": "nominal HEM energy"
+  },
+  {
+   "gap_mm": 10.678,
+   "n": 5,
+   "energy_keV": 54.932,
+   "date": "2025-03-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.002,
+   "note": "nominal HEM energy"
+  },
+  {
+   "gap_mm": 11.252,
+   "n": 7,
+   "energy_keV": 81.26,
+   "date": "2025-03-04",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "fit",
+   "E_rel_unc": 0.002,
+   "note": "nominal HEM energy (113 reflection peak)"
+  },
+  {
+   "gap_mm": 9.277,
+   "n": 7,
+   "energy_keV": 65.351,
+   "date": "2026-02-05",
+   "device": "PMU",
+   "source": "2026-mpe_jan26:56",
+   "role": "calc",
+   "E_rel_unc": 0.0,
+   "note": "beamline undulator-control calculator output (Hf edge)"
+  },
+  {
+   "gap_mm": 8.82,
+   "n": 7,
+   "energy_keV": 61.332,
+   "date": "2025-07",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "calc",
+   "E_rel_unc": 0.0,
+   "note": "calculator gap for Yb edge"
+  },
+  {
+   "gap_mm": 10.03,
+   "n": 9,
+   "energy_keV": 92.294,
+   "date": "2025-12",
+   "device": "PMU",
+   "source": "user log 2025",
+   "role": "calc",
+   "E_rel_unc": 0.0,
+   "note": "calculator energy of n=9 at the n=7 gap (operator error case)"
+  }
+ ]
+}

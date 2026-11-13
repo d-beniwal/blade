@@ -81,11 +81,11 @@ from blade import vbl_api
 from blade.vbl import store as _st
 _st.reset(1, "startup", "prof")
 _w = _st.require("prof"); P.find_beam_on_camera(_w, "gh1"); _st.save(_w, "prof")
-_e = vbl_api.profile(dict(camera="gh1", bin=2, width=9, x0=0.05, y0=0.5, x1=0.35, y1=0.5, fit="scurve"), "prof")["fit"]
+_e = vbl_api.profile(dict(camera="gh1", bin=2, x0=0.05, y0=0.49, x1=0.35, y1=0.51, fit="scurve"), "prof")["fit"]
 assert "error" not in _e and _e["r2"] > 0.95 and _e["params"]["step"] > 0 and 45 < _e["width_10_90"] < 160, _e          # footprint left edge: rising S-curve, ~100 um 10-90 (the mottled beam biases a single-line fit a little)
-_g = vbl_api.profile(dict(camera="gh1", bin=2, width=9, x0=0.0, y0=0.5, x1=1.0, y1=0.5, fit="gauss"), "prof")["fit"]
+_g = vbl_api.profile(dict(camera="gh1", bin=2, x0=0.0, y0=0.49, x1=1.0, y1=0.51, fit="gauss"), "prof")["fit"]
 assert "error" not in _g and 0.0 < _g["params"]["centre"] < 1339 and _g["fwhm"] > 300, _g
-assert vbl_api.profile(dict(camera="gh1", bin=2, width=9, x0=0.0, y0=0.5, x1=1.0, y1=0.5, fit="auto"), "prof")["fit"]["kind"] in ("gauss", "scurve")
+assert vbl_api.profile(dict(camera="gh1", bin=2, x0=0.0, y0=0.49, x1=1.0, y1=0.51, fit="auto"), "prof")["fit"]["kind"] in ("gauss", "scurve", "slit_pos", "slit_neg")       # auto = best BIC of all models, slit fits included
 ok(f"line profile: S-curve edge 10-90 = {_e['width_10_90']:.0f} um (R2 {_e['r2']:.3f}); Gaussian FWHM {_g['fwhm']:.0f} um")
 
 # ---------------------------------------------------------------------------------------------------------------------------------- slit edges: sharp vs blurry

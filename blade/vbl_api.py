@@ -4,6 +4,7 @@ import threading
 from . import registry
 from .vbl import store, imaging, procedures as P
 from .vbl.world import control_specs, CAMERAS
+from .physics import core as pcore
 
 _LOCK = threading.RLock()
 
@@ -18,7 +19,8 @@ def state_payload(session=store.DEFAULT, reveal=False):
         cams = {c: {"hutch": w.sim["cameras"][c]["hutch"], "stage": w.sim["cameras"][c]["stage"], "pixel_um": w.cams[c]["pixel_um"], "rows": w.sim["cameras"][c]["rows"],
                     "cols": w.sim["cameras"][c]["cols"], "z_m": w.z[w.sim["cameras"][c]["z_key"]]} for c in CAMERAS}
         out = {"session": session, "scenario": w.s["scenario"], "seed": w.s["seed"], "snapshot": snap, "specs": specs, "cameras": cams, "log": w.s["log"][-12:],
-               "z_m": w.z, "foils": w.sim["foils"]["elements"] + ["out"], "scenarios": ["startup", "camera_in_beam", "ready_for_pin", "aligned"]}
+               "z_m": w.z, "foils": w.sim["foils"]["elements"] + ["out"],
+               "edges_keV": {el: round(float(pcore.edge_keV(el)), 4) for el in w.sim["foils"]["elements"]}, "scenarios": ["startup", "camera_in_beam", "ready_for_pin", "aligned"]}
         if reveal:
             out["truth"] = w.truth_report()
         return out

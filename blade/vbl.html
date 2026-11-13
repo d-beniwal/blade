@@ -24,7 +24,7 @@ button{cursor:pointer}button:hover{border-color:var(--acc)}button.pri{background
 .imgbox img{width:100%;height:auto;display:block;image-rendering:auto}
 .imgbox canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .axgrid{display:grid;grid-template-columns:minmax(0,1fr) var(--ar,0px);grid-template-rows:var(--at,0px) auto;gap:0 4px;line-height:0}
-.axgrid canvas.ax{width:100%;height:100%;display:block}
+.axgrid canvas.ax{width:100%;height:100%;display:block;contain:size;min-height:0;min-width:0}/* contain:size: bitmap size (css px x dpr) must not feed back into the auto grid row, else the image grows on every redraw */
 .imgbox.draw{cursor:crosshair}.imgbox.draw canvas{pointer-events:auto}
 .imgbox .ov{position:absolute;left:5px;top:3px;font:10.5px var(--mono);color:#fff;text-shadow:0 0 3px #000;line-height:1.3;white-space:pre;pointer-events:none}
 .row{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:4px 0}
@@ -157,11 +157,16 @@ function build(){
 function buildCam(){const cam=$('cam').value,c=S.cameras[cam],st=c.stage;const b=$('g_cam');b.innerHTML='';
  [[`${st}.x`,'stage x'],[`${st}.y`,'stage y'],[`${cam}.focus`,'focus'],[`${cam}.exposure`,'exposure']].forEach(([n,l])=>addCtl(b,n,l));fill()}
 function fill(){if(!S)return;const c=S.snapshot.controls;for(const [n,f] of Object.entries(setters)){if(n in c)f(c[n])}}
+function syncEdge(){ // the 'edge (foil)' dropdown follows the HEM energy readout (e.g. after a session reset the energy is back at the Re edge, so the dropdown must be too)
+ const ed=$('edge');if(!S.edges_keV||!ed||document.activeElement===ed)return;const E=S.snapshot.controls['hem.energy'];let best=null,bd=1e9;
+ for(const [el,e] of Object.entries(S.edges_keV)){const d=Math.abs(e-E);if(d<bd){bd=d;best=el}}
+ if(best&&bd<0.05&&ed.value!==best)ed.value=best}
 function renderState(){
  $('scn').textContent=`${S.scenario} · seed ${S.seed}`;$('tim').textContent=`t = ${Math.round(S.snapshot.time_s)} s`;
  const ic=S.snapshot.ic_kHz;const ks=Object.keys(ic);let h='<table><tr>'+'<th class="l">IC</th><th>kHz</th>'.repeat(3)+'</tr>';
  for(let i=0;i<ks.length;i+=3){h+='<tr>';for(let j=0;j<3;j++){const k=ks[i+j];h+=k?`<td class="l">${k}</td><td>${ic[k]}</td>`:'<td></td><td></td>'}h+='</tr>'}
  h+=`</table><div class="row mono"><span>mu_t = <b>${S.snapshot.mu_t===null?'– (foil out)':S.snapshot.mu_t.toFixed(3)}</b></span><span class="mute">Th1 ${S.snapshot.th1_deg.toFixed(4)}°  Z2 ${S.snapshot.z2_mm.toFixed(1)} mm</span></div>`;$('ics').innerHTML=h;
+ syncEdge();
  $('log').innerHTML=S.log.slice().reverse().map(x=>x.replace(/</g,'&lt;')).join('<br>');
  if(S.truth){$('truthcard').style.display='';$('truth').textContent=JSON.stringify(S.truth,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)}else $('truthcard').style.display='none';
  fill()}

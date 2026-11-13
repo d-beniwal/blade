@@ -265,6 +265,11 @@ class VirtualBeamline:
     def gap_actual(self):
         return self.ctl("und.gap") + self.s["gap_hyst"]
 
+    def und_coef(self):
+        """Field coefficients (a, b, c) of the undulator K(gap) model: sim.json `undulator.k_coef` (fitted to the logs) or the module default."""
+        k = self.sim["undulator"].get("k_coef")
+        return tuple(k) if k else pund.HALBACH_HYBRID_NDFEB
+
     def harmonics(self):
         u = self.sim["undulator"]
         return [int(n) for n in (u["flux_model"]["harmonics"] if u.get("flux_model") else u["harmonic_amplitude"])]
@@ -275,14 +280,14 @@ class VirtualBeamline:
         u = self.sim["undulator"]
         fm = u.get("flux_model")
         if fm:
-            return pund.harmonic_amplitude(int(n), gap, u["period_mm"], fm["exponent"])
+            return pund.harmonic_amplitude(int(n), gap, u["period_mm"], fm["exponent"], coef=self.und_coef())
         return u["harmonic_amplitude"][str(int(n))]
 
     def harmonic_peaks(self, E_keV=None, gap=None):
         """[(n, E_n(gap))] of the undulator at the (true) gap."""
         u = self.sim["undulator"]
         g = (self.gap_actual() if gap is None else gap) - self.s["truth"]["gap_err_mm"]
-        return [(n, pund.harmonic_energy_keV(g, n, u["period_mm"])) for n in self.harmonics()]
+        return [(n, pund.harmonic_energy_keV(g, n, u["period_mm"], coef=self.und_coef())) for n in self.harmonics()]
 
     def id_flux(self, E_keV=None):
         """Relative undulator flux at the energy the mono selects: sum over harmonics of a ~1 % wide peak (log: 0.07-0.1 mm in gap at n=7)."""
@@ -291,7 +296,8 @@ class VirtualBeamline:
         tot = 0.0
         g_true = self.gap_actual() - self.s["truth"]["gap_err_mm"]
         for n, En in self.harmonic_peaks():
-            w = u["rel_fwhm_per_harmonic"] * n * En / 2.3548
+            # relative FWHM of the flux-vs-gap peak: n-independent `rel_fwhm` (fitted/physical) or the old per-harmonic scaling
+            w = (u["rel_fwhm"] if "rel_fwhm" in u else u["rel_fwhm_per_harmonic"] * n) * En / 2.3548
             tot += self.harm_amp(n, g_true) * math.exp(-0.5 * ((En - E) / w) ** 2)
         return tot
 
@@ -301,7 +307,7 @@ class VirtualBeamline:
         best = None
         for nn in ([n] if n else self.harmonics()):
             try:
-                g0 = pund.gap_for_energy_mm(E_keV, nn, u["period_mm"])
+                g0 = pund.gap_for_energy_mm(E_keV, nn, u["period_mm"], coef=self.und_coef())
             except ValueError:
                 continue
             g = g0 + T["gap_err_mm"]
@@ -339,10 +345,18 @@ class VirtualBeamline:
 
     # ------------------------------------------------------------------------------------------------------------------------------ ray optics
     def lens_geom(self, ln):
-        """For a lens that is in the beam: (focal length m, axis 'h'/'v', lens centre mm). None when it is out of the beam (x parked) or unfocused."""
+        """Lens stack `ln` as the beam sees it, or None when its window does not overlap the beam (parked at x ~ 25 mm, or moved far in x / y).
+        Returns {"f_m": focal length of the focusing axis (m; negative = diverging, i.e. tilted the other way; None if the tilt gives no power),
+        "axis": 'h' or 'v' (the axis that focuses), "c": {"h": window centre u mm, "v": window centre v mm}}.
+        The window (clear aperture, both directions) sits at lens zero + the x (horizontal, +u assumed) and y (vertical) motors; it counts as 'in the beam'
+        when it overlaps the beam's +-4 sigma at that distance in BOTH directions. The tilt gives the power on the focusing axis only."""
         L, c, T, sim = plens.LENSES_1ID[ln], self.s["ctl"], self.s["truth"], self.sim
-        xo = sim["lenses"]["x_out_mm"]
-        if abs(c[f"{ln}.x"]) > 0.5 * sim["lenses"]["aperture_mm"] + 0.5 * xo * 0.2 and abs(c[f"{ln}.x"] - xo) < 1.0:
+        zl = self.lens_z(ln)
+        zu, zv = T["lens_zero"][ln]
+        cu, cv = zu + c[f"{ln}.x"], zv + c[f"{ln}.y"]
+        bu, bv = self.beam_centre(zl)
+        reach = 0.5 * sim["lenses"]["aperture_mm"] + 4.0 * self.sigma_theta() * zl * 1e3
+        if abs(cu - bu) > reach or abs(cv - bv) > reach:
             return None
         axis = "v" if L["orientation"] in ("upr", "up", "inv", "down") else "h"
         motor = "th" if axis == "v" else "phi"
@@ -352,11 +366,7 @@ class VirtualBeamline:
             tilt = -tilt
         delta = plens.lens_delta(L["material"], max(self.energy_actual_keV(), 10.0))
         f_m = plens.prism_focal_length_m(tilt, delta, L["tooth_um"])
-        if abs(f_m) < 1e-6 or f_m <= 0:
-            return None
-        zl = self.lens_z(ln)
-        centre = (c[f"{ln}.y"] if axis == "v" else -c[f"{ln}.x"] * 0.0 + c[f"{ln}.y"] * 0.0) if False else 0.0
-        return f_m, axis, T["lens_zero"][ln][1 if axis == "v" else 0] + (c[f"{ln}.y"] if axis == "v" else 0.0)
+        return {"f_m": f_m if abs(f_m) >= 1e-6 else None, "axis": axis, "c": {"h": cu, "v": cv}}
 
     def lens_z(self, ln):
         return self.z.get(LENS_Z_KEY.get(ln, ln))
@@ -372,16 +382,15 @@ class VirtualBeamline:
                 lo, hi = self.slit_edges(sid, axis)
                 events.append((self.z[sid], "ap", sid, (lo, hi)))
         if with_lenses:
+            ap = S["lenses"]["aperture_mm"]
             for ln in LENS_IDS:
                 zl = self.lens_z(ln)
                 if zl is not None and zl < z_cam_m:
                     g = self.lens_geom(ln)
                     if g:
-                        f_m, ax, centre = g
-                        if ax == axis:
-                            ap = S["lenses"]["aperture_mm"]
-                            events.append((zl, "ap", ln + ".aperture", (centre - ap / 2, centre + ap / 2)))
-                            events.append((zl, "lens", ln, (f_m * 1e3, centre)))
+                        events.append((zl, "ap", ln + ".aperture", (g["c"][axis] - ap / 2, g["c"][axis] + ap / 2)))     # the window clips both directions
+                        if g["axis"] == axis and g["f_m"]:
+                            events.append((zl, "lens", ln, (g["f_m"] * 1e3, g["c"][axis])))
         events.sort(key=lambda e: (e[0], 0 if e[1] == "ap" else 1))
         A, E, B, C, F, D = 0.0, 1.0, 0.0, 1.0, 0.0, 0.0     # u = A th + E s + B ; u' = C th + F s + D   (z=0: u = s, u' = th)
         zprev = 0.0
@@ -433,9 +442,10 @@ class VirtualBeamline:
         T = 1.0
         for name, key in (("attenB", "attenB_cu_mm"), ("attenC", "attenC_cu_mm")):
             if self.z[name] < upto_z:
-                mm = self.sim["foils"][key][int(self.ctl(f"{name}.pos"))]
+                ent = self.sim["foils"][key][int(self.ctl(f"{name}.pos"))]
+                mat, mm = ("Cu", ent) if not isinstance(ent, (list, tuple)) else (ent[0], ent[1])       # entry = mm of Cu, or [material, mm]
                 if mm > 0:
-                    T *= pcore.transmission("Cu", mm, E_keV)
+                    T *= pcore.transmission(mat, mm, E_keV)
         return T
 
     def foil_thickness_mm(self, el):
@@ -457,12 +467,16 @@ class VirtualBeamline:
         """mu(E) of the foil element on a 1 eV grid around its K edge (xraydb, vectorised; computed once)."""
         cache = self.__dict__.setdefault("_mut", {})
         if el not in cache:
-            from ..physics.core import _xdb
             e0 = pcore.edge_keV(el)
             E = np.arange(e0 - 1.5, e0 + 1.5, 0.0005)
-            mu = np.asarray(_xdb().material_mu(el, E * 1000.0, density=_xdb().get_material(el)[1]), float)       # 1/cm
-            cache[el] = (E, mu)
+            cache[el] = (E, self._mu_direct(el, E))
         return cache[el]
+
+    @staticmethod
+    def _mu_direct(el, E_keV):
+        """mu(E) [1/cm] of the element straight from xraydb (vectorised, any energy)."""
+        from ..physics.core import _xdb
+        return np.asarray(_xdb().material_mu(el, np.asarray(E_keV, float) * 1000.0, density=pcore.material_density(el)), float)
 
     def _foil_T_smooth(self, el, E_keV):
         """Foil transmission at the mono energy, smoothed by the edge width wid(E) (erf edge as in the E_scan fits)."""
@@ -471,7 +485,11 @@ class VirtualBeamline:
         xs = np.linspace(-4.0, 4.0, 61)
         w = np.exp(-0.5 * xs ** 2)
         w /= w.sum()
-        m = np.interp(E_keV + xs * sig, Eg, mu)
+        Es = E_keV + xs * sig
+        m = np.interp(Es, Eg, mu)
+        far = (Es < Eg[0]) | (Es > Eg[-1])             # beyond the fine table: smooth tails, evaluate directly (np.interp would clamp them)
+        if far.any():
+            m[far] = self._mu_direct(el, Es[far])
         return float(np.sum(w * np.exp(-m * self.foil_thickness_mm(el) / 10.0)))
 
     def transmission_to(self, z_m):
@@ -510,7 +528,7 @@ class VirtualBeamline:
         best = 0.0
         for k in self.harmonics():
             try:
-                g = pund.gap_for_energy_mm(E_keV, k, u["period_mm"])
+                g = pund.gap_for_energy_mm(E_keV, k, u["period_mm"], coef=self.und_coef())
             except ValueError:
                 continue
             if g >= u["gap_limits_mm"][0]:
@@ -524,10 +542,18 @@ class VirtualBeamline:
         f1 = float(_phi(half / sg) - _phi(-half / sg))
         return f1 * f1 * self.best_amp(self.ctl("hem.energy"))
 
+    def flux_energy_factor(self):
+        """Flux relative to its value at 71.7 keV for a well-tuned chain (sim.json `ic.flux_vs_energy_knots`, fitted to logged IC rates; 1 if absent)."""
+        kn = self.sim["ic"].get("flux_vs_energy_knots")
+        if not kn:
+            return 1.0
+        E, f = zip(*kn)
+        return float(np.interp(self.ctl("hem.energy"), E, f))
+
     def ic_kHz(self, ic):
         z = self.z[ic]
         ics = self.sim["ic"]
-        rate = ics["ref_kHz_at_icB1"] * self.flux_at(z) / self.ref_flux()
+        rate = ics["ref_kHz_at_icB1"] * self.flux_at(z) / self.ref_flux() * self.flux_energy_factor()
         dark = ics.get("dark_kHz_by_ic", {}).get(ic, ics["dark_kHz"])
         rng = np.random.default_rng(stable_seed(self.s["seed"], self.s["n_acq"], ic, round(self.s["t_s"])))
         rate = rate * (1.0 + rng.normal(0, 0.004)) + dark * (1 + rng.normal(0, 0.05))
@@ -539,7 +565,8 @@ class VirtualBeamline:
             return None
         before, after = self.ic_kHz("icB5"), self.ic_kHz("icB8")
         dark = self.sim["ic"]["dark_kHz"]
-        return float(math.log(max(before - dark, 1e-6) / max(after - dark, 1e-6)))
+        t_att = self._atten_T(None, self.energy_actual_keV(), self.z["icB8"])       # the B attenuator wheel sits between icB5 and icB8: Emon takes it out of the ratio
+        return float(math.log(max(before - dark, 1e-6) / max((after - dark) / t_att, 1e-6)))
 
     # ------------------------------------------------------------------------------------------------------------------------------ cameras
     def camera_view(self, cam):
@@ -592,7 +619,7 @@ class VirtualBeamline:
             if lo is not None and not (lo <= value <= hi):
                 raise ValueError(f"{name}={value} outside the limits [{lo}, {hi}] {unit}")
         old = c[name]
-        if name == "und.gap":
+        if name == "und.gap" and value != old:             # re-sending the same gap is not a move: no new hysteresis state
             self.s["gap_dir"] = "open" if value > old else "close"
             self.s["gap_hyst"] = self.sim["undulator"]["hysteresis_mm"] if self.s["gap_dir"] == "open" else 0.0
         if name.endswith((".hsize", ".vsize", ".hcenter", ".vcenter")):

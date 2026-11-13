@@ -1,0 +1,1254 @@
+{
+ "schema": 1,
+ "note": "Flux-chain fits (WB slits, ion chambers, attenuators, flux vs energy, fast shutter, steering/BPM) from the 1-ID logs; produced 2026-11-13 by the flux-chain modelling pass. 'params' feeds blade/physics/flux_fit.py; 'data' holds every table used. user-log entries are cited as 'user log <year>' only.",
+ "params": {
+  "wb_sigma_mm": {
+   "value": 0.1472,
+   "unc": 0.0079,
+   "n_points": 3,
+   "method": "least squares on ln(flux ratio) of within-session pairs, isotropic Gaussian, erf aperture; unc = 1-sigma from the Jacobian with 5-10 % assumed ratio errors",
+   "residuals": "model/obs ratios 1.730/1.724, 1.432/1.444, 1.732/1.741 (<=1 %); chi2 0.02 for 2 dof-free pairs (assumed errors generous). Cross-session pairs (n=5) prefer 0.07-0.09 mm and a joint fit of all 8 gives 0.130 mm with chi2 26: they are dominated by tuning drift (+-20 %) and are NOT used",
+   "provenance": "2025-startup1id_jun2025_explog:35,124; 2026-techcomm_jun26_explog:419,473; user log 2025",
+   "status": "fitted",
+   "note": "replaces the 0.14 mm of sim.json (one ratio, x1.72). H and V not separable: all logged changes scaled both"
+  },
+  "wb_slit_centre_offset_mm": {
+   "value": null,
+   "unc": null,
+   "n_points": 0,
+   "method": "not fitted",
+   "residuals": "only 10-50 um re-peaking tweaks are logged; no flux-vs-centre scan at a resonant harmonic exists",
+   "provenance": "",
+   "status": "pending"
+  },
+  "offres_sigma_urad": {
+   "value": [
+    31.9,
+    61.4
+   ],
+   "unc": [
+    0.7,
+    2.9
+   ],
+   "n_points": 23,
+   "method": "Gaussian beam x erf slit (0.25 mm at z=27 m), linear amplitude profiled out, 2D fit to the Xp and Yp steering scans, gap 30 mm",
+   "residuals": "rms 0.227 kHz, max 0.52 kHz on 137-145 kHz (readings are integers)",
+   "provenance": "2026-techcomm_jun26_explog:68-91",
+   "status": "fitted",
+   "note": "off-resonance beam only (z-independent: urad)"
+  },
+  "offres_centre_urad": {
+   "value": [
+    15.6,
+    -0.14
+   ],
+   "unc": [
+    0.2,
+    0.3
+   ],
+   "n_points": 23,
+   "method": "same fit",
+   "residuals": "same",
+   "provenance": "2026-techcomm_jun26_explog:68-94 (operators chose Xp = 15, Yp = 2)",
+   "status": "fitted"
+  },
+  "gain_exponent": {
+   "value": 0.955,
+   "unc": 0.035,
+   "n_points": 3,
+   "method": "rate ~ (ref/gain)^p from three pairs (G1,G3,G4); G2 (cross-session, 4 months apart) gives 0.886 and is excluded",
+   "residuals": "p = 0.933, 0.937, 0.995; consistent with the physical p = 1 (V = I/sensitivity)",
+   "provenance": "see data.gain_pairs",
+   "status": "fitted"
+  },
+  "kHz_per_V": {
+   "value": 100.0,
+   "unc": null,
+   "n_points": null,
+   "method": "ASSUMED: scaler clip 999988 counts/s = 10 V full scale x 100 kHz/V; the dark-vs-input-offset check gives 77 kHz/V median (23-92)",
+   "residuals": "",
+   "provenance": "2025-startup1id_jun2025_explog:212-219 (clip)",
+   "status": "assumed"
+  },
+  "clip_kHz": {
+   "value": 999.988,
+   "unc": 0.012,
+   "n_points": 5,
+   "method": "direct: IC1-E 999988, IC2-E 999987, IC6-E 999977 (other log) counts/s",
+   "residuals": "",
+   "provenance": "2025-startup1id_jun2025_explog:213-214; user log 2025",
+   "status": "fitted"
+  },
+  "dark_kHz": {
+   "value": {
+    "icE1": 0.835,
+    "icE2": 0.875,
+    "icE3": 0.474,
+    "icE4": 0.928,
+    "icE5": 0.218,
+    "icE6": 1.846,
+    "icE7": 0.321,
+    "icE8": 1.824,
+    "icB3": 0.7,
+    "scaler_ic1b": 0.596
+   },
+   "unc": null,
+   "n_points": 10,
+   "method": "direct readings with the PSS shutter closed",
+   "residuals": "IC4-E is 0.93 kHz (the 0.35 in 10_procedure_reconciliation.md is IC7-E-sized and does not match this record); scaler channel 'ic1b' of the Emon/E_scan blocks reads 0.596 +- 0.018 kHz (n=12) with beam ON: a dark-like, unused channel, not IC_B1",
+   "provenance": "2025-startup1id_jun2025_explog:241-249; 2026-techcomm_jun26_explog:98; 2024-mpe_jul24_explog:116-117",
+   "status": "fitted"
+  },
+  "dark_vs_offset": {
+   "value": {
+    "median_kHz_per_V": 76.8,
+    "range": [
+     23.7,
+     92.3
+    ]
+   },
+   "unc": null,
+   "n_points": 6,
+   "method": "dark = kHz_per_V * I_offset / sensitivity from the logged preamp tables (Sep 2026) vs dark floors (Jun 2025, shutter closed)",
+   "residuals": "dates differ so settings may differ; supports 'dark is the preamp input offset, independent of the sensitivity setting'",
+   "provenance": "user log 2026; 2025-startup1id_jun2025_explog:242-247",
+   "status": "partly fitted"
+  },
+  "cu_t_eff_ratio": {
+   "value": 1.031,
+   "unc": 0.02,
+   "n_points": 1,
+   "method": "Cu thickness implied by the B-wheel position-2 transmission (IC3-E, dark-subtracted 59448-474 / 151460-474 = 0.3906) divided by nominal 1.016 mm at 71.7 keV (xraydb 0.402)",
+   "residuals": "single point; the +3 % could be thickness tolerance, energy (E assumed 71.7), or IC3-E non-linearity at 1.5e5 counts/s",
+   "provenance": "2025-startup1id_jun2025_explog:214,231,244",
+   "status": "fitted"
+  },
+  "attenC_step_cm": {
+   "value": 0.2349,
+   "unc": 0.0033,
+   "n_points": 7,
+   "method": "linear fit of the printed attenC thicknesses vs position (intercept fixed 0); individual steps 0.232 .. 0.242 cm",
+   "residuals": "pos 7 = 1.645 cm (7 x 0.232 = 1.624 would be 1.3 % low)",
+   "provenance": "user log 2026",
+   "status": "fitted"
+  },
+  "fs_leak_aligned": {
+   "value": 8e-05,
+   "unc": 3e-05,
+   "n_points": 3,
+   "method": "closed-FS minus PSS-closed counts on IC6-E (1940 - 1880 = 60/s) over the open-beam IC6-E rate of the Jun 2025 test (7.7e5/s at attenuator 2); mixing days, so an upper estimate; a second check shows IC4 within 4 counts of dark",
+   "residuals": "IC6-E 1940 vs 1880 ; IC4-E 924/928",
+   "provenance": "2026 user log (IC6-E pair); 2025-startup1id_jun2025_explog:234,244,247",
+   "status": "fitted"
+  },
+  "fs_x_edge_mm": {
+   "value": 1.5,
+   "unc": 0.1,
+   "n_points": 2,
+   "method": "B fast shutter X: first leakage on IC6 at 1.5 mm while stepping a closed FS in 0.1 mm; operated at 3.0 mm (1.5 mm margin); Jan 2025 move 2.75 -> 2.40 mm with Y -0.600 -> -0.425 raised IC6 by +0.3 %",
+   "residuals": "",
+   "provenance": "2025-startup1id_jun2025_explog:75-79; 2025-startup_jan25_explog:50-53",
+   "status": "fitted"
+  },
+  "fs_window_y_mm": {
+   "value": [
+    1.69,
+    0.16
+   ],
+   "unc": null,
+   "n_points": 3,
+   "method": "vertical FS opening from blade positions on the tomo camera: 1.74 (B FS, Jun 2025), 1.82 (Jun 2025), 1.50 (E FS, Apr 2025); centres -0.720, -0.219, -0.325 mm",
+   "residuals": "width spread is read-off error (+-0.1 mm); sim.json uses 1.7",
+   "provenance": "2025-startup1id_jun2025_explog:69-71,254-256; user log 2025",
+   "status": "fitted"
+  },
+  "bpm_gain": {
+   "value": [
+    0.88,
+    0.92
+   ],
+   "unc": [
+    0.05,
+    0.05
+   ],
+   "n_points": 3,
+   "method": "BPM angle readback per urad of steering total: HA -7.1 -> -11.5 for Xp 15 -> 10 (0.88), VA -18.5 -> -23.1 for Yp 2 -> -3 (0.92); a third state (Xp 11, Yp -3: HA -10.4, VA -22.8) agrees within 0.4 urad",
+   "residuals": "3 states, 0.4 urad",
+   "provenance": "2026-techcomm_jun26_explog:405-419,529-531 (Jul 2026)",
+   "status": "fitted"
+  },
+  "mu_t_foilout_offset": {
+   "value": [
+    0.0195,
+    0.0406
+   ],
+   "unc": null,
+   "n_points": 71,
+   "method": "logged mu_t minus ln(Emon/Etr) over all Emon rows (2022-2026); mean, sd",
+   "residuals": "the macro subtracts a foil-out ratio and dark; sim.mu_t() uses dark only; the offset is small (0.02 +- 0.04)",
+   "provenance": "71 E-calibration rows (startup + user logs)",
+   "status": "fitted"
+  },
+  "flux_rel_knots": {
+   "value": {
+    "E_keV": [
+     41.99,
+     52.0,
+     61.33,
+     71.68,
+     80.73,
+     86.75,
+     90.53
+    ],
+    "rel": [
+     1.042,
+     2.197,
+     2.128,
+     1.0,
+     0.993,
+     0.551,
+     0.338
+    ],
+    "unc": [
+     0.15,
+     0.25,
+     0.15,
+     0.0,
+     0.1,
+     0.12,
+     0.1
+    ]
+   },
+   "unc": null,
+   "n_points": 23,
+   "method": "IC rate (WB 0.3x0.3-equivalent via sigma 0.147, 200 mA, 50 nA/V) relative to 71.7 keV; B1 at 52/61/71.7/80.7, B3 (2026) at 42/71.7/86.8/90.5; each curve normalised to its own 71.7 keV value (B1 174.1, B3 576.1 kHz)",
+   "residuals": "52 keV values 352-425 (sd 8 %), one more at 566 (timing mode, 130 mA, excluded); 80.7 keV 153-181; B3 at 71.7: 543-597 (sd 4.1 %); cross-month drift 20-30 %",
+   "provenance": "see data.ic_flux_rows",
+   "status": "fitted"
+  }
+ },
+ "data": {
+  "ic_flux_rows": {
+   "B1": [
+    {
+     "ic": "icB1",
+     "E_keV": 80.725,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 178.5,
+     "rate_kHz_norm": 178.5,
+     "source": "2025-startup1id_jun2025_explog:26"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 71.66,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 174.0,
+     "rate_kHz_norm": 174.0,
+     "source": "2025-startup1id_jun2025_explog:35"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 71.625,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 300.0,
+     "rate_kHz_norm": 173.3,
+     "source": "2025-startup1id_jun2025_explog:124"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 80.725,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 150,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 132.0,
+     "rate_kHz_norm": 176.0,
+     "source": "2025-startup_jan25_explog:38"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 80.725,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 176.0,
+     "rate_kHz_norm": 176.0,
+     "source": "2026-mpe_jan26:42"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 80.61,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 180.7,
+     "rate_kHz_norm": 180.7,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 80.61,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 153.0,
+     "rate_kHz_norm": 153.0,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 51.969,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 114,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 206.0,
+     "rate_kHz_norm": 361.4,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 51.93,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 610.0,
+     "rate_kHz_norm": 352.4,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 51.93,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 735.0,
+     "rate_kHz_norm": 424.7,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 61.33,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 135,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 433.0,
+     "rate_kHz_norm": 370.6,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 51.944,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 130,
+     "gain_nA_per_V": 100,
+     "rate_kHz_raw": 184.0,
+     "rate_kHz_norm": 566.2,
+     "source": "user log 2025 (timing mode)"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 51.935,
+     "wb_h": 0.6,
+     "wb_v": 0.3,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 542.0,
+     "rate_kHz_norm": 391.5,
+     "source": "user log 2026"
+    },
+    {
+     "ic": "icB1",
+     "E_keV": 71.63,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 303.0,
+     "rate_kHz_norm": 175.1,
+     "source": "user log 2025 (operator target)"
+    }
+   ],
+   "B3": [
+    {
+     "ic": "icB3",
+     "E_keV": 80.725,
+     "wb_h": 0.55,
+     "wb_v": 0.4,
+     "I_mA": 200.25,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 83.58,
+     "rate_kHz_norm": 51.6,
+     "source": "user log 2026 (Emon block, 5 s count) OUTLIER"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 80.725,
+     "wb_h": 0.55,
+     "wb_v": 0.4,
+     "I_mA": 200.2,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 84.93,
+     "rate_kHz_norm": 52.5,
+     "source": "user log 2026 (Emon block, 5 s count) OUTLIER"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 80.725,
+     "wb_h": 0.55,
+     "wb_v": 0.4,
+     "I_mA": 200.01,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 87.08,
+     "rate_kHz_norm": 53.8,
+     "source": "user log 2026 (Emon block, 5 s count) OUTLIER"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.675,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200.05,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 559.02,
+     "rate_kHz_norm": 558.9,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.676,
+     "wb_h": 0.5,
+     "wb_v": 0.4,
+     "I_mA": 150.07,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 518.59,
+     "rate_kHz_norm": 440.2,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 41.991,
+     "wb_h": 0.5,
+     "wb_v": 0.4,
+     "I_mA": 199.83,
+     "gain_nA_per_V": 100.0,
+     "rate_kHz_raw": 474.32,
+     "rate_kHz_norm": 604.8,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 41.991,
+     "wb_h": 0.5,
+     "wb_v": 0.4,
+     "I_mA": 199.88,
+     "gain_nA_per_V": 100.0,
+     "rate_kHz_raw": 467.37,
+     "rate_kHz_norm": 595.7,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 90.526,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 130.13,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 126.84,
+     "rate_kHz_norm": 194.9,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.676,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 199.84,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 542.62,
+     "rate_kHz_norm": 543.1,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.676,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200.28,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 592.21,
+     "rate_kHz_norm": 591.4,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.676,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 199.96,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 596.99,
+     "rate_kHz_norm": 597.1,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.675,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 200.45,
+     "gain_nA_per_V": 50.0,
+     "rate_kHz_raw": 591.28,
+     "rate_kHz_norm": 589.9,
+     "source": "user log 2026 (Emon block, 5 s count)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 80.725,
+     "wb_h": 0.3,
+     "wb_v": 0.3,
+     "I_mA": 150,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 361.0,
+     "rate_kHz_norm": 481.3,
+     "source": "2025-startup_jan25_explog:40"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 86.5,
+     "wb_h": 0.4,
+     "wb_v": 0.4,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 450.0,
+     "rate_kHz_norm": 316.0,
+     "source": "2026-techcomm_jun26_explog:419"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 87.0,
+     "wb_h": 0.8,
+     "wb_v": 0.7,
+     "I_mA": 200,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 650.0,
+     "rate_kHz_norm": 319.2,
+     "source": "2026-techcomm_jun26_explog:473 (energy ~87 keV, gain assumed 50)"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.735,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 140,
+     "gain_nA_per_V": 50,
+     "rate_kHz_raw": 467.0,
+     "rate_kHz_norm": 385.5,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.646,
+     "wb_h": 0.6,
+     "wb_v": 0.4,
+     "I_mA": 130,
+     "gain_nA_per_V": 200,
+     "rate_kHz_raw": 113.0,
+     "rate_kHz_norm": 420.9,
+     "source": "user log 2025"
+    },
+    {
+     "ic": "icB3",
+     "E_keV": 71.645,
+     "wb_h": 0.5,
+     "wb_v": 0.5,
+     "I_mA": 130,
+     "gain_nA_per_V": 200,
+     "rate_kHz_raw": 127.0,
+     "rate_kHz_norm": 451.6,
+     "source": "user log 2025"
+    }
+   ]
+  },
+  "wb_pairs": [
+   {
+    "pair": "Jun25 B1 Re 0.3^2 -> 0.5^2",
+    "ratio_obs": 1.724,
+    "sigma_mm": 0.146,
+    "ratio_model_at_0p147": 1.731,
+    "rel_err_assumed": 0.05,
+    "source": "2025-startup1id_jun2025_explog:35,124",
+    "class_": "primary"
+   },
+   {
+    "pair": "Jul26 B3 86.5/87 keV 0.4^2 -> 0.8x0.7",
+    "ratio_obs": 1.444,
+    "sigma_mm": 0.149,
+    "ratio_model_at_0p147": 1.43,
+    "rel_err_assumed": 0.1,
+    "source": "2026-techcomm_jun26_explog:419,473",
+    "class_": "primary"
+   },
+   {
+    "pair": "Feb25 operator target 0.5^2 (303 kHz) vs Jun25 0.3^2 (174), B1 Re",
+    "ratio_obs": 1.741,
+    "sigma_mm": 0.148,
+    "ratio_model_at_0p147": 1.731,
+    "rel_err_assumed": 0.08,
+    "source": "user log 2025; 2025-startup1id_jun2025_explog:35",
+    "class_": "primary (shares 174 with the first)"
+   },
+   {
+    "pair": "Oct26 -> Nov26 B3 Re 0.3^2 -> 0.5x0.4 (different days, current-scaled)",
+    "ratio_obs": 1.199,
+    "sigma_mm": 0.092,
+    "ratio_model_at_0p147": 1.57,
+    "rel_err_assumed": 0.12,
+    "source": "user log 2026",
+    "class_": "cross-session"
+   },
+   {
+    "pair": "2025 B3 Re 0.5^2 (Jul25, 140 mA) vs Oct26 0.3^2",
+    "ratio_obs": 1.158,
+    "sigma_mm": 0.084,
+    "ratio_model_at_0p147": 1.731,
+    "rel_err_assumed": 0.15,
+    "source": "user log 2025/2026",
+    "class_": "cross-session"
+   },
+   {
+    "pair": "Nov25 B3 Re 0.6x0.4 (200 nA/V x4, 130 mA) vs Oct26 0.3^2",
+    "ratio_obs": 1.206,
+    "sigma_mm": 0.092,
+    "ratio_model_at_0p147": 1.652,
+    "rel_err_assumed": 0.15,
+    "source": "user log 2025/2026",
+    "class_": "cross-session"
+   },
+   {
+    "pair": "B1 Tb 0.3^2 Nov25 (100 nA/V x2, 130 mA) vs 0.5^2 Jun25 (610)",
+    "ratio_obs": 1.078,
+    "sigma_mm": 0.072,
+    "ratio_model_at_0p147": 1.731,
+    "rel_err_assumed": 0.15,
+    "source": "user log 2025",
+    "class_": "cross-session"
+   },
+   {
+    "pair": "B1 Tb 0.3^2 Nov25 vs 0.6x0.3 Feb26",
+    "ratio_obs": 0.958,
+    "sigma_mm": null,
+    "ratio_model_at_0p147": 1.385,
+    "rel_err_assumed": 0.15,
+    "source": "user log 2025/2026",
+    "class_": "cross-session"
+   }
+  ],
+  "steering_scan": {
+   "note": "B3 kHz vs total steering (Xp, Yp urad) at WB 0.25x0.25 mm, undulator gap 30 mm, mono ~71.7 keV; (Xp,Yp,kHz)",
+   "points": [
+    [
+     5,
+     0,
+     137
+    ],
+    [
+     6,
+     0,
+     139
+    ],
+    [
+     7,
+     0,
+     140
+    ],
+    [
+     8,
+     0,
+     141
+    ],
+    [
+     9,
+     0,
+     142
+    ],
+    [
+     11,
+     0,
+     143
+    ],
+    [
+     12,
+     0,
+     144
+    ],
+    [
+     13,
+     0,
+     144
+    ],
+    [
+     15,
+     0,
+     145
+    ],
+    [
+     17,
+     0,
+     145
+    ],
+    [
+     19,
+     0,
+     144
+    ],
+    [
+     21,
+     0,
+     143
+    ],
+    [
+     23,
+     0,
+     141
+    ],
+    [
+     16,
+     0,
+     145
+    ],
+    [
+     16,
+     2,
+     145
+    ],
+    [
+     16,
+     4,
+     145
+    ],
+    [
+     16,
+     8,
+     144
+    ],
+    [
+     16,
+     10,
+     143
+    ],
+    [
+     16,
+     12,
+     142
+    ],
+    [
+     16,
+     -2,
+     145
+    ],
+    [
+     16,
+     -6,
+     144.5
+    ],
+    [
+     16,
+     -8,
+     144
+    ],
+    [
+     16,
+     -10,
+     143
+    ]
+   ],
+   "source": "2026-techcomm_jun26_explog:68-91"
+  },
+  "wb_blade_scans": {
+   "note": "just-closed scans of a WB blade at 10 uA/V on the phantom (gap 45 mm) beam: counts fall linearly (flat beam over the central 0.2 mm), edge-to-floor width <= 0.04 mm",
+   "IB_mm_counts": [
+    [
+     -0.125,
+     9930
+    ],
+    [
+     -0.105,
+     8665
+    ],
+    [
+     -0.085,
+     7490
+    ],
+    [
+     -0.025,
+     3955
+    ],
+    [
+     0.015,
+     1490
+    ],
+    [
+     0.055,
+     960
+    ],
+    [
+     0.095,
+     940
+    ]
+   ],
+   "Bot_mm_counts": [
+    [
+     -0.337,
+     7410
+    ],
+    [
+     -0.277,
+     5724
+    ],
+    [
+     -0.137,
+     1970
+    ],
+    [
+     -0.097,
+     930
+    ],
+    [
+     -0.057,
+     880
+    ],
+    [
+     -0.017,
+     880
+    ]
+   ],
+   "slope_IB_counts_per_mm": -60800,
+   "slope_Bot_counts_per_mm": -27000,
+   "floor_counts": [
+    940,
+    880
+   ],
+   "source": "2026-techcomm_jun26_explog:168-197"
+  },
+  "gain_pairs": [
+   {
+    "id": "G1",
+    "desc": "IC-B3 2 uA/V -> 10 uA/V, WB wide open, gap 50 mm: 516 -> 115 kHz",
+    "gain_ratio": 5.0,
+    "rate_ratio": 4.487,
+    "p": 0.933,
+    "source": "2026-techcomm_jun26_explog:39-40",
+    "use": true
+   },
+   {
+    "id": "G3",
+    "desc": "IC-B3 Re edge, WB 0.5x0.5 at 50 nA/V 140 mA (467 kHz) vs WB 0.6x0.4 at 200 nA/V 130 mA (113 kHz), area-corrected",
+    "gain_ratio": 4.0,
+    "rate_ratio": 3.838,
+    "p": 0.937,
+    "source": "user log 2025",
+    "use": true
+   },
+   {
+    "id": "G4",
+    "desc": "same-record B1 542 kHz @50 and B3 744 kHz @100 nA/V (WB 0.6x0.3): B3/B1 vs the same-state 2.735 ratio from Jan 2025 (361/132)",
+    "gain_ratio": 2.0,
+    "rate_ratio": 1.373,
+    "p": 0.995,
+    "source": "user log 2026; 2025-startup_jan25_explog:38-40",
+    "use": true
+   },
+   {
+    "id": "G2",
+    "desc": "IC-B3 0.5x0.5 at 50 nA/V (140 mA, 467 kHz) vs 200 nA/V (130 mA, 127 kHz), 4 months apart (cross-session)",
+    "gain_ratio": 4.0,
+    "rate_ratio": 3.415,
+    "p": 0.886,
+    "source": "user log 2025",
+    "use": false
+   }
+  ],
+  "dark_E_pss_closed": {
+   "icE1": 835,
+   "icE2": 875,
+   "icE3": 474,
+   "icE4": 928,
+   "icE5": 218,
+   "icE6": 1846,
+   "icE7": 321,
+   "icE8": 1824,
+   "unit": "counts/s",
+   "source": "2025-startup1id_jun2025_explog:241-249"
+  },
+  "dark_vs_offset_rows": [
+   {
+    "ic": "icE6 (Hydra)",
+    "offset_nA": 0.02,
+    "sens_nA_per_V": 1,
+    "dark_kHz": 1.846
+   },
+   {
+    "ic": "icE4 (sam MON)",
+    "offset_nA": 0.02,
+    "sens_nA_per_V": 1,
+    "dark_kHz": 0.928
+   },
+   {
+    "ic": "icE1 (SplitICE_1)",
+    "offset_nA": 0.5,
+    "sens_nA_per_V": 50,
+    "dark_kHz": 0.835
+   },
+   {
+    "ic": "icE2 (SplitICE_2)",
+    "offset_nA": 0.5,
+    "sens_nA_per_V": 50,
+    "dark_kHz": 0.875
+   },
+   {
+    "ic": "icE3 (US IC)",
+    "offset_nA": 2.0,
+    "sens_nA_per_V": 100,
+    "dark_kHz": 0.474
+   },
+   {
+    "ic": "icB3 (CRL1)",
+    "offset_nA": 1.0,
+    "sens_nA_per_V": 100,
+    "dark_kHz": 0.7
+   }
+  ],
+  "attenuator_tables": {
+   "unit_in_log": "cm (printed 'Thickness_cm'); stored here in mm",
+   "attenB": {
+    "0": [
+     "Cu",
+     0.0
+    ],
+    "1": [
+     "Cu",
+     0.1016
+    ],
+    "2": [
+     "Cu",
+     1.016
+    ],
+    "3": [
+     "Cu",
+     1.52
+    ],
+    "4": [
+     "Cu",
+     2.13
+    ],
+    "5": [
+     "Pb",
+     1.5
+    ],
+    "6": [
+     "Pb",
+     3.0
+    ],
+    "7": [
+     "Pb",
+     5.0
+    ],
+    "8": [
+     "Cu",
+     6.2
+    ],
+    "9": [
+     "Cu",
+     2.0
+    ],
+    "10": [
+     "Cu",
+     9.0
+    ]
+   },
+   "attenC": {
+    "0": [
+     "Cu",
+     0.0
+    ],
+    "1": [
+     "Cu",
+     2.32
+    ],
+    "2": [
+     "Cu",
+     4.65
+    ],
+    "3": [
+     "Cu",
+     7.07
+    ],
+    "4": [
+     "Cu",
+     9.45
+    ],
+    "5": [
+     "Cu",
+     11.78
+    ],
+    "6": [
+     "Cu",
+     14.13
+    ],
+    "7": [
+     "Cu",
+     16.45
+    ]
+   },
+   "sources": "user log 2026 (attenB.about / attenC.about printout); 2025-startup1id_jun2025_explog:285-286 ('B attenuator set to position 2, 0.1016 cm of Cu', C position 0); 'position 1 = 0.01016 cm' and 'C position 1 = 0.232 cm' in user logs 2025",
+   "sim_json_differences": "sim.json has attenB_cu_mm [0, 0.25, 1.016, 2.032, 3.048] (5 positions) and attenC_cu_mm [0, 0.5, 1.0, 2.0] (4 positions): real wheel has pos1 = 0.1016 mm, pos3 = 1.52, pos4 = 2.13 mm Cu, 3 Pb positions (1.5, 3.0, 5.0 mm) and 3 more Cu (6.2, 2.0, 9.0 mm); attenC is 8 positions at ~2.35 mm Cu per step"
+  },
+  "attenuator_transmission_tests": [
+   {
+    "what": "B wheel pos 2 (1.016 mm Cu) at ~71.7 keV, 0.2x0.2 mm slits, IC3-E dark-subtracted",
+    "T_obs": 0.3906,
+    "T_xraydb_nominal": 0.402,
+    "t_eff_over_nominal": 1.031,
+    "source": "2025-startup1id_jun2025_explog:214,231,244"
+   },
+   {
+    "what": "same test, IC1-E and IC2-E clipped at 999988/999987 with attenuator 0: lower-bounded only",
+    "T_obs": "<= 0.565 (IC1-E), <= 0.668 (IC2-E)",
+    "note": "consistent with 0.40",
+    "source": "2025-startup1id_jun2025_explog:213-214,229-230"
+   },
+   {
+    "what": "Pb foil in/out, 252/441 kHz, logged ut = 0.56 (ln(441/252) = 0.5596)",
+    "implied_Pb_mm": "0.248 at 86.5 keV (xraydb mu 22.6/cm; 0.5 keV below the Pb K edge so +-0.01 mm per 0.5 keV)",
+    "source": "2026-techcomm_jun26_explog:431-433"
+   },
+   {
+    "what": "older remark 'attenuation 002 = 7^2 = 49': per C-wheel step 1/7 (rounded)",
+    "xraydb_per_step_at_71.7": 8.0,
+    "ratio_log_to_xraydb_thickness": 0.94,
+    "note": "rounded in the log; the 2022 wheel table may differ",
+    "source": "user log 2022"
+   }
+  ],
+  "foil_b_fits": {
+   "note": "E_scan step b and thickness per foil (same numbers as fits/mono.json, which is the authoritative table); thickness = b / [mu(E_edge+0.3 keV) - mu(E_edge-0.3 keV)], xraydb densities",
+   "table": {
+    "Sm": {
+     "n": 1,
+     "b_mean": 0.9129,
+     "b_sd": 0,
+     "wid_keV": 0.0274,
+     "pos_minus_edge_eV": -58.6,
+     "dmu_per_cm": 123.2,
+     "thickness_um": 74.1,
+     "thickness_rel_err": 0
+    },
+    "Tb": {
+     "n": 5,
+     "b_mean": 0.7737,
+     "b_sd": 0.0036,
+     "wid_keV": 0.0335,
+     "pos_minus_edge_eV": -60.1,
+     "dmu_per_cm": 113.3,
+     "thickness_um": 68.3,
+     "thickness_rel_err": 0.0047
+    },
+    "Ho": {
+     "n": 1,
+     "b_mean": 0.8276,
+     "b_sd": 0,
+     "wid_keV": 0.0418,
+     "pos_minus_edge_eV": -54.5,
+     "dmu_per_cm": 108.1,
+     "thickness_um": 76.6,
+     "thickness_rel_err": 0
+    },
+    "Tm": {
+     "n": 1,
+     "b_mean": 0.7505,
+     "b_sd": 0,
+     "wid_keV": 0.0458,
+     "pos_minus_edge_eV": -52.0,
+     "dmu_per_cm": 104.3,
+     "thickness_um": 71.9,
+     "thickness_rel_err": 0
+    },
+    "Yb": {
+     "n": 2,
+     "b_mean": 1.3909,
+     "b_sd": 0.0121,
+     "wid_keV": 0.0478,
+     "pos_minus_edge_eV": -36.4,
+     "dmu_per_cm": 72.2,
+     "thickness_um": 192.5,
+     "thickness_rel_err": 0.0087
+    },
+    "Hf": {
+     "n": 3,
+     "b_mean": 1.152,
+     "b_sd": 0.0114,
+     "wid_keV": 0.0492,
+     "pos_minus_edge_eV": -85.3,
+     "dmu_per_cm": 125.6,
+     "thickness_um": 91.7,
+     "thickness_rel_err": 0.0099
+    },
+    "Ta": {
+     "n": 1,
+     "b_mean": 0.9666,
+     "b_sd": 0,
+     "wid_keV": 0.0513,
+     "pos_minus_edge_eV": -34.7,
+     "dmu_per_cm": 149.9,
+     "thickness_um": 64.5,
+     "thickness_rel_err": 0
+    },
+    "Re": {
+     "n": 18,
+     "b_mean": 1.425,
+     "b_sd": 0.0258,
+     "wid_keV": 0.0606,
+     "pos_minus_edge_eV": -38.8,
+     "dmu_per_cm": 170.8,
+     "thickness_um": 83.4,
+     "thickness_rel_err": 0.0181
+    },
+    "Ir": {
+     "n": 1,
+     "b_mean": 1.5912,
+     "b_sd": 0,
+     "wid_keV": 0.0617,
+     "pos_minus_edge_eV": -90.3,
+     "dmu_per_cm": 165.2,
+     "thickness_um": 96.3,
+     "thickness_rel_err": 0
+    },
+    "Pt": {
+     "n": 1,
+     "b_mean": 1.4392,
+     "b_sd": 0,
+     "wid_keV": 0.0655,
+     "pos_minus_edge_eV": 76.5,
+     "dmu_per_cm": 150.8,
+     "thickness_um": 95.5,
+     "thickness_rel_err": 0
+    },
+    "Au": {
+     "n": 7,
+     "b_mean": 1.3729,
+     "b_sd": 0.0168,
+     "wid_keV": 0.0737,
+     "pos_minus_edge_eV": -45.1,
+     "dmu_per_cm": 128.6,
+     "thickness_um": 106.8,
+     "thickness_rel_err": 0.0123
+    },
+    "Bi": {
+     "n": 1,
+     "b_mean": 1.2452,
+     "b_sd": 0,
+     "wid_keV": 0.0816,
+     "pos_minus_edge_eV": -16.5,
+     "dmu_per_cm": 53.3,
+     "thickness_um": 233.8,
+     "thickness_rel_err": 0
+    }
+   }
+  },
+  "fs_measurements": {
+   "Y_opening_mm": [
+    {
+     "bottom": 0.1498,
+     "top": -1.5902,
+     "width": 1.74,
+     "centre": -0.7202,
+     "src": "2025-startup1id_jun2025_explog:69-71"
+    },
+    {
+     "bottom": 0.6907,
+     "top": -1.129,
+     "width": 1.8197,
+     "centre": -0.2191,
+     "src": "2025-startup1id_jun2025_explog:254-256"
+    },
+    {
+     "bottom": 0.425,
+     "top": -1.075,
+     "width": 1.5,
+     "centre": -0.325,
+     "src": "user log 2025"
+    }
+   ],
+   "X_B_FS_mm": {
+    "start": 2.4999,
+    "first_leak": 1.5,
+    "operating": 3.0,
+    "src": "2025-startup1id_jun2025_explog:75-79"
+   },
+   "leak_checks": [
+    "closed FS = PSS closed within 60 counts/s on IC6-E (1940 vs 1880); within 4 on IC4-E (924 vs 928) [user log 2026; 2025-startup1id_jun2025_explog:246]",
+    "misaligned FS: IC6 gains 0.3 % on a 0.35 mm X / 0.175 mm Y move (2025-startup_jan25_explog:50-53)"
+   ],
+   "timing": "NO millisecond numbers in the logs. Qualitative: with camera-gated FS at 0.1 s frames the pattern is 10 data frames + 5 darks (spurious/lagging pulses), 0, 1 or 2 pulses per single frame, FS lags the scaler at 0.5 s frames (2026-mpe_jan26:423-471)"
+  },
+  "bpm": {
+   "states": [
+    {
+     "Xp": 15,
+     "Yp": 2,
+     "HA": -7.1,
+     "VA": -18.5,
+     "HP": 0.025,
+     "VP": 0.026
+    },
+    {
+     "Xp": 10,
+     "Yp": -3,
+     "HA": -11.5,
+     "VA": -23.1
+    },
+    {
+     "Xp": 11,
+     "Yp": -3,
+     "HA": -10.4,
+     "VA": -22.8
+    }
+   ],
+   "source": "2026-techcomm_jun26_explog:405-419,529-531",
+   "BPM_sep26": "HA -9.6 VA -25.1 HP 0.027 VP 0.027 (2026-mpe_sep26:190)",
+   "not_found": "C_hutch_beam_position_IC_scale appears nowhere in the KB text; no split-IC sensitivity numbers beyond the preamp settings (SplitICE 50 nA/V)"
+  },
+  "repeatability": {
+   "B3_0p3sq_Re_200mA_50nA": {
+    "mean_kHz": 576.1,
+    "rel_sd": 0.0412,
+    "n": 5,
+    "src": "user log 2026"
+   },
+   "B1_0p3sq_200mA_50nA": {
+    "mean_kHz": 173.0,
+    "rel_sd": 0.0583,
+    "n": 6,
+    "src": "startup + user logs 2025-26 (71.7 and 80.7 keV)"
+   }
+  },
+  "gas_assumption": "IC gas and length are not recorded in any log: the IC energy response cannot be separated from the photon-flux trend; N2/Ar/He tables in blade/physics/flux_fit.py are for what-if use only"
+ }
+}

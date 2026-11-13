@@ -139,7 +139,7 @@ def nominal_gap(world, E_keV=None, apply=False):
     best = None
     for k in world.harmonics():
         try:
-            g = pund.gap_for_energy_mm(E, k, u["period_mm"])
+            g = pund.gap_for_energy_mm(E, k, u["period_mm"], coef=world.und_coef())
         except ValueError:
             continue
         a = world.harm_amp(k, g)
