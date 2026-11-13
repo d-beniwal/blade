@@ -1,9 +1,11 @@
 """Synthetic-data tests for blade.analysis (fits ported from ADViewers). Run: python -I tests/test_analysis.py"""
 import sys, tempfile, os
+os.environ["BLADE_RUNS"] = tempfile.mkdtemp()          # vbl sessions stay out of the repo
 from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from blade.imganalysis import fitting as F, profile as P
+ROOT = Path(__file__).resolve().parents[1]
 from blade import registry
 
 rng = np.random.default_rng(3)
@@ -58,4 +60,49 @@ with tempfile.TemporaryDirectory() as d:
     assert abs(out["fit"]["params"]["centre"] - 300) < 1
 out = registry.invoke("analysis_fit_profile", x=x.tolist(), y=y.tolist(), model="gaussian")
 assert out["fit"]["ok"]
+
+# bowed plateau (hot-core beam): the flat-top slit model over-estimates the edge sigma, the bowed one recovers it
+u = (x - 200) / 150.0
+yb = 300 + 8000 * (1 - 0.1 * u - 0.5 * u * u) * 0.5 * (F.erf((x - 200 + 150) / (7 * 2 ** 0.5)) - F.erf((x - 200 - 150) / (7 * 2 ** 0.5))) + rng.normal(0, 30, x.size)
+rb, rf = F.fit(x, yb, "slit_positive_bowed"), F.fit(x, yb, "slit_positive")
+assert abs(rb["params"]["sigma"] - 7) < 2 and abs(rb["derived"]["aperture"] - 300) < 4 and rb["r2"] > rf["r2"], (rb["params"], rf["params"])
+assert rf["params"]["sigma"] > 3 * rb["params"]["sigma"], "flat model should blur the edge"
+assert F.auto(x, yb)["model"] == "slit_positive_bowed"
+ydark = 9000 - (yb - 300)
+assert F.fit(x, ydark, "slit_negative_bowed")["ok"]
+
+# GUI path (vbl_api.profile = drawn box, direction h/v, fit kinds) on a simulated frame
+from blade.vbl import store
+from blade import vbl_api
+store.reset(5, "ready_for_pin", "t_analysis")
+box = dict(x0=0.0, y0=0.15, x1=1.0, y1=0.35)
+for kind in ("slit_pos", "slit_neg", "slit_pos_flat", "slit_neg_flat", "auto", "gauss", "scurve", "none"):
+    for d in ("h", "v"):
+        r = vbl_api.profile(dict(camera="gh1", bin=2, direction=d, fit=kind, **box), "t_analysis")
+        assert r["direction"] == d and len(r["dist_um"]) == len(r["counts"]) == r["n"] and r["rows_averaged"] > 0
+        assert "error" not in r.get("fit", {}), (kind, d, r["fit"])
+rh = vbl_api.profile(dict(camera="gh1", bin=2, direction="h", fit="slit_pos", **box), "t_analysis")
+rv = vbl_api.profile(dict(camera="gh1", bin=2, direction="v", fit="auto", x0=0.3, y0=0.0, x1=0.7, y1=1.0), "t_analysis")
+f = rh["fit"]
+assert f["kind"] == "slit_pos" and len(f["edges"]) == 2 and f["aperture"] > 0 and len(f["edges_frac"]) == 2 and "centre_frac" in f
+assert abs(f["edges_frac"][0][1] - 0.25) < 0.01 and f["edges_frac"][0][0] < f["edges_frac"][1][0]     # markers sit on the box mid-row, ordered
+assert rh["dist_um"][0] > 0 and rh["dist_um"][-1] < rh["frame_um"] and rv["frame_um"] != rh["frame_um"]  # absolute positions inside the frame
+assert abs(rv["fit"]["centre_frac"][0] - 0.5) < 0.01                                                      # vertical profile: marker on the box mid-column
+
+# real gh1 frame (local only: s1_data/ is git-ignored). Edges read off the image: window ~310-1035 um (0.69 um/px), see playbooks/image_analysis.md
+real = ROOT / "s1_data/tomo_alignment/alignment_pin/alignment_pin_000044.h5"
+if real.exists():
+    import h5py
+    with h5py.File(real) as h:
+        im = h["exchange/data"][...].astype(float).mean(0) - h["exchange/data_dark"][0].astype(float)
+    pr = P.rect_profile(im, 250, 380, 1750, 460, "horizontal", 0.69)
+    fb = F.fit(pr["x"], pr["y"], "slit_positive_bowed")
+    assert fb["r2"] > 0.995 and abs(fb["derived"]["left_edge"] - 308) < 15 and abs(fb["derived"]["right_edge"] - 1038) < 15 and fb["params"]["sigma"] < 20, fb["params"]
+    assert F.fit(pr["x"], pr["y"], "slit_positive")["params"]["sigma"] > 50      # flat model blurs the same edge
+    pp = P.rect_profile(im, 600, 900, 1350, 940, "horizontal", 0.69)
+    fn = F.fit(pp["x"], pp["y"], "slit_negative_bowed")
+    assert fn["r2"] > 0.98 and abs(fn["derived"]["aperture"] - 261) < 10, fn["params"]      # the pin shadow
+    print("real gh1 frame checks OK")
+else:
+    print("(real gh1 frame not found: skipped)")
 print("test_analysis OK")

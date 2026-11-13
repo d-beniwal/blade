@@ -151,6 +151,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send(vbl_api.apply_set(body))
             if u.path == "/api/vbl/reset":
                 return self._send(vbl_api.reset(body))
+            if u.path == "/api/vbl/projections":
+                return self._send(vbl_api.projections(body))
             if u.path == "/api/vbl/profile":
                 return self._send(vbl_api.profile(body))
             if u.path == "/api/vbl/tool":

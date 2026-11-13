@@ -23,6 +23,8 @@ button{cursor:pointer}button:hover{border-color:var(--acc)}button.pri{background
 .imgbox{position:relative;background:var(--img);border-radius:5px;overflow:hidden;line-height:0}
 .imgbox img{width:100%;height:auto;display:block;image-rendering:auto}
 .imgbox canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.axgrid{display:grid;grid-template-columns:minmax(0,1fr) var(--ar,0px);grid-template-rows:var(--at,0px) auto;gap:0 4px;line-height:0}
+.axgrid canvas.ax{width:100%;height:100%;display:block}
 .imgbox.draw{cursor:crosshair}.imgbox.draw canvas{pointer-events:auto}
 .imgbox .ov{position:absolute;left:5px;top:3px;font:10.5px var(--mono);color:#fff;text-shadow:0 0 3px #000;line-height:1.3;white-space:pre;pointer-events:none}
 .row{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:4px 0}
@@ -68,18 +70,18 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
    <div class="row"><select id="cam"></select><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
     <label class="mute"><input type="checkbox" id="live" checked> live</label><label class="mute"><input type="checkbox" id="auto" checked> auto contrast</label>
     <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><span class="mono mute" id="camst"></span></div>
-   <div class="row"><b class="mute">line profile</b>
-    <button id="drawbtn" data-tip="Switch on, then drag on the image to draw a line. The intensity along it is plotted below (real counts, averaged across the width).">✎ draw line</button>
-    <button id="lh" data-tip="Horizontal line through the middle of the frame (or the hotspot, after Analyse frame).">― horizontal</button>
-    <button id="lv" data-tip="Vertical line through the middle of the frame (or the hotspot, after Analyse frame).">| vertical</button>
-    <label class="mute">width <input id="pw" type="number" value="9" min="1" max="99" style="width:44px"> px</label>
-    <label class="mute">fit <select id="pfit"><option value="none">none</option><option value="gauss">Gaussian (peak)</option><option value="scurve">S-curve (edge)</option><option value="auto">auto (best of both)</option></select></label>
-    <button id="pgo" class="pri">profile</button><label class="mute" data-tip="Recompute the profile on every live frame (slower)."><input type="checkbox" id="plive"> follow live</label></div>
-   <div class="imgbox" id="imgbox"><img id="frame" alt="camera frame"><canvas id="ovc"></canvas><div class="ov" id="ov"></div></div>
-   <div class="note" id="camnote"></div><pre id="anaout" style="margin-top:4px;display:none"></pre></div>
-  <div class="card" id="profcard" style="display:none"><h2>Line profile <span class="mute" id="proftitle"></span></h2>
+   <div class="row"><b class="mute">profile</b>
+    <label class="mute" data-tip="Show the summed intensity of every column (top axis) and every row (right axis) of the whole image, each with an automatic Gaussian fit: the fit and its centre are drawn on the axes and on the image, and the centre is reported in pixels and as an offset from the frame centre. A slit-defined footprint is flat-topped, so check R²: the Gaussian centre is then the centre of the plateau, not a focused peak."><input type="checkbox" id="axon"> intensity axes</label>
+    <label class="mute" data-tip="Plot each axis profile from zero instead of from its own minimum, so the contrast is not exaggerated."><input type="checkbox" id="axzero"> zero-based</label>
+    <button id="drawbtn" data-tip="Switch on, then drag on the image to draw a box. The profile of the box (mean over its rows or columns, switch with the button in the graph) and its fit appear in the graph below the image. Switch off to remove the box.">▭ draw box</button></div>
+   <div class="axgrid" id="axgrid"><canvas class="ax" id="axtop" style="grid-column:1;grid-row:1"></canvas><div class="imgbox" id="imgbox" style="grid-column:1;grid-row:2"><img id="frame" alt="camera frame"><canvas id="ovc"></canvas><div class="ov" id="ov"></div></div><canvas class="ax" id="axright" style="grid-column:2;grid-row:2"></canvas></div>
+   <div class="note" id="camnote"></div><div class="mono" id="axres" style="font-size:12px;margin:4px 0"></div><pre id="anaout" style="margin-top:4px;display:none"></pre></div>
+  <div class="card" id="profcard" style="display:none"><h2>Box profile <span class="mute" id="proftitle"></span></h2>
+   <div class="row"><span class="mute">profile along</span><button id="pdh" class="on" data-tip="Mean over the rows of the box, plotted along x (position across the image). Use for vertical edges and features.">↔ horizontal</button><button id="pdv" data-tip="Mean over the columns of the box, plotted along y (position down the image). Use for horizontal edges and features.">↕ vertical</button>
+    <label class="mute">fit <select id="pfit"><option value="auto" selected>auto (best of all, BIC)</option><option value="none">none</option><option value="gauss">Gaussian (peak)</option><option value="scurve">S-curve (edge)</option><option value="slit_pos">Slit window (bright aperture)</option><option value="slit_neg">Slit blocker (dark: pin, blade)</option><option value="slit_pos_flat">Slit window, flat top (LiveFitter)</option><option value="slit_neg_flat">Slit blocker, flat top (LiveFitter)</option></select></label>
+    <button id="pcsv">save CSV</button></div>
    <svg class="plot" id="pplot" viewBox="0 0 600 170" preserveAspectRatio="none" style="height:190px"></svg>
-   <div class="fitres" id="fitres"></div><div class="row"><button id="pcsv">save CSV</button><span class="note">Gaussian: peak centre / FWHM (a focused spot, the hotspot). S-curve (erf): edge centre / 10-90 % width (a slit edge, the footprint border). A falling edge fits too.</span></div></div>
+   <div class="fitres" id="fitres"></div><div class="note">Gaussian: peak centre / FWHM (a focused spot, the hotspot). S-curve (erf): edge centre / 10-90 % width (a slit edge, the footprint border); a falling edge fits too. Slit window / blocker: both edges, aperture and edge width of a slit-defined footprint or a pin, with a curved plateau (hot-core beam); the flat-top variants are the ADViewers LiveFitter model. Positions are in µm from the left/top edge of the frame.</div></div>
   <div class="card"><h2>Ion chambers &amp; foil</h2><div id="ics"></div></div>
  </div>
  <div class="col">
@@ -168,7 +170,7 @@ async function refresh(force){try{S=await api('/api/vbl/state'+($('reveal').chec
   renderState();if(force)loadFrame()}catch(e){$('camst').textContent=e.message}}
 let busy=false;
 function loadFrame(){if(busy||!S)return;busy=true;const cam=$('cam').value,t=Date.now();const im=$('frame');
- im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();if(LINE&&$('plive').checked&&$('live').checked)runProfile()};
+ im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();runBoxProfile();runProj()};
  im.onerror=()=>{busy=false;$('camst').textContent='render failed'};
  im.src=`/api/vbl/frame?camera=${cam}&bin=${$('bin').value}&auto=${$('auto').checked?1:0}&_=${t}`}
 $('cam').onchange=()=>{buildCam();loadFrame()};$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
@@ -206,7 +208,7 @@ const ACTS=[
 for(const [label,name,args,tp] of ACTS){const b=document.createElement('button');b.textContent=label;b.dataset.tip=tp;b.onclick=async()=>{b.disabled=true;$('actout').textContent='▶ '+label+' … running';try{const r=await api('/api/vbl/tool',{name,args:args()});show(r,label+' ('+name+')');await refresh(true)}catch(e){$('actout').textContent=e.message}b.disabled=false};$('acts').append(b)}
 
 /* ---------------------------------------------------------------- generic XY plot */
-function plotXY(svg,{x,y,fit,centre,xlabel,ylabel}){
+function plotXY(svg,{x,y,fit,centre,marks,xlabel,ylabel}){
  svg.innerHTML='';const X=x,Y=y.map(v=>v===null?NaN:v);const fin=Y.filter(isFinite);if(!X.length||!fin.length)return;
  const x0=Math.min(...X),x1=Math.max(...X);let y0=Math.min(...fin),y1=Math.max(...fin);if(y1===y0){y1=y0+1}const m=0.05*(y1-y0);y0-=m;y1+=m;
  const px=v=>46+(v-x0)/(x1-x0||1)*544,py=v=>152-(v-y0)/(y1-y0||1)*138;let h='';
@@ -214,6 +216,7 @@ function plotXY(svg,{x,y,fit,centre,xlabel,ylabel}){
  for(let i=0;i<=4;i++){const xx=x0+(x1-x0)*i/4;h+=`<text x="${px(xx)}" y="166" text-anchor="${i===4?'end':(i===0?'start':'middle')}">${xx.toPrecision(4)}</text>`}
  h+=`<polyline fill="none" stroke="var(--acc)" stroke-width="1.3" points="${X.map((v,i)=>isFinite(Y[i])?px(v).toFixed(1)+','+py(Y[i]).toFixed(1):'').join(' ')}"/>`;
  if(fit)h+=`<polyline fill="none" stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="5 3" points="${X.map((v,i)=>px(v).toFixed(1)+','+py(fit[i]).toFixed(1)).join(' ')}"/>`;
+ for(const m of (marks||[]))if(m>=x0&&m<=x1)h+=`<line x1="${px(m)}" x2="${px(m)}" y1="10" y2="152" stroke="var(--warn,#ff9f0a)" stroke-width="1.2" stroke-dasharray="4 2"/>`;
  if(centre!=null&&centre>=x0&&centre<=x1)h+=`<line x1="${px(centre)}" x2="${px(centre)}" y1="10" y2="152" stroke="var(--ok)" stroke-width="1" stroke-dasharray="2 2"/>`;
  h+=`<text x="590" y="11" text-anchor="end">${xlabel||''}${ylabel?'  ·  '+ylabel:''}</text>`;svg.innerHTML=h}
 function fmtV(v){if(v===null||v===undefined)return '–';if(typeof v==='number')return String(+v.toPrecision(5));if(typeof v==='string')return v;
@@ -226,38 +229,76 @@ function show(r,label){
  if(!xk||!yk){pl.innerHTML='';pl.style.display='none';return}pl.style.display='';plotXY(pl,{x:r[xk],y:r[yk],xlabel:xk,ylabel:yk})}
 
 /* ---------------------------------------------------------------- line profile on the camera image */
-let LINE=null,PROF=null,drawing=false,drawMode=false;
+let CEN=null,PROF=null,PDIR='h',BOX=null,PROJ=null,drawing=false,drawMode=false;
 const cv=$('ovc'),box=$('imgbox');
 function sizeCanvas(){const im=$('frame');const w=im.clientWidth,h=im.clientHeight;if(!w)return;const d=devicePixelRatio||1;cv.width=Math.round(w*d);cv.height=Math.round(h*d);drawOverlay()}
 new ResizeObserver(sizeCanvas).observe(box);
 function drawOverlay(){const w=cv.width,h=cv.height,g=cv.getContext('2d');g.clearRect(0,0,w,h);const d=devicePixelRatio||1;
  if(HOT){g.strokeStyle='#ffd23f';g.lineWidth=1.2*d;const x=HOT.x*w,y=HOT.y*h;g.beginPath();g.arc(x,y,7*d,0,6.3);g.moveTo(x-12*d,y);g.lineTo(x+12*d,y);g.moveTo(x,y-12*d);g.lineTo(x,y+12*d);g.stroke()}
- if(!LINE)return;const x0=LINE.x0*w,y0=LINE.y0*h,x1=LINE.x1*w,y1=LINE.y1*h;
- g.lineWidth=2*d;g.strokeStyle='#ff3b30';g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
- g.fillStyle='#ff3b30';for(const [x,y] of [[x0,y0],[x1,y1]]){g.beginPath();g.arc(x,y,3.5*d,0,6.3);g.fill()}
- g.font=`${11*d}px sans-serif`;g.fillStyle='#ffd0cc';g.fillText('start',x0+6*d,y0-6*d);
- const f=PROF&&PROF.fit;if(f&&f.centre_frac){const cx=f.centre_frac[0]*w,cy=f.centre_frac[1]*h;g.strokeStyle='#34c759';g.lineWidth=2*d;g.beginPath();g.moveTo(cx-9*d,cy-9*d);g.lineTo(cx+9*d,cy+9*d);g.moveTo(cx-9*d,cy+9*d);g.lineTo(cx+9*d,cy-9*d);g.stroke()}}
+
+ if(CEN){const x=CEN.x*w,y=CEN.y*h;g.strokeStyle='#34c759';g.lineWidth=1.6*d;g.beginPath();g.moveTo(x-14*d,y);g.lineTo(x+14*d,y);g.moveTo(x,y-14*d);g.lineTo(x,y+14*d);g.stroke();g.beginPath();g.arc(x,y,5*d,0,6.3);g.stroke()}
+ if(BOX){const bx=Math.min(BOX.x0,BOX.x1)*w,by=Math.min(BOX.y0,BOX.y1)*h,bw=Math.abs(BOX.x1-BOX.x0)*w,bh=Math.abs(BOX.y1-BOX.y0)*h;g.lineWidth=2*d;g.strokeStyle='#32d4ff';g.setLineDash([6*d,4*d]);g.strokeRect(bx,by,bw,bh);g.setLineDash([])}
+ const f=BOX&&PROF&&PROF.fit;if(f&&f.centre_frac){const cx=f.centre_frac[0]*w,cy=f.centre_frac[1]*h;g.strokeStyle='#34c759';g.lineWidth=2*d;g.beginPath();g.moveTo(cx-9*d,cy-9*d);g.lineTo(cx+9*d,cy+9*d);g.moveTo(cx-9*d,cy+9*d);g.lineTo(cx+9*d,cy-9*d);g.stroke()}
+ if(f&&f.edges_frac){g.strokeStyle='#ff9f0a';g.lineWidth=2*d;for(const [ex,ey] of f.edges_frac){g.beginPath();g.arc(ex*w,ey*h,6*d,0,6.3);g.stroke()}}}
 function evFrac(e){const r=cv.getBoundingClientRect();return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}}
-cv.addEventListener('pointerdown',e=>{if(!drawMode)return;const p=evFrac(e);LINE={x0:p.x,y0:p.y,x1:p.x,y1:p.y};drawing=true;PROF=null;cv.setPointerCapture(e.pointerId);drawOverlay()});
-cv.addEventListener('pointermove',e=>{if(!drawing)return;const p=evFrac(e);LINE.x1=p.x;LINE.y1=p.y;drawOverlay()});
-cv.addEventListener('pointerup',e=>{if(!drawing)return;drawing=false;const p=evFrac(e);LINE.x1=p.x;LINE.y1=p.y;drawOverlay();runProfile()});
-$('drawbtn').onclick=()=>{drawMode=!drawMode;$('drawbtn').classList.toggle('on',drawMode);box.classList.toggle('draw',drawMode);$('drawbtn').textContent=drawMode?'✎ draw line: ON':'✎ draw line';
- if(!drawMode){drawing=false;LINE=null;PROF=null;$('profcard').style.display='none';drawOverlay()}};
-function preset(kind){const c=HOT||{x:0.5,y:0.5};LINE=kind==='h'?{x0:0,y0:c.y,x1:1,y1:c.y}:{x0:c.x,y0:0,x1:c.x,y1:1};PROF=null;drawOverlay();runProfile()}
-$('lh').onclick=()=>preset('h');$('lv').onclick=()=>preset('v');$('pgo').onclick=()=>{if(!LINE)preset('h');else runProfile()};$('pfit').onchange=()=>{if(LINE)runProfile()};$('pw').onchange=()=>{if(LINE)runProfile()};
-let pbusy=false;
-async function runProfile(){if(!LINE||pbusy)return;pbusy=true;try{
- PROF=await api('/api/vbl/profile',{camera:cam(),bin:parseInt($('bin').value),...LINE,width:parseInt($('pw').value||5),fit:$('pfit').value});renderProfile()}catch(e){$('profcard').style.display='';$('fitres').innerHTML=`<span class="bad">${e.message}</span>`}pbusy=false}
+cv.addEventListener('pointerdown',e=>{if(!drawMode)return;const p=evFrac(e);BOX={x0:p.x,y0:p.y,x1:p.x,y1:p.y};drawing=true;PROJ=null;cv.setPointerCapture(e.pointerId);drawOverlay()});
+cv.addEventListener('pointermove',e=>{if(!drawing)return;const p=evFrac(e);BOX.x1=p.x;BOX.y1=p.y;drawOverlay();runBoxProfile()});
+cv.addEventListener('pointerup',e=>{if(!drawing)return;drawing=false;const p=evFrac(e);BOX.x1=p.x;BOX.y1=p.y;if(Math.abs(BOX.x1-BOX.x0)<.004||Math.abs(BOX.y1-BOX.y0)<.004)BOX=null;drawOverlay();runBoxProfile()});
+$('drawbtn').onclick=()=>{drawMode=!drawMode;$('drawbtn').classList.toggle('on',drawMode);box.classList.toggle('draw',drawMode);$('drawbtn').textContent=drawMode?'▭ draw box: ON':'▭ draw box';
+ if(!drawMode){drawing=false;BOX=null;runBoxProfile()}};
+let pbusy=false,pagain=false;
+function setDir(d){PDIR=d;$('pdh').classList.toggle('on',d==='h');$('pdv').classList.toggle('on',d==='v');runBoxProfile()}
+$('pdh').onclick=()=>setDir('h');$('pdv').onclick=()=>setDir('v');$('pfit').onchange=()=>runBoxProfile();
+async function runBoxProfile(){
+ if(!BOX){PROF=null;$('profcard').style.display='none';drawOverlay();return}
+ if(pbusy){pagain=true;return}pbusy=true;
+ try{PROF=await api('/api/vbl/profile',{camera:cam(),bin:parseInt($('bin').value),x0:BOX.x0,y0:BOX.y0,x1:BOX.x1,y1:BOX.y1,direction:PDIR,fit:$('pfit').value});if(BOX)renderProfile();else{PROF=null;$('profcard').style.display='none'}}
+ catch(e){$('profcard').style.display='';$('fitres').innerHTML=`<span class="bad">${e.message}</span>`}
+ pbusy=false;if(pagain){pagain=false;runBoxProfile()}}
 function renderProfile(){const P=PROF,f=P.fit;$('profcard').style.display='';
- $('proftitle').textContent=`${P.camera} · ${P.length_um.toFixed(0)} µm (${(P.length_um/P.pixel_um).toFixed(0)} px) from (${P.p0_px.map(v=>v.toFixed(0))}) to (${P.p1_px.map(v=>v.toFixed(0))}) · width ${P.width_px} px`;
- const ok=f&&!f.error;plotXY($('pplot'),{x:P.dist_um,y:P.counts,fit:ok?f.curve:null,centre:ok?f.params.centre:null,xlabel:'distance along line (µm)',ylabel:'counts'});
+ $('proftitle').textContent=`${P.camera} · box ${P.box_um[0].toFixed(0)} × ${P.box_um[1].toFixed(0)} µm (px ${P.box_px.map(v=>v.toFixed(0)).join(', ')}) · mean of ${P.rows_averaged} ${P.direction==='h'?'rows':'columns'}`;
+ const ok=f&&!f.error;plotXY($('pplot'),{x:P.dist_um,y:P.counts,fit:ok?f.curve:null,centre:ok?f.params.centre:null,marks:ok&&f.edges?f.edges:null,xlabel:P.direction==='h'?'x (µm)':'y (µm)',ylabel:'counts'});
  let t='';if(f&&f.error)t=`<span class="bad">${f.error}</span>`;
- else if(f){const q=f.params,e=f.errors,n=(v,d=2)=>(v===null||v===undefined)?'–':(+v).toFixed(d);const ps=f.kind==='gauss';
-  t=`<b>${ps?'Gaussian peak':'S-curve (erf edge)'}</b>  R² = ${n(f.r2,4)}<br>centre = <b>${n(q.centre,1)}</b> ± ${n(e.centre,1)} µm along the line = image px (${f.centre_px.map(v=>v.toFixed(0))})<br>`+
-   (ps?`FWHM = <b>${n(f.fwhm,1)}</b> µm (${n(f.fwhm/P.pixel_um,1)} px) · amplitude ${n(q.amplitude,0)} · offset ${n(q.offset,0)}`:
+ else if(f){const q=f.params,e=f.errors,n=(v,d=2)=>(v===null||v===undefined)?'–':(+v).toFixed(d);const ps=f.kind==='gauss',sl=!!f.edges;
+  t=`<b>${sl?(f.kind.startsWith('slit_pos')?'Slit window':'Slit blocker')+(f.kind.endsWith('_flat')?' (flat top)':' (bowed plateau)'):ps?'Gaussian peak':'S-curve (erf edge)'}</b>  R² = ${n(f.r2,4)}<br>centre = <b>${n(q.centre,1)}</b> ± ${n(e.centre,1)} µm = image px (${f.centre_px.map(v=>v.toFixed(0))})<br>`+
+   (sl?`edges = <b>${n(f.edges[0],1)}</b> and <b>${n(f.edges[1],1)}</b> µm · aperture = <b>${n(f.aperture,1)}</b> µm (${n(f.aperture/P.pixel_um,1)} px) · edge 10–90 % = <b>${n(f.width_10_90,1)}</b> µm (${n(f.width_10_90/P.pixel_um,1)} px) · height ${n(q.height,0)} on ${n(q.offset,0)}${q.k2!==undefined?` · plateau bow k1 ${n(q.k1,2)}, k2 ${n(q.k2,2)}`:` · tilt ${n(q.slope,3)}/µm`}`:ps?`FWHM = <b>${n(f.fwhm,1)}</b> µm (${n(f.fwhm/P.pixel_um,1)} px) · amplitude ${n(q.amplitude,0)} · offset ${n(q.offset,0)}`:
    `10–90 % width = <b>${n(f.width_10_90,1)}</b> µm (${n(f.width_10_90/P.pixel_um,1)} px) · σ ${n(q.sigma,1)} µm · ${q.step<0?'falling':'rising'} edge, step ${n(q.step,0)} on a base of ${n(q.base,0)}`)}
  $('fitres').innerHTML=t;drawOverlay()}
 $('pcsv').onclick=()=>{if(!PROF)return;const f=PROF.fit&&!PROF.fit.error?PROF.fit.curve:null;let c='dist_um,counts'+(f?',fit':'')+'\n';PROF.dist_um.forEach((d,i)=>{c+=`${d},${PROF.counts[i]}${f?','+f[i]:''}\n`});
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download=`profile_${PROF.camera}.csv`;a.click()};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download=`profile_${PROF.camera}_${PROF.direction}.csv`;a.click()};
+
+/* ---------------------------------------------------------------- intensity axes: column sums (top) and row sums (right), for the whole image and for the drawn box */
+const AXS=64;let projBusy=false,projAgain=false;
+function axesWanted(){return $('axon').checked}
+async function runProj(force){const on=axesWanted();const g=$('axgrid');
+ g.style.setProperty('--at',on?AXS+'px':'0px');g.style.setProperty('--ar',on?AXS+'px':'0px');
+ if(!on){PROJ=null;drawAxes();return}
+ if(projBusy){projAgain=true;return}projBusy=true;
+ try{const body={camera:cam(),bin:parseInt($('bin').value),fit:'gauss'};
+  PROJ=await api('/api/vbl/projections',body);drawAxes()}catch(e){$('camst').textContent=e.message}
+ projBusy=false;if(projAgain){projAgain=false;runProj()}}
+function axCanvas(c){const r=c.getBoundingClientRect(),d=devicePixelRatio||1;const w=Math.round(r.width*d),h=Math.round(r.height*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h}const g=c.getContext('2d');g.clearRect(0,0,w,h);return {g,w,h,d}}
+function axPlot(c,vals,i0,i1,n,horiz,col,fill,fit){/* vals: sums for pixels i0..i1 of n; horiz=true: top axis (x=position), false: right axis (y=position, value grows rightwards) */
+ const {g,w,h,d}=axCanvas(c);if(!vals||!vals.length||!w)return;const mx=Math.max(...vals),mn=$('axzero').checked?0:Math.min(...vals),span=mx-mn||1;
+ const L=horiz?w:h,A=horiz?h:w,pad=14*d;const pos=i=>(i+.5)/n*L,val=v=>(v-mn)/span*(A-pad-2*d);
+ g.beginPath();vals.forEach((v,k)=>{const p=pos(i0+k),q=val(v);if(horiz){k?g.lineTo(p,h-q):g.moveTo(p,h-q)}else{k?g.lineTo(q,p):g.moveTo(q,p)}});
+ if(fill){if(horiz){g.lineTo(pos(i1-1),h);g.lineTo(pos(i0),h)}else{g.lineTo(0,pos(i1-1));g.lineTo(0,pos(i0))}g.closePath();g.fillStyle=fill;g.fill();g.beginPath();vals.forEach((v,k)=>{const p=pos(i0+k),q=val(v);if(horiz){k?g.lineTo(p,h-q):g.moveTo(p,h-q)}else{k?g.lineTo(q,p):g.moveTo(q,p)}})}
+ g.strokeStyle=col;g.lineWidth=1.4*d;g.stroke();
+ if(fit&&fit.curve){g.beginPath();fit.curve.forEach((v,k)=>{const p=pos(i0+k),q=Math.max(0,val(v));if(horiz){k?g.lineTo(p,h-q):g.moveTo(p,h-q)}else{k?g.lineTo(q,p):g.moveTo(q,p)}});g.strokeStyle='#ff3b30';g.lineWidth=1.6*d;g.setLineDash([5*d,3*d]);g.stroke();g.setLineDash([]);
+  const cp=fit.centre_x/n*L;g.beginPath();if(horiz){g.moveTo(cp,0);g.lineTo(cp,h)}else{g.moveTo(0,cp);g.lineTo(w,cp)}g.strokeStyle='#34c759';g.lineWidth=1.2*d;g.stroke()}
+ return {mx,mn}}
+function axLabel(c,txt,horiz,col,row){const g=c.getContext('2d'),d=devicePixelRatio||1;g.font=`${10*d}px ui-monospace,monospace`;g.fillStyle=col;g.textBaseline='top';
+ if(horiz){g.textAlign='left';g.fillText(txt,4*d,(2+row*11)*d)}else{g.save();g.translate((2+row*11)*d,c.height-4*d);g.rotate(-Math.PI/2);g.textAlign='left';g.textBaseline='top';g.fillText(txt,0,0);g.restore()}}
+function fitReport(){const P=PROJ,el=$('axres');CEN=null;if(!P||!P.fit){el.innerHTML='';return}
+ const src=P.fit,lab='image',fx=src.cols,fy=src.rows;
+ const one=(f,ax,half)=>f.error?`<span class="bad">${ax}: ${f.error}</span>`:`${ax} = <b>${f.centre_px.toFixed(1)}</b> ± ${f.centre_err_px.toFixed(1)} px (${((f.centre_px-half)*P.pixel_um).toFixed(0)} µm from frame centre) · FWHM ${f.fwhm_px.toFixed(0)} px = ${(f.fwhm_um/1000).toFixed(3)} mm · R² ${f.r2.toFixed(3)}${f.fwhm_px>1.2*Math.max(P.cols_n,P.rows_n)*P.bin?' <span class="bad">⚠ flat: no real peak, use centroid</span>':''} · centroid ${f.centroid_px==null?'–':f.centroid_px.toFixed(1)}`;
+ el.innerHTML=`<b>${lab} gaussian fit</b> (full-res px)<br>${one(fx,'x',P.cols_n*P.bin/2)}<br>${one(fy,'y',P.rows_n*P.bin/2)}`;
+ if(!fx.error&&!fy.error)CEN={x:fx.centre_x/P.cols_n,y:fy.centre_x/P.rows_n}}
+function drawAxes(){const P=PROJ,t=$('axtop'),r=$('axright');fitReport();drawOverlay();if(!P){axCanvas(t);axCanvas(r);return}
+ const fm=v=>v>=1e6?(v/1e6).toPrecision(3)+'M':v>=1e3?(v/1e3).toPrecision(3)+'k':v.toPrecision(3);
+ {axPlot(t,P.cols,0,P.cols_n,P.cols_n,true,'#9aa4b2','rgba(154,164,178,.25)',P.fit&&P.fit.cols);axPlot(r,P.rows,0,P.rows_n,P.rows_n,false,'#9aa4b2','rgba(154,164,178,.25)',P.fit&&P.fit.rows);
+  axLabel(t,`image: column sums (max ${fm(Math.max(...P.cols))})`,true,'#9aa4b2',0);axLabel(r,`image: row sums (max ${fm(Math.max(...P.rows))})`,false,'#9aa4b2',0)}}
+$('axon').onchange=()=>runProj();$('axzero').onchange=()=>drawAxes();
+new ResizeObserver(()=>{if(PROJ)drawAxes()}).observe($('axgrid'));
 refresh(true);setInterval(()=>{if(!document.hidden){refresh(false);if($('live').checked)loadFrame()}},1500);
 </script></body></html>

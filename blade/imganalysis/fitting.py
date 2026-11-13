@@ -35,6 +35,13 @@ def _slit(x, offset, slope, centre, width, height, sigma):
     return offset + slope * x + 0.5 * height * (erf((x - centre + width / 2) / (sigma * SQ2)) - erf((x - centre - width / 2) / (sigma * SQ2)))
 
 
+def _slit_bowed(x, offset, centre, width, height, sigma, k1, k2):
+    """Slit with a non-flat plateau: offset + h*(1 + k1*u + k2*u^2) * 1/2[erf(..) - erf(..)], u = (x-centre)/(width/2). NOT in LiveFitter (its plateau is a straight tilt);
+    added because a real gh1 slit window (hot-core beam) fitted with the flat model gave an edge sigma 14x too wide (see playbook)."""
+    u = (x - centre) / max(width / 2.0, 1e-12)
+    return offset + height * (1.0 + k1 * u + k2 * u * u) * 0.5 * (erf((x - centre + width / 2) / (sigma * SQ2)) - erf((x - centre - width / 2) / (sigma * SQ2)))
+
+
 def _poly(n):
     def f(x, *c):
         return sum(ci * x ** i for i, ci in enumerate(c))
@@ -131,6 +138,11 @@ def _guess_slit(x, y, positive):
     return [lo if positive else hi, 0.0, c0, max(w0, span / 100), h0 if positive else -h0, max(span / 100, 1e-9)]
 
 
+def _guess_bowed(x, y, positive):
+    g = _guess_slit(x, y, positive)                               # offset, slope, centre, width, height, sigma
+    return [g[0], g[2], g[3], g[4], g[5], 0.0, -0.1]
+
+
 def _guess_edge(x, y):
     ys, lo, hi = _split(x, y)
     n = max(3, len(y) // 10)
@@ -161,6 +173,10 @@ def _models():
         "y = offset+slope*x + h/2*[erf((x-c+w/2)/(s*sqrt2)) - erf((x-c-w/2)/(s*sqrt2))], h>0", lambda x, y: _guess_slit(x, y, True), None, "Slit - Positive")
     add("slit_negative", _slit, ["offset", "slope", "centre", "width", "height", "sigma"],
         "same, h<0 (dark slit / blocker in a bright field)", lambda x, y: _guess_slit(x, y, False), None, "Slit - Negative")
+    for sign, nm in ((True, "slit_positive_bowed"), (False, "slit_negative_bowed")):
+        add(nm, _slit_bowed, ["offset", "centre", "width", "height", "sigma", "k1", "k2"],
+            "y = offset + h*(1+k1*u+k2*u^2)*1/2[erf((x-c+w/2)/(s*sqrt2)) - erf((x-c-w/2)/(s*sqrt2))], u=(x-c)/(w/2), h" + (">0" if sign else "<0") + " (not in ImageJ)",
+            lambda x, y, sign=sign: _guess_bowed(x, y, sign), None, None)
     for n in range(1, 9):
         add("line" if n == 1 else f"poly{n}", _poly(n), [chr(ord("a") + i) for i in range(n + 1)],
             "y = " + " + ".join(f"{chr(ord('a') + i)}*x^{i}" if i > 1 else (f"{chr(ord('a') + i)}*x" if i == 1 else "a") for i in range(n + 1)),
@@ -239,13 +255,17 @@ def fit(x, y, model="gaussian", p0=None, weights=None, restarts=4):
     if m["bounds"] is not None:
         lo, hi = m["bounds"](x, y)
     if model.startswith("slit"):
-        pos = model == "slit_positive"
+        pos = model.startswith("slit_positive")
         ymin, ymax = float(y.min()), float(y.max())
         rng = max(ymax - ymin, 1e-12)
         dx = float(np.median(np.diff(x)))
-        # offset, slope, centre, width, height, sigma: bounds inspired by LiveFitter (centre in range, width < span, sigma 0.5..30 px) but in x units
-        lo = [ymin - rng, -2 * rng / span, x[0], 2 * dx, (0.05 * rng if pos else -2 * rng), 0.3 * dx]
-        hi = [ymax + rng, 2 * rng / span, x[-1], span, (2 * rng if pos else -0.05 * rng), span / 4]
+        h_lo, h_hi = (0.05 * rng, 2 * rng) if pos else (-2 * rng, -0.05 * rng)
+        if model.endswith("_bowed"):                              # offset, centre, width, height, sigma, k1, k2
+            lo = [ymin - rng, x[0], 2 * dx, h_lo, 0.3 * dx, -2.0, -2.0]
+            hi = [ymax + rng, x[-1], span, h_hi, span / 4, 2.0, 2.0]
+        else:                                                      # offset, slope, centre, width, height, sigma: bounds inspired by LiveFitter, in x units
+            lo = [ymin - rng, -2 * rng / span, x[0], 2 * dx, h_lo, 0.3 * dx]
+            hi = [ymax + rng, 2 * rng / span, x[-1], span, h_hi, span / 4]
     scale = float(np.std(y)) or 1.0
 
     def resid(p):
@@ -268,7 +288,7 @@ def fit(x, y, model="gaussian", p0=None, weights=None, restarts=4):
             continue
         if best is None or r.cost < best.cost:
             best = r
-        if model.startswith("slit") and _r2(y, m["f"](x, *best.x)) >= 0.99:
+        if model.startswith("slit") and _r2(y, m["f"](x, *best.x)) >= 0.995:
             break
     if best is None:
         return {"ok": False, "error": f"{model} fit did not converge"}
@@ -295,7 +315,7 @@ def fit(x, y, model="gaussian", p0=None, weights=None, restarts=4):
 
 
 def _pos_idx(model):
-    return {"gaussian": [2], "erf_edge": [2], "slit_positive": [2, 3], "slit_negative": [2, 3]}.get(model, [])
+    return {"gaussian": [2], "erf_edge": [2], "slit_positive": [2, 3], "slit_negative": [2, 3], "slit_positive_bowed": [1, 2], "slit_negative_bowed": [1, 2]}.get(model, [])
 
 
 def _r2(y, f):
@@ -303,7 +323,7 @@ def _r2(y, f):
     return float(1.0 - np.sum((y - f) ** 2) / ss_tot)
 
 
-def auto(x, y, models=("gaussian", "erf_edge", "slit_positive", "slit_negative")):
+def auto(x, y, models=("gaussian", "erf_edge", "slit_positive", "slit_negative", "slit_positive_bowed", "slit_negative_bowed")):
     """Fit several models and return the best by adjusted residual (BIC-like penalty on parameter count), plus the table of all of them."""
     res = {m: fit(x, y, m) for m in models}
     ok = {m: r for m, r in res.items() if r.get("ok")}

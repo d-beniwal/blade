@@ -71,18 +71,44 @@ def _scurve(x, a, m, s, c):
     return c + a * 0.5 * (1.0 + erf((x - m) / (s * 2 ** 0.5)))
 
 
+# slit kinds of the tomo-view profile (blade.imganalysis.fitting, ported from areaDetector ADViewers' LiveFitter slit fit). 'bowed' = plateau curved by k1,k2 (real
+# gh1 slit windows have a hot core; the flat/tilted LiveFitter model then gives an edge sigma ~14x too wide), 'flat' = LiveFitter's straight tilt.
+SLIT_KINDS = {"slit_pos": "slit_positive_bowed", "slit_neg": "slit_negative_bowed", "slit_pos_flat": "slit_positive", "slit_neg_flat": "slit_negative"}
+
+
+def _fit_slit(x, y, kind):
+    """Slit fit through blade.imganalysis, returned in the same shape as the legacy gauss/scurve fits plus derived slit values (edges, aperture, edge width)."""
+    import numpy as np
+    from .imganalysis import fitting as F
+    r = F.fit(x, y, SLIT_KINDS[kind])
+    if not r.get("ok"):
+        return {"error": r.get("error", "slit fit failed")}
+    d = r["derived"]
+    return {"kind": kind, "model": r["model"], "params": r["params"], "errors": r["errors"], "r2": r["r2"], "rms": r["rms"], "curve": r["curve"], "derived": d,
+            "formula": r["formula"], "aperture": d["aperture"], "edges": [d["left_edge"], d["right_edge"]], "width_10_90": d["edge_width_10_90"], "edge_fwhm": d["edge_fwhm"]}
+
+
+def _bic(f, n):
+    import numpy as np
+    return n * np.log(max(f["rms"], 1e-12) ** 2) + len(f["params"]) * np.log(n)
+
+
 def fit_profile(x, y, kind):
-    """Fit a 1-D profile. kind: 'gauss' (peak: a*exp(-(x-m)^2/2s^2)+c), 'scurve' (step/edge: c + a*(1+erf((x-m)/(s*sqrt2)))/2; a<0 = falling edge)
-    or 'auto' (the one with the smaller residual). Returns {kind, params{...}, errors, curve[], r2} or {error}."""
+    """Fit a 1-D profile. kind: 'gauss' (peak: a*exp(-(x-m)^2/2s^2)+c), 'scurve' (step/edge: c + a*(1+erf((x-m)/(s*sqrt2)))/2; a<0 = falling edge),
+    'slit_pos' / 'slit_neg' (bright window / dark blocker = erf pair with a bowed plateau; params offset, centre, width, height, sigma, k1, k2; also
+    'slit_pos_flat' / 'slit_neg_flat' = LiveFitter's straight-tilt version), or 'auto' (best of all of them by BIC). Returns {kind, params{...}, errors,
+    curve[], r2} (slit kinds also edges, aperture, width_10_90) or {error}."""
     import numpy as np
     from scipy.optimize import curve_fit
     from scipy.ndimage import uniform_filter1d
     x, y = np.asarray(x, float), np.asarray(y, float)
     if len(x) < 8:
         return {"error": "too few points"}
+    if kind in SLIT_KINDS:
+        return _fit_slit(x, y, kind)
     if kind == "auto":
-        fits = [f for f in (fit_profile(x, y, "gauss"), fit_profile(x, y, "scurve")) if "error" not in f]
-        return min(fits, key=lambda f: f["rms"]) if fits else {"error": "no fit converged"}
+        fits = [f for f in (fit_profile(x, y, "gauss"), fit_profile(x, y, "scurve"), fit_profile(x, y, "slit_pos"), fit_profile(x, y, "slit_neg")) if "error" not in f]
+        return min(fits, key=lambda f: _bic(f, len(x))) if fits else {"error": "no fit converged"}
     ys = uniform_filter1d(y, max(3, len(y) // 40), mode="nearest")
     span = float(x[-1] - x[0])
     n = max(3, len(y) // 10)
@@ -115,46 +141,87 @@ def fit_profile(x, y, kind):
     return out
 
 
-def profile(body, session=store.DEFAULT):
-    """Intensity along a line drawn on the camera image. body: camera, bin, x0,y0,x1,y1 (fractions 0..1 of the image width/height), width (px, averaged across
-    the line), fit ('none'|'gauss'|'scurve'|'auto'). Renders a fresh frame at that bin (real counts, not the 8-bit display) and samples it bilinearly."""
+def projections(body, session=store.DEFAULT):
+    """Row/column intensity sums of the camera image, and optionally of a box. body: camera, bin, optional x0,y0,x1,y1 (box corners as fractions 0..1 of the
+    image width/height). Returns cols (sum over rows for every column, length = image width), rows (sum over columns for every row), and, if a box is given,
+    box = {c0,c1,r0,r1 (pixel indices, end exclusive), cols (per column inside the box, summed over the box rows), rows (per row, summed over the box columns), total}.
+    Sums are of the real rendered counts (not the 8-bit display)."""
     import numpy as np
-    from scipy.ndimage import map_coordinates
     with _LOCK:
         w = store.require(session)
         cam = body.get("camera", "gh1")
         b = int(body.get("bin", 2))
-        img = imaging.render(w, cam, bin_=b).astype(np.float32)
+        img = imaging.render(w, cam, bin_=b).astype(np.float64)
         store.save(w, session)
         pix_um = w.cams[cam]["pixel_um"]
     H, W = img.shape
-    x0, y0, x1, y1 = (float(body[k]) for k in ("x0", "y0", "x1", "y1"))
-    p0 = np.array([x0 * W - 0.5, y0 * H - 0.5]); p1 = np.array([x1 * W - 0.5, y1 * H - 0.5])
-    L = float(np.hypot(*(p1 - p0)))
-    if L < 2:
-        raise ValueError("line too short: drag a longer line on the image")
-    n = int(L) + 1
-    t = np.linspace(0, 1, n)
-    d = (p1 - p0) / L
-    perp = np.array([-d[1], d[0]])
-    wpx = max(1, int(body.get("width", 5)))
-    offs = np.linspace(-(wpx - 1) / 2, (wpx - 1) / 2, wpx)
-    acc = np.zeros(n)
-    for o in offs:
-        xs = p0[0] + t * (p1[0] - p0[0]) + o * perp[0]
-        ys = p0[1] + t * (p1[1] - p0[1]) + o * perp[1]
-        acc += map_coordinates(img, [ys, xs], order=1, mode="nearest")
-    y = acc / wpx
+    out = {"camera": cam, "bin": b, "cols_n": W, "rows_n": H, "pixel_um": pix_um, "cols": img.sum(axis=0).tolist(), "rows": img.sum(axis=1).tolist()}
+    if all(k in body for k in ("x0", "y0", "x1", "y1")):
+        xa, xb = sorted((float(body["x0"]), float(body["x1"])))
+        ya, yb = sorted((float(body["y0"]), float(body["y1"])))
+        c0 = min(W - 1, max(0, int(np.floor(xa * W)))); c1 = min(W, max(c0 + 1, int(np.ceil(xb * W))))
+        r0 = min(H - 1, max(0, int(np.floor(ya * H)))); r1 = min(H, max(r0 + 1, int(np.ceil(yb * H))))
+        sub = img[r0:r1, c0:c1]
+        out["box"] = {"c0": c0, "c1": c1, "r0": r0, "r1": r1, "cols": sub.sum(axis=0).tolist(), "rows": sub.sum(axis=1).tolist(), "total": float(sub.sum()),
+                      "size_um": [float((c1 - c0) * b * pix_um), float((r1 - r0) * b * pix_um)]}
+    if body.get("fit") in ("gauss", "auto"):
+        def _fit(vals, i0):
+            import numpy as np
+            v = np.asarray(vals, float); x = i0 + 0.5 + np.arange(len(v))            # x in binned-pixel units (pixel centres)
+            f = fit_profile(x, v, "gauss")
+            tot = float(v.sum()); cen = float((x * v).sum() / tot) if tot > 0 else None   # centroid of the (background-subtracted) profile
+            vb = np.clip(v - np.percentile(v, 5), 0, None); tb = float(vb.sum()); cen_b = float((x * vb).sum() / tb) if tb > 0 else None
+            if "error" in f:
+                return {"error": f["error"], "centroid_px": None if cen_b is None else cen_b * b}
+            q = f["params"]
+            return {"centre_px": q["centre"] * b, "centre_err_px": (f["errors"]["centre"] or 0) * b, "fwhm_px": f["fwhm"] * b, "fwhm_um": f["fwhm"] * b * pix_um,
+                    "r2": f["r2"], "curve": f["curve"], "centroid_px": cen_b * b if cen_b is not None else None, "centre_x": q["centre"]}
+        out["fit"] = {"cols": _fit(out["cols"], 0), "rows": _fit(out["rows"], 0)}
+        if "box" in out:
+            bx = out["box"]
+            out["box"]["fit"] = {"cols": _fit(bx["cols"], bx["c0"]), "rows": _fit(bx["rows"], bx["r0"])}
+    return out
+
+
+def profile(body, session=store.DEFAULT):
+    """Profile of the drawn box on the camera image, with an optional fit. body: camera, bin, x0,y0,x1,y1 (box corners as fractions 0..1 of the image width/height),
+    direction ('h' = along x, mean over the box rows; 'v' = along y, mean over the box columns; the ImageJ rectangle-profile semantics), fit ('none'|'gauss'|'scurve'|
+    'slit_pos'|'slit_neg'|'slit_pos_flat'|'slit_neg_flat'|'auto'). Renders a fresh frame at that bin (real counts, not the 8-bit display). dist_um is the absolute
+    position along the frame (um from its left/top edge), so fitted centres/edges are in detector coordinates. A fit also carries marks_frac: where its centre/edges
+    lie on the image (fractions), for the overlay."""
+    import numpy as np
+    from .imganalysis import profile as IP
+    with _LOCK:
+        w = store.require(session)
+        cam = body.get("camera", "gh1")
+        b = int(body.get("bin", 2))
+        img = imaging.render(w, cam, bin_=b).astype(np.float64)
+        store.save(w, session)
+        pix_um = w.cams[cam]["pixel_um"]
+    H, W = img.shape
+    d = "v" if body.get("direction", "h") == "v" else "h"
+    xa, xb = sorted((float(body["x0"]), float(body["x1"])))
+    ya, yb = sorted((float(body["y0"]), float(body["y1"])))
     um_per = pix_um * b
-    dist = t * L * um_per
-    out = {"camera": cam, "bin": b, "n": n, "length_um": L * um_per, "pixel_um": pix_um, "width_px": wpx, "dist_um": [float(v) for v in dist],
-           "counts": [float(v) for v in y], "p0_px": [float((p0[0] + 0.5) * b), float((p0[1] + 0.5) * b)], "p1_px": [float((p1[0] + 0.5) * b), float((p1[1] + 0.5) * b)]}
+    pr = IP.rect_profile(img, xa * W, ya * H, xb * W, yb * H, "vertical" if d == "v" else "horizontal", um_per, absolute=True)
+    roi = pr["roi"]
+    dist = np.asarray(pr["x"], float) + 0.5 * um_per                              # pixel centres
+    y = np.asarray(pr["y"], float)
+    n_along = H if d == "v" else W
+    out = {"camera": cam, "bin": b, "direction": d, "n": int(len(y)), "pixel_um": pix_um, "frame_um": n_along * um_per, "dist_um": [float(v) for v in dist],
+           "counts": [float(v) for v in y], "box_px": [roi["x0"] * b, roi["y0"] * b, roi["x1"] * b, roi["y1"] * b],
+           "box_um": [float((roi["x1"] - roi["x0"]) * um_per), float((roi["y1"] - roi["y0"]) * um_per)],
+           "box_frac": [roi["x0"] / W, roi["y0"] / H, roi["x1"] / W, roi["y1"] / H], "rows_averaged": int(roi["y1"] - roi["y0"]) if d == "h" else int(roi["x1"] - roi["x0"])}
     kind = body.get("fit", "none")
     if kind and kind != "none":
         f = fit_profile(dist, y, kind)
-        if "centre" in f.get("params", {}):
-            c = f["params"]["centre"]
-            f["centre_frac"] = [x0 + (x1 - x0) * c / (L * um_per), y0 + (y1 - y0) * c / (L * um_per)]
-            f["centre_px"] = [float(f["centre_frac"][0] * W * b), float(f["centre_frac"][1] * H * b)]
+        if "error" not in f:
+            bx = out["box_frac"]
+            cx, cy = 0.5 * (bx[0] + bx[2]), 0.5 * (bx[1] + bx[3])
+            at = (lambda pos: [pos / (n_along * um_per), cy]) if d == "h" else (lambda pos: [cx, pos / (n_along * um_per)])
+            f["centre_frac"] = at(f["params"]["centre"])
+            f["centre_px"] = [f["centre_frac"][0] * W * b, f["centre_frac"][1] * H * b]
+            if f.get("edges"):
+                f["edges_frac"] = [at(e) for e in f["edges"]]
         out["fit"] = f
     return out
