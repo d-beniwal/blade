@@ -51,7 +51,7 @@ table.nm{border-collapse:collapse;width:100%}table.nm td{padding:4px 6px;border-
  <span class="pill" id="count">-</span><span class="sp"></span>
  <input id="q" type="search" placeholder="search models (e.g. undulator, penumbra, mu_t)" style="min-width:260px">
  <label class="mute">theme <select id="theme"></select></label>
- <a href="/">&larr; alignment monitor</a><a href="/twin">beamline twin</a><a href="/vbl">&larr; virtual beamline</a><a href="/kb">knowledge base &rarr;</a></div>
+</div>
 <div class="card"><h2>What this page is</h2>
  <div>Every model below is code that runs in the virtual beamline (<span class="mono">blade/vbl</span>, <span class="mono">blade/physics</span>). Parameter values are read <b>live from <span class="mono">sim.json</span></b> with the provenance note stored beside each value (click the <span class="src">&#9432;</span>); curves are computed by calling the real simulator functions, so this page cannot drift from the simulator.
  Status says how much to trust each model:</div>
@@ -145,7 +145,7 @@ async function init(){
   toc+=`<a class="sec" href="#notmod">Not modelled yet</a>`;
   html+=`<div class="sechead" id="notmod"><b>Not modelled yet</b><span class="mute">Known physics the simulator does not include, and what would build it (full list: beamline_twins/1-ID/physics/11_model_inventory_and_gaps.md)</span></div>
    <div class="card"><table class="nm">${DATA.not_modelled.map(n=>`<tr><td>${esc(n.what)}</td><td>${esc(n.why)} <span class="mute mono">${esc(n.doc)}</span></td></tr>`).join('')}</table></div>
-   <div class="card"><h2>Tests that exercise these models</h2><div class="refs">${DATA.tests.map(t=>`<span>${esc(t)}</span>`).join('')}</div></div>`;
+   <div class="card"><h2>Tests that exercise these models</h2><div class="refs">${DATA.tests.map(t=>`<span>${esc(t)}</span>`).join(' ')}</div></div>`;
   $('toc').innerHTML=toc;$('content').innerHTML=html;
   const chain=[['source','Source','0 m',['und_energy','und_flux']],['angle','WB slits','z_m.wbSlits',['angle','steer']],['hem','HEM mono','z_m.hem',['hem','th2']],['foil','B: ICs, foil, attenuator','z_m.foilB',['foil','atten','ic']],
    ['lens','Lenses','E 67.7-68.5 m',['lens','ray']],['shutter','Slits and fast shutters','',['edges','shutter']],['axis','Sample + pin','z_m.samE',['axis','pin']],['cam_geom','Tomo camera','z_m.tomoE',['cam_geom','img_form','texture']]];

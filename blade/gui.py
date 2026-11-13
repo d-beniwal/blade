@@ -15,7 +15,7 @@ from .paths import RUNS_DIR
 from . import config as cfg
 from . import twin_api
 from . import vbl_api
-from . import kb_api
+from . import kb_api, nav
 from .vbl import physics_doc
 
 
@@ -43,16 +43,9 @@ class H(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
         rid = q.get("run") or _latest()
-        if u.path == "/":
-            return self._send((Path(__file__).parent / "gui.html").read_text(), "text/html; charset=utf-8")
-        if u.path == "/twin":
-            return self._send((Path(__file__).parent / "twin.html").read_text(), "text/html; charset=utf-8")
-        if u.path == "/vbl":
-            return self._send((Path(__file__).parent / "vbl.html").read_text(), "text/html; charset=utf-8")
-        if u.path == "/kb":
-            return self._send((Path(__file__).parent / "kb.html").read_text(), "text/html; charset=utf-8")
-        if u.path == "/physics":                       # description of every physics model in the virtual beamline (values read live from sim.json)
-            return self._send((Path(__file__).parent / "physics.html").read_text(), "text/html; charset=utf-8")
+        page = {"/": ("gui.html", "monitor"), "/twin": ("twin.html", "twin"), "/vbl": ("vbl.html", "vbl"), "/kb": ("kb.html", "kb"), "/physics": ("physics.html", "physics")}.get(u.path)
+        if page:                                       # every page gets the left navigation ribbon (blade/nav.py); pages carry no links to each other
+            return self._send(nav.inject((Path(__file__).parent / page[0]).read_text(), page[1]), "text/html; charset=utf-8")
         if u.path == "/api/vbl/physics":
             return self._send(physics_doc.payload())
         if u.path == "/api/vbl/physics/curve":         # curve computed by calling the real simulator functions on an 'aligned' world
