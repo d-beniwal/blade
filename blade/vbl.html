@@ -34,7 +34,7 @@ table{border-collapse:collapse;width:100%;font:12px var(--mono)}th,td{padding:1p
 .cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:2px 10px}
 .cell{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:22px}
 .cell>label{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cell>label small{color:var(--mute);margin-left:3px;font-size:10px}
-.cell .c{display:flex;gap:1px;align-items:center;justify-content:flex-end}
+.cell .c,td>.c{display:flex;flex-wrap:nowrap;gap:1px;align-items:center;justify-content:flex-end}.c .mb{flex:none}
 .cell input,.cell select{width:76px;text-align:right;font-family:var(--mono);padding:1px 4px}
 .mb{width:19px;padding:0;height:20px;line-height:1;font-size:11px;color:var(--mute)}.mb.co{font-weight:700}
 .tg{min-width:104px;height:20px;padding:0 8px;font:11.5px var(--mono);border-radius:99px;border:1px solid var(--line);color:var(--mute)}
