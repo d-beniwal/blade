@@ -101,7 +101,7 @@ function legend(t){
 const CONFCOL={confirmed:'var(--ok)',seen:'var(--ink)',code:'var(--acc)',inferred:'var(--warn)',unseen:'var(--mute)'};
 const CONFTXT={confirmed:'confirmed by user/hardware',seen:'seen in a photo or operator panel',code:'only in mpe_bluesky code',inferred:'inferred (see notes)',unseen:'known to exist, not seen'};
 const HASH0=location.hash.slice(1);
-let first=true,P=null,sel=null,view='path',F={conf:new Set(),kind:'',group:'',q:''},EL={};
+let first=true,P=null,sel=null,view='path',spacing=(()=>{try{return localStorage.getItem('blade.twin.spacing')||'panel'}catch(e){return 'panel'}})(),F={conf:new Set(),kind:'',group:'',q:''},EL={};
 
 async function init(){
  const th=$('theme');th.innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');th.value=themeChoice;th.onchange=()=>setTheme(th.value);
@@ -136,10 +136,12 @@ function draw(){
  b.innerHTML=`<div style="display:grid;gap:12px">
   <div class="card" style="display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center">
    <div class="tabs" id="tabs">${[['path','Beam path'],['slits','Slit apertures'],['stage','Sample stage']].map(([k,l])=>`<button data-v="${k}" class="${view===k?'on':''}">${l}</button>`).join('')}</div>
-   <span class="sp"></span><span id="filters"></span></div>
+   <span class="sp"></span><span id="filters"></span>
+   ${view==='path'?`<label class="mute" style="font-size:12px" title="Spacing is schematic in both modes. 'as on the panel' uses each element's x position on the CS-Studio screenshot (minimum gap kept), 'equal' gives every element one slot."><select id="sp"><option value="panel" ${spacing==='panel'?'selected':''}>spacing: as on the operator panel</option><option value="equal" ${spacing==='equal'?'selected':''}>spacing: equal slots</option></select></label>`:''}</div>
   <div class="main"><div id="view"></div><div class="side card" id="side"></div></div></div>`;
  document.querySelectorAll('#tabs button').forEach(x=>x.onclick=()=>{view=x.dataset.v;hash();draw()});
  filters();paint();side();
+ const sp=$('sp');if(sp)sp.onchange=()=>{spacing=sp.value;try{localStorage.setItem('blade.twin.spacing',spacing)}catch(e){}paint()};
 }
 function filters(){
  const t=P.twin,kinds=[...new Set(t.elements.map(e=>e.kind))].sort(),f=$('filters');
@@ -185,14 +187,18 @@ function glyph(e,x,y){
  return s;
 }
 function pathView(){
- const t=P.twin,DX=62;let out=legend(t);const zfmt=z=>(+z).toFixed(1);
+ const t=P.twin,DX=44;let out=legend(t);const zfmt=z=>(+z).toFixed(1);
  const bt=t.blade_targets||{};
  for(const h of t.hutch_order){
   const els=t.elements.filter(e=>e.hutch===h);if(!els.length)continue;
   const pos={};let slot=0;
-  els.forEach(e=>{if(!e.near){pos[e.id]=46+slot*DX;slot++}});
-  els.forEach(e=>{if(e.near&&pos[e.near]!=null)pos[e.id]=pos[e.near];else if(e.near)pos[e.id]=46+(slot++)*DX});
-  const W=Math.max(300,46+slot*DX+30);
+  const hd0=t.hutches[h],lined=els.filter(e=>!e.near),usePanel=spacing==='panel'&&lined.length>1&&lined.every(e=>typeof e.panel_x==='number'),MIN=36;
+  if(usePanel){
+   const x0=Math.min(...lined.map(e=>e.panel_x)),x1=Math.max(...lined.map(e=>e.panel_x)),k=Math.max(.3,(lined.length*DX*1.0)/Math.max(1,x1-x0));
+   let prev=-1e9;lined.forEach(e=>{const x=Math.max(prev+MIN,34+(e.panel_x-x0)*k);pos[e.id]=x;prev=x;slot=Math.max(slot,(x-34)/DX+1)});
+  }else els.forEach(e=>{if(!e.near){pos[e.id]=34+slot*DX;slot++}});
+  els.forEach(e=>{if(e.near&&pos[e.near]!=null)pos[e.id]=pos[e.near];else if(e.near)pos[e.id]=34+(slot++)*DX});
+  const W=Math.max(300,34+slot*DX+24);
   const isAbove=e=>e.kind==='ic'||((e.placement==='retractable'||e.placement==='alt')&&(e.side||'above')==='above'),isBelow=e=>e.kind!=='ic'&&e.placement==='retractable'&&e.side==='below';
   const LY=els.some(isAbove)?175:50,H=LY+(els.some(isBelow)?200:120)+(els.some(e=>e.z_m!=null)?26:0);
   let g='';
@@ -210,10 +216,15 @@ function pathView(){
    g+=`<g class="item" data-id="${esc(e.id)}"><title>${esc(tip)}</title>${conn}<g class="${cls}"><circle class="halo" cx="${x}" cy="${gy}" r="27"/>${glyph(e,x,gy)}<circle class="cdot" cx="${x+14}" cy="${gy-20}" r="3.8" style="--cdot:${CONFCOL[e.conf]}"><title>${esc(e.conf)}</title></circle></g><g class="${dim?'dim':''}">${lab}</g></g>`;
   });
   const hd=t.hutches[h];
+  // boxed groups of the operator panel: bracket under the row
+  let HB=H;const gl=(hd.groups||[]).map(q=>({q,m:els.filter(e=>e.group===q.id&&!e.near)})).filter(o=>o.m.length);
+  if(gl.length){gl.forEach((o,i)=>{const xs=o.m.map(e=>pos[e.id]),a=Math.min(...xs)-26,b=Math.max(...xs)+26,y=H+4;
+    g+=`<g><title>${esc(o.q.name)}</title><path d="M${a},${y-4} V${y+2} H${b} V${y-4}" fill="none" stroke="var(--mute)" stroke-width="1.4"/><text x="${a+2}" y="${y+15}" style="font-size:10.5px;fill:var(--mute)">${esc(o.q.name.length>(b-a)/6?o.q.name.slice(0,Math.max(3,Math.floor((b-a)/6)-1))+'…':o.q.name)}</text></g>`});HB=H+26}
   els.filter(e=>e.z_m!=null).forEach(e=>{const x=pos[e.id];g+=`<g class="${match(e)?'':'dim'}"><line class="conn" x1="${x}" x2="${x}" y1="${H-24}" y2="${H-18}"/><text x="${x-16}" y="${H-6}" style="fill:var(--ink)">${zfmt(e.z_m)} m</text></g>`});
-  out+=`<div class="card"><div class="hh"><b>Hutch ${esc(h)}</b><span>${esc(hd.description)}</span></div><div class="mute" style="font-size:12px;margin-bottom:4px">coverage: ${esc(hd.coverage)}</div>
-   <div class="scroll"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><path class="beamline" d="M0,${LY} H${W-8}"/><path d="M${W-8},${LY-5} l9,5 l-9,5z" fill="var(--beam)"/>${g}</svg></div></div>`;
+  out+=`<div class="card"><div class="hh"><b>Hutch ${esc(h)}</b><span>${esc(hd.description)}</span></div><div class="mute" style="font-size:12px;margin-bottom:4px">coverage: ${esc(hd.coverage)}</div>${hd.aux_panels?`<div class="mute" style="font-size:12px;margin-bottom:4px" title="${esc(hd.aux_panels.note)}">auxiliary panels (${esc(hd.aux_panels.src)}): ${hd.aux_panels.items.map(esc).join(' · ')}</div>`:''}${hd.lasers?`<div class="mute" style="font-size:12px;margin-bottom:4px" title="${esc(hd.lasers.note)}">lasers (${esc(hd.lasers.src)}): ${hd.lasers.items.map(esc).join(' · ')}</div>`:''}
+   <div class="scroll"><svg width="${W}" height="${HB}" viewBox="0 0 ${W} ${HB}"><path class="beamline" d="M0,${LY} H${W-8}"/><path d="M${W-8},${LY-5} l9,5 l-9,5z" fill="var(--beam)"/>${g}</svg></div></div>`;
  }
+ if(t.detector_iocs)out+=`<div class="card"><div class="hh"><b>Detector IOCs</b><span>${esc(t.detector_iocs.src)} · operator panel '1-ID IOC Control'</span></div><table><thead><tr><th class="l">label</th><th class="l">IOC prefix</th><th class="l">camera</th><th class="l">twin element</th><th class="l">note</th></tr></thead><tbody>${t.detector_iocs.items.map(x=>`<tr class="${x.element?'clk':''}" ${x.element?`data-id="${esc(x.element)}"`:''}><td class="l">${esc(x.label)}</td><td class="l mono">${x.prefix?esc(x.prefix):'<span class="mute">n/a</span>'}</td><td class="l">${esc(x.camera)}</td><td class="l">${x.element?esc(x.element):x.candidates?'<span class="mute">one of '+x.candidates.map(esc).join(' / ')+'</span>':'<span class="mute">not assigned</span>'}</td><td class="l mute">${esc(x.note||'')}</td></tr>`).join('')}</tbody></table><div class="note">${esc(t.detector_iocs.note)}</div>${t.ioc_panels?`<div class="note"><b>Other IOC Control tabs</b> (${t.ioc_panels.src.map(esc).join(', ')}): ${Object.entries(t.ioc_panels).filter(([k])=>!['src','note','meaning','Detector(E)'].includes(k)).map(([k,v])=>'<b>'+esc(k)+'</b>: '+(Array.isArray(v)?v.map(esc).join(', '):esc(v))).join(' · ')}<br>${esc(t.ioc_panels.meaning)}</div>`:''}</div>`;
  out+=`<div class="note card">Beam runs left → right. Element spacing is <b>schematic</b> (${t.any_distance?`only ${t.elements.filter(e=>e.z_m!=null).length} of ${t.elements.length} distances are known; those are printed under the row in m from the source`:'no distances known yet; z_m is not set'}). Colour = component type (click a type in the legend to filter); outline style and the corner dot = confidence (solid seen · long dash code · short dash inferred · dotted unseen); ICs sit above the line, retractable detectors / alternative positions above or below it. Violet halo = element BLADE's alignment moves for this profile. Purple dot in a detector = tomo detector.</div>`;
  return `<div style="display:grid;gap:12px">${out}</div>`;
 }
@@ -261,6 +272,7 @@ function side(){
  add('kind',`<span class="sw" style="--k:var(--k-${grp(e.kind)})"></span>`+esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
  add('confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)} <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
  add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
+ add('panel group',e.group&&esc(((t.hutches[e.hutch].groups||[]).find(q=>q.id===e.group)||{}).name||e.group));
  if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));
  add('device',e.dev&&`<span class="mono">${esc(e.dev)}</span>`);add('PV',e.pv&&`<span class="mono">${esc(e.pv)}</span>`);
  add('z',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b> from the source <span class="mute">— ${esc(e.z_conf)}</span><div class="note" style="margin-top:2px">${esc(e.z_src)}</div>`);

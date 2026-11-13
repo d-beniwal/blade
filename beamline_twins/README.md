@@ -13,6 +13,8 @@ A *twin* is the machine-readable map of one beamline: what is on the beam path, 
 7. **Experiment logs stay local too.** The index of the users' experiment logs (`logs_index/`) is git-ignored for the same reason; only aggregate statistics and instrument-physics notes without names are tracked (`physics/`).
 8. **Photos stay local.** `sources/photos/` is git-ignored (the repo is public; screens show hostnames, IPs, usernames). The tracked `sources/photos.json` indexes them (what each shows, which elements, caveats). Originals: `s1_data/pictures/`.
 
+9. **Never assign on a guess (user rule 2026-11-13).** A PV, motor, camera or device is attached to an element only from a user statement, mpe_bluesky code, or a fully legible panel label. When in doubt the link is left open (`element: null` + `candidates` in `detector_iocs`, candidate lists in `notes`). Evidence for a user statement: `conf` + a dated `user` field instead of a photo `src`.
+
 ## Layout
 
 ```

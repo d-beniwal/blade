@@ -87,9 +87,12 @@ def twin_payload(profile):
     els = t["path"]
     out["twin"] = {
         "id": tid, "name": bl["name"], "frame": bl["frame"], "hutch_order": bl["hutch_order"], "snapshot": bl.get("snapshot", {}),
-        "hutches": {h: {"description": bl["hutches"].get(h, ""), "coverage": bl.get("coverage", {}).get(h, ""), "note": t["hutches"].get(h, {}).get("note", "")}
+        "hutches": {h: {"description": bl["hutches"].get(h, ""), "coverage": bl.get("coverage", {}).get(h, ""), "note": t["hutches"].get(h, {}).get("note", ""),
+                        **{k: t["hutches"].get(h, {})[k] for k in ("groups", "panel", "aux_panels", "lasers") if k in t["hutches"].get(h, {})}}
                     for h in bl["hutch_order"]},
         "elements": els, "assemblies": t["assemblies"],
+        **{k: bl[k] for k in ("detector_iocs", "ioc_panels", "header_pvs", "beam_types", "ic_readout") if k in bl},
+        "overview": bl.get("operator_screens", {}).get("overview_cs01"),
         "photos": [{**p, "local": (t["dir"] / "sources" / "photos" / p["file"]).is_file()} for p in t["photos"].values()],
         "conf_order": list(tm.CONF), "conf_counts": {c: sum(1 for e in els if e["conf"] == c) for c in tm.CONF},
         "blade_targets": _blade_targets(prof, els), "check": {"errors": errs, "warnings": warns},

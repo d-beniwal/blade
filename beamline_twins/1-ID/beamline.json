@@ -4,7 +4,13 @@
   "name": "APS Sector 1, beamline 1-ID (MPE)",
   "distances": "z_m = distance from the source along the beam (m); z_conf/z_src give provenance. Known so far (2026-11-11): the source (0) and the lens stacks in B/C/E and the default sample position in E, all from mpe_bluesky (~0.1 m resolution). Everything else is null (not guessed).",
   "beam_direction": "left to right on every operator panel (CS-Studio); hutch order downstream is SRC > A > B > C > E",
-  "hutch_order": ["SRC", "A", "B", "C", "E"],
+  "hutch_order": [
+    "SRC",
+    "A",
+    "B",
+    "C",
+    "E"
+  ],
   "hutches": {
     "SRC": "Source: undulator and front end (not photographed)",
     "A": "First optics hutch: white-beam slits, A (front-end) shutter, HEM monochromator (not photographed; from code + earlier user notes)",
@@ -17,36 +23,288 @@
     "z": "along the beam, + downstream",
     "x": "horizontal. Looking downstream +x points LEFT (hardware-confirmed 2026-10-28 on samE: +x moves the pin image left). Drawn on the Aero_SMS/Aero_Trans panels as +X into the screen with +Z to the right and +Y up (right-handed).",
     "omega": "samE.ry (1ide:m9): left-handed stage, +omega is clockwise seen from above (BLADE ROT_SIGN=+1)",
-    "src": ["p16", "p18"],
+    "src": [
+      "p16",
+      "p18"
+    ],
     "conf": "confirmed"
   },
   "snapshot": {
     "date": "2026-10-20",
     "note": "Operator-screen values at photo time. They are a snapshot of one state, NOT defaults or targets.",
     "energy_keV": 71.676,
-    "ring_current_mA": {"C_panel": 200.121, "E_panel": 200.059},
+    "ring_current_mA": {
+      "C_panel": 200.121,
+      "E_panel": 200.059
+    },
     "panel_header_unlabelled_mm": 10.012,
-    "panel_header_unlabelled_note": "'Delivered Beam 200.1 mA 10.012 mm 71.676 keV'; the mm value has no label on the panel, probably the undulator gap (unverified)",
-    "mode": {"C_panel": "USER OPERATION, Shutters Disabled", "E_panel": "USER OPERATION, Shutters Enabled"},
-    "station_status": {"A": "OPEN", "B": "OPEN", "C": "Closed", "E": "OPEN"},
+    "panel_header_unlabelled_note": "'Delivered Beam 200.1 mA 10.012 mm 71.676 keV'; the mm value has no label on the panel. With the 2026-11-12 screenshots it is very probably the undulator gap: the C/E headers read [S:DesiredMode] [shutters mode] [S:ActualMode] [S-DCCT:C = ring current] [S01ID:DSI.. = value in mm] [1id:us.. = keV], and the ID Gap Control panel (cs06) uses the prefix S01ID:DSID: (still truncated, so not verified).",
+    "mode": {
+      "C_panel": "USER OPERATION, Shutters Disabled",
+      "E_panel": "USER OPERATION, Shutters Enabled"
+    },
+    "station_status": {
+      "A": "OPEN",
+      "B": "OPEN",
+      "C": "Closed",
+      "E": "OPEN"
+    },
     "fast_shutters": "FS_B indicator dark, FS_E indicator bright green (open/closed colour convention not confirmed)",
-    "src": ["p13", "p14"]
+    "src": [
+      "p13",
+      "p14"
+    ],
+    "note_2026-11-12": "The CS-Studio screenshots cs03/cs04 show NO values (PVs disconnected, magenta dotted fields; station boxes show 'Closed' over 'OPEN'); the readings above therefore still come from the phone photos p13/p14."
+  },
+  "header_pvs": {
+    "note": "Header strip of the C and E panels (cs03, cs04), left to right; PV names are truncated on screen",
+    "items": [
+      "S:DesiredMode",
+      "(shutters mode text)",
+      "S:ActualMode",
+      "S-DCCT:C (ring current)",
+      "S01ID:DSI.. (probably DSID gap, mm)",
+      "1id:us.. (energy, keV)"
+    ],
+    "also": "bottom of the C and E panels: A/B/C/E-Station shutter boxes and 'Fast-Shutter Status' FS_B / FS_E circles",
+    "src": [
+      "cs03",
+      "cs04",
+      "cs06"
+    ]
+  },
+  "beam_types": {
+    "white": "source > Filter > WB slits > HEM crystals (hutch A upstream of the HEM; dark red line on the overview cs01)",
+    "monochromatic": "after the HEM through B, C and E (light red line on cs01)",
+    "src": [
+      "cs01"
+    ]
+  },
+  "ic_readout": {
+    "B_C": "scaler channels 1id:S1:s...  (red labels next to the ICs on cs02/cs03)",
+    "E": "scaler channels 1ide2:...  (cs04)",
+    "note": "IC to scaler-channel number is not legible (labels truncated); mapping still open (DOMAIN/physics 04)"
   },
   "operator_screens": {
-    "note": "CS-Studio tabs visible on the beamline workstation (p12-p18). Panels photographed: B, C, E, All Slits, Aero_SMS, SAXS_D6, Aero_Trans. NOT photographed: 1-ID-Main (A hutch / mono / undulator).",
-    "tabs": ["1-ID-Main", "1-ID-B", "1-ID-C", "1-ID-E", "1ID All Slits", "Aero_SMS", "SAXS_D6", "Aero_Trans"],
-    "panel_layout_dates": {"C": "2026-08-31", "E": "2026-03-04"}
+    "note": "CS-Studio tabs visible on the beamline workstation (p12-p18). 2026-11-12: screenshots (cs01-cs06) now cover the 1-ID-Main overview (cs01), B, C, E panels (cs02-cs04), 1-ID IOC Control tab Detector(E) (cs05) and the W_Beam / ID Gap Control / userTran3 / HEM motor screens (cs06). Phone photos still hold the readings: All Slits (p15), Aero_SMS (p16), SAXS_D6 (p17), Aero_Trans (p18). The user confirmed the overview strip is all there is of 1-ID-Main and that B ends at the magenta circle. 2026-11-12 (later): C screens fourC table/circle (cs07, cs08), LabMotion_SMS (cs09), DBA (cs13); IOC Control tabs Detector(B/C), VME Crate, Misc (cs10-cs12); Tomo_E (cs14). Overview buttons cannot be expanded from the main screen. NOT captured: IOC Control tab Qserver.",
+    "tabs": [
+      "1-ID-Main",
+      "1-ID-B",
+      "1-ID-C",
+      "1-ID-E",
+      "1ID All Slits",
+      "Aero_SMS",
+      "SAXS_D6",
+      "Aero_Trans"
+    ],
+    "panel_layout_dates": {
+      "C": "2026-08-31 (phone photo p13); 'Last update 11-12-2026' on cs03",
+      "E": "2026-03-04 (phone photo p14); 'Last update 11-12-2026' on cs04"
+    },
+    "overview_cs01": {
+      "A": [
+        "Filter",
+        "WB Slits",
+        "HE",
+        "Mot"
+      ],
+      "B": [
+        "Slits",
+        "Table",
+        "Mot"
+      ],
+      "C": [
+        "Slits",
+        "4C",
+        "Table",
+        "Mot"
+      ],
+      "E": [
+        "Slits",
+        "1ide",
+        "1ide1",
+        "Mot"
+      ],
+      "note": "Buttons that open the hutch screens. 'Table' (B, C) and 'Mot' (all hutches) panels, and the 1ide / 1ide1 motor-IOC panels, were not captured."
+    }
   },
   "workstation_viewers": {
     "note": "Image windows open on the workstation (p11-p18), shown only as titles",
-    "items": ["GE2:Pva1:Image (2048x2048, 16-bit)", "1idGH1:Pva1:Image", "s1_pixirad", "WV-S6130 Network Camera (hutch CCTV)", "ImageJ"],
-    "src": ["p11", "p12"]
+    "items": [
+      "GE2:Pva1:Image (2048x2048, 16-bit)",
+      "1idGH1:Pva1:Image",
+      "s1_pixirad",
+      "WV-S6130 Network Camera (hutch CCTV)",
+      "ImageJ"
+    ],
+    "src": [
+      "p11",
+      "p12"
+    ]
+  },
+  "detector_iocs": {
+    "src": "cs05",
+    "note": "'1-ID IOC Control' tab Detector(E) (cs05) and Detector(B/C) (cs10). Assignments marked 'user' were given by the user 2026-11-12; cs05 itself only lists the IOCs. Rule (user 2026-11-13): where an assignment is in doubt it is left open ('element': null, candidates listed), never guessed.",
+    "items": [
+      {
+        "label": "Tomo",
+        "prefix": "1idGH1:",
+        "camera": "gh1",
+        "element": "tomoE",
+        "conf": "confirmed",
+        "note": "Tomo D1 (user)",
+        "src_user": true
+      },
+      {
+        "label": "Tomo",
+        "prefix": "1idPG1:",
+        "camera": "pg1",
+        "element": null,
+        "conf": "seen",
+        "candidates": [
+          "radiograph"
+        ],
+        "note": "Radiograph is suspected (user inference 2026-11-13, not confirmed); left unassigned"
+      },
+      {
+        "label": "SAXS",
+        "prefix": "s1_pixirad2:",
+        "camera": "pixirad2",
+        "element": "saxs",
+        "conf": "seen"
+      },
+      {
+        "label": "Pilatus 2M",
+        "prefix": "1idPil:",
+        "camera": "pilatus2m",
+        "element": "d3",
+        "conf": "seen",
+        "note": "mounted at D3, one at a time (user)"
+      },
+      {
+        "label": "GE1",
+        "prefix": "GE1:",
+        "camera": "ge1",
+        "element": "hydra",
+        "conf": "seen",
+        "note": "Hydra D4 = GE1-GE4 (user)"
+      },
+      {
+        "label": "GE2",
+        "prefix": "GE2:",
+        "camera": "ge2",
+        "element": "hydra",
+        "conf": "seen",
+        "note": "Hydra D4 = GE1-GE4 (user)"
+      },
+      {
+        "label": "GE3",
+        "prefix": "GE3:",
+        "camera": "ge3",
+        "element": "hydra",
+        "conf": "seen",
+        "note": "Hydra D4 = GE1-GE4 (user)"
+      },
+      {
+        "label": "GE4",
+        "prefix": "GE4:",
+        "camera": "ge4",
+        "element": "hydra",
+        "conf": "seen",
+        "note": "Hydra D4 = GE1-GE4 (user)"
+      },
+      {
+        "label": "GE5",
+        "prefix": "GE5:",
+        "camera": "ge5",
+        "element": "d3",
+        "conf": "seen",
+        "note": "mounted at D3, one at a time (user)"
+      },
+      {
+        "label": "Eiger16M",
+        "prefix": "1idEig16M:",
+        "camera": "eiger16m",
+        "element": "d3",
+        "conf": "seen",
+        "note": "mounted at D3, one at a time (user)"
+      },
+      {
+        "label": "Tomo",
+        "prefix": "1idSP5:",
+        "camera": "pg5",
+        "element": null,
+        "conf": "seen",
+        "note": "hutch C camera (tab Detector(B/C)); element not confirmed, left unassigned",
+        "candidates": [
+          "tomoC"
+        ]
+      },
+      {
+        "label": "s1_Varex",
+        "prefix": "1idVarex1:",
+        "camera": "varex",
+        "element": "d2C",
+        "conf": "seen",
+        "note": "tab Detector(B/C); IOC name from cs09"
+      },
+      {
+        "label": "Tomo_in_B",
+        "prefix": null,
+        "camera": "retiga2",
+        "element": null,
+        "conf": "inferred",
+        "note": "tab Detector(B/C), label 'Tomo_in_B'; PV prefix illegible; element not confirmed, left unassigned",
+        "candidates": [
+          "tomoB"
+        ]
+      }
+    ]
   },
   "coverage": {
     "SRC": "code only",
-    "A": "code + user notes; no photo",
-    "B": "panel photo (order + IC readings) + code",
-    "C": "panel photo (order + IC readings) + slit table + code; no hutch photos",
-    "E": "panel + hutch photos (sample stack, lens stacks, tomo stage, monitor) + motor panels + code"
-  }
+    "A": "1-ID-Main overview strip (cs01) + WB slit / HEM / ID gap panels (cs06) + user (A shutter first) + code",
+    "B": "CS-Studio panel screenshot (cs02; order, no live values; complete) + phone photo for readings + code",
+    "C": "CS-Studio panel (cs03) + fourC table/circle motors (cs07, cs08) + LabMotion_SMS (cs09) + DBA control (cs13) + phone photo for readings + slit table + code; no hutch photos",
+    "E": "CS-Studio panel screenshot (cs04) + IOC Control (cs05) + Tomo_E screen (cs14) + hutch photos (sample stack, lens stacks, tomo stage, monitor) + motor panels + code"
+  },
+  "ioc_panels": {
+    "src": [
+      "cs05",
+      "cs10",
+      "cs11",
+      "cs12"
+    ],
+    "note": "All tabs of '1-ID IOC Control' (last update 2024-09-25), rows with RUN/STOP/Status/Display. Support systems, not beam elements.",
+    "Detector(E)": "see detector_iocs",
+    "Detector(B/C)": [
+      "Tomo (1idSP5:)",
+      "s1_Varex",
+      "Tomo_in_B"
+    ],
+    "VME Crate": [
+      "1id-A (1ida)",
+      "1id-B (1idb)",
+      "1id-C (1idc:)",
+      "1id-E (1ide)",
+      "1id-E1 (1ide1:)",
+      "LabMotion"
+    ],
+    "Misc.": [
+      "Cryo Pump",
+      "PDU (1idpdu1:)",
+      "HEM_Z2",
+      "AMCI_C",
+      "1idSoft (1idSoft:)",
+      "1ID-C Zynq-1",
+      "1ID-C Zynq-2",
+      "1ID-E Zynq-GE",
+      "PI518 (HRM)"
+    ],
+    "not_captured": [
+      "Qserver"
+    ],
+    "meaning": "VME crates = the motor IOC prefixes 1ida, 1idb, 1idc, 1ide, 1ide1 (these are what the overview buttons 1ide / 1ide1 open); HEM_Z2 and PI518 (HRM) are the HEM and HRM support IOCs."
+  },
+  "assignment_rule": "User rule 2026-11-13: never assign a PV, motor, camera or device to an element on a guess; leave it open and list candidates in notes. Only user statements, code (mpe_bluesky) or full-legible panel labels assign."
 }

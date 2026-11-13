@@ -4,7 +4,7 @@
 
 Beam order: SRC > A > B > C > E. Frame: horizontal. Looking downstream +x points LEFT (hardware-confirmed 2026-10-28 on samE: +x moves the pin image left). Drawn on the Aero_SMS/Aero_Trans panels as +X into the screen with +Z to the right and +Y up (right-handed).
 
-Confidence per element: confirmed 0, seen 65, code 2, inferred 3, unseen 0 (total 70). `[name]` = retractable (moved into the beam), `(name)` = alternative position. Distances (`z_m`) are known only where a source exists; unknown ones are blank, never guessed.
+Confidence per element: confirmed 3, seen 66, code 1, inferred 2, unseen 0 (total 72). `[name]` = retractable (moved into the beam), `(name)` = alternative position, `|` = boundary between the boxed groups drawn on the operator panel. Distances (`z_m`) are known only where a source exists; unknown ones are blank, never guessed.
 
 ## Hutch SRC
 
@@ -24,128 +24,143 @@ beam > - PMU undulator >
 
 First optics hutch: white-beam slits, A (front-end) shutter, HEM monochromator (not photographed; from code + earlier user notes)
 
-Coverage: code + user notes; no photo
+Coverage: 1-ID-Main overview strip (cs01) + WB slit / HEM / ID gap panels (cs06) + user (A shutter first) + code
 
 ```
-beam > - WB_slits - A shutter - HEM monochromator >
+beam > - A shutter - Filter - WB_slits - HEM monochromator >
 ```
 
 | # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
 |--:|---|---|---|---|--:|---|---|---|
-| 2 | `wbSlits` | WB_slits | slit | seen |  | WB_hsize/WB_vsize (read-only signals) / 1ida:Slit1 | hsize_mm=0.3, vsize_mm=0.3, hcenter_mm=0.0, vcenter_mm=0.0, step_h_size=0.05, step_v_size=0.05 | p15 |
-| 3 | `shutter_a` | A shutter (FES) | shutter | code |  | shutter_a / S01ID-PSS:FES: |  |  |
-| 4 | `hem` | HEM monochromator | mono | inferred |  | hem_energy (userTran record) / 1id:userTran3 |  |  |
+| 2 | `shutter_a` | A shutter (FES) | shutter | confirmed |  | shutter_a / S01ID-PSS:FES: |  |  |
+| 3 | `filterA` | Filter | attenuator | seen |  |  |  | cs01 |
+| 4 | `wbSlits` | WB_slits | slit | seen |  | WB_hsize/WB_vsize (read-only signals) / 1ida:Slit1 | hsize_mm=0.3, vsize_mm=0.3, hcenter_mm=0.0, vcenter_mm=0.0, step_h_size=0.05, step_v_size=0.05 | cs01, cs06, p15 |
+| 5 | `hem` | HEM monochromator | mono | seen |  | hem_energy (userTran record) / 1id:userTran3 |  | cs01, cs06 |
 
 ## Hutch B
 
 Mono-beam hutch: ICs, CRLs, HRM, foil/attenuator, lens stacks, B fast shutter, Cork, Kohzu slit, B-TOM tomo stage
 
-Coverage: panel photo (order + IC readings) + code
+Coverage: CS-Studio panel screenshot (cs02; order, no live values; complete) + phone photo for readings + code
 
 ```
-beam > - IC1 - Al CRL - IC2 - CRL - IC3 - HRM - IC4 - IC5 - Foil - Atten - IC8 - Stack1 - Stack1
-      - B-FS - Cork - B_Kohzu - IC6 - B-TOM - BL3 - BL4 - BL5 - IC7 - (magenta marker) >
+beam > - IC1 - Al CRL - IC2 - CRL - IC3 - HRM crystal 1 - IC4 - HRM crystal 2 - IC5 - Foil
+      - Atten - IC8 - Stack1 - Stack1 - B-FS - Cork - B_Kohzu - IC6 - B-TOM  |  BL3 - BL4 - BL5
+      - IC7 - (magenta marker) >
 ```
+
+Panel groups: **Main box: IC1 ... B-TOM**: IC1, Al CRL, IC2, CRL, IC3, HRM crystal 1, IC4, HRM crystal 2, IC5, Foil, Atten, IC8, Stack1 (first), Stack1 (second), B-FS, Cork, B_Kohzu (KOHZU), IC6, B-TOM; **Second box: BL3-BL5, IC7**: BL3 (B-lens, compound lens), BL4 (B-lens, saw-tooth), BL5 (B-lens, saw-tooth), IC7, (magenta marker)
 
 | # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
 |--:|---|---|---|---|--:|---|---|---|
-| 5 | `icB1` | IC1 | ic | seen |  |  | counts=597 | p12 |
-| 6 | `alCRL` | Al CRL | crl | seen |  |  |  | p12 |
-| 7 | `icB2` | IC2 | ic | seen |  |  | counts=181877 | p12 |
-| 8 | `crlB` | CRL | crl | seen |  |  |  | p12 |
-| 9 | `icB3` | IC3 | ic | seen |  |  | counts=613014 | p12 |
-| 10 | `hrm` | HRM | mono | seen |  |  |  | p12 |
-| 11 | `icB4` | IC4 | ic | seen |  |  | counts=826 | p12 |
-| 12 | `icB5` | IC5 | ic | seen |  |  | counts=511223 | p12 |
-| 13 | `foilB` | Foil | foil | seen |  | foilB / 1idb:m18 | position=0 pos | p12 |
-| 14 | `attenB` | Atten | attenuator | seen |  | attenB / 1idb:m50 | position=0 pos | p12 |
-| 15 | `icB8` | IC8 | ic | seen |  |  | counts=492028 | p12 |
-| 16 | `stackB1` | Stack1 (first) | lens | inferred | 38.8 | lens4B (guess) / 1idb: |  | p12 |
-| 17 | `stackB2` | Stack1 (second) | lens | inferred | 38.9 | lens5B (guess) / 1idb: |  | p12 |
-| 18 | `fsB` | B-FS | fast_shutter | seen |  | fsB / 1id:softGlue:AND-1 |  | p12 |
-| 19 | `cork` | Cork | stage | seen |  | cork / 1idb:m41 | position_mm=112, on_off_buttons=True | p12 |
-| 20 | `slitB` | B_Kohzu (KOHZU) | slit | seen |  | slitB / 1idb:Slit | hsize_mm=2.0, vsize_mm=2.0, hcenter_mm=0.087, vcenter_mm=-0.115 | p12, p15 |
-| 21 | `icB6` | IC6 | ic | seen |  |  | counts=803 | p12 |
-| 22 | `tomoB` | B-TOM | detector* | seen |  | tomoB / 1idb: |  | p12 |
-| 23 | `bl3` | BL3 | unknown | seen |  |  |  | p12 |
-| 24 | `bl4` | BL4 | unknown | seen |  |  |  | p12 |
-| 25 | `bl5` | BL5 | unknown | seen |  |  |  | p12 |
-| 26 | `icB7` | IC7 | ic | seen |  |  | counts=1196 | p12 |
-| 27 | `endB` | (magenta marker) | unknown | seen |  |  |  | p12 |
+| 6 | `icB1` | IC1 | ic | seen |  |  | counts=597 | cs02, p12 |
+| 7 | `alCRL` | Al CRL | crl | seen |  |  |  | cs02 |
+| 8 | `icB2` | IC2 | ic | seen |  |  | counts=181877 | cs02, p12 |
+| 9 | `crlB` | CRL | crl | seen |  |  |  | cs02 |
+| 10 | `icB3` | IC3 | ic | seen |  |  | counts=613014 | cs02, p12 |
+| 11 | `hrmC1` | HRM crystal 1 | mono | confirmed |  |  |  | cs02 |
+| 12 | `icB4` | IC4 | ic | seen |  |  | counts=826 | cs02, p12 |
+| 13 | `hrmC2` | HRM crystal 2 | mono | confirmed |  |  |  | cs02 |
+| 14 | `icB5` | IC5 | ic | seen |  |  | counts=511223 | cs02, p12 |
+| 15 | `foilB` | Foil | foil | seen |  | foilB / 1idb:m18 | position=0 pos | cs02, p12 |
+| 16 | `attenB` | Atten | attenuator | seen |  | attenB / 1idb:m50 | position=0 pos | cs02, p12 |
+| 17 | `icB8` | IC8 | ic | seen |  |  | counts=492028 | cs02, p12 |
+| 18 | `stackB1` | Stack1 (first) | lens | inferred | 38.8 |  |  | cs02 |
+| 19 | `stackB2` | Stack1 (second) | lens | inferred | 38.9 |  |  | cs02 |
+| 20 | `fsB` | B-FS | fast_shutter | seen |  | fsB / 1id:softGlue:AND-1 |  | cs02 |
+| 21 | `cork` | Cork | stage | seen |  | cork / 1idb:m41 | position_mm=112, on_off_buttons=True | cs02, p12 |
+| 22 | `slitB` | B_Kohzu (KOHZU) | slit | seen |  | slitB / 1idb:Slit | hsize_mm=2.0, vsize_mm=2.0, hcenter_mm=0.087, vcenter_mm=-0.115 | cs02, p15, p12 |
+| 23 | `icB6` | IC6 | ic | seen |  |  | counts=803 | cs02, p12 |
+| 24 | `tomoB` | B-TOM | detector* | seen |  | tomoB / 1idb: |  | cs02 |
+| 25 | `bl3` | BL3 (B-lens, compound lens) | lens | seen |  |  |  | cs02 |
+| 26 | `bl4` | BL4 (B-lens, saw-tooth) | lens | seen |  |  |  | cs02 |
+| 27 | `bl5` | BL5 (B-lens, saw-tooth) | lens | seen |  |  |  | cs02 |
+| 28 | `icB7` | IC7 | ic | seen |  |  | counts=1196 | cs02, p12 |
+| 29 | `endB` | (magenta marker) | unknown | seen |  |  |  | cs02 |
 
 ## Hutch C
 
 Beam-conditioning (ICs, slit, lens stacks L1-L6, attenuator, slit 2) then LabMotion sample stage, DBA, Tomo D1, stop, Varex D2, Lens7
 
-Coverage: panel photo (order + IC readings) + slit table + code; no hutch photos
+Coverage: CS-Studio panel (cs03) + fourC table/circle motors (cs07, cs08) + LabMotion_SMS (cs09) + DBA control (cs13) + phone photo for readings + slit table + code; no hutch photos
 
 ```
-beam > - IC1 - IC2 - Slit 1 - fourC - IC3 - L1 - L2 - L3 - L4 - L5 - L6 - AttenC - Slit 2 - IC4
-      - LabMotion SMS - DBA - Tomo D1 - Stop - Shield - Varex D2 - Lens7 >
+beam > - IC1 - IC2 - Slit 1  |  fourC  |  IC3 - L1 - L2 - L3 - L4 - L5 - L6 - AttenC - Slit 2
+      - IC4  |  LabMotion SMS - DBA - Tomo D1 - Stop - Shield - Varex D2 - Lens7 >
 ```
+
+Panel groups: **Upstream box: IC1, IC2, Slit 1**: IC1, IC2, Slit 1 (C_Kuz_US); **fourC (drawn inside a circle)**: fourC; **Beam Conditioning System: IC3 ... IC4**: IC3, L1, L2, L3, L4, L5 (RD), L6 (RD), AttenC, Slit 2 (C_Kuz_DS), IC4; **Sample / detector section (right of the dotted line)**: LabMotion SMS, DBA (diffracted beam aperture), Tomo D1, Stop, Shield, Varex D2, Lens7
+
+Auxiliary panels (cs03): IOC&PDU, Preamps, Furnace, Scaler, Keyence, Shutter.
 
 | # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
 |--:|---|---|---|---|--:|---|---|---|
-| 28 | `icC1` | IC1 | ic | seen |  |  | counts=887 | p13 |
-| 29 | `icC2` | IC2 | ic | seen |  |  | counts=244 | p13 |
-| 30 | `slitCus` | Slit 1 (C_Kuz_US) | slit | seen |  | slitCus / 1idc:Kslitus | hsize_mm=0.7, vsize_mm=0.7, hcenter_mm=0.089, vcenter_mm=0.035 | p13, p15 |
-| 31 | `fourC` | fourC | unknown | seen |  | 1idc: |  | p13 |
-| 32 | `icC3` | IC3 | ic | seen |  |  | counts=1094 | p13 |
-| 33 | `lens1C` | L1 | lens | seen | 59.2 | lens1C / 1idc: |  | p13 |
-| 34 | `lens2C` | L2 | lens | seen | 59.3 | lens2C / 1idc: |  | p13 |
-| 35 | `lens3C` | L3 | lens | seen | 59.6 | lens3C / 1idfoc: |  | p13 |
-| 36 | `lens4C` | L4 | lens | seen | 59.7 | lens4C / 1idfoc: |  | p13 |
-| 37 | `lens5C` | L5 (RD) | lens | seen |  |  |  | p13 |
-| 38 | `lens6C` | L6 (RD) | lens | seen |  |  |  | p13 |
-| 39 | `attenC` | AttenC | attenuator | seen |  | attenC / 1idc:m82 |  | p13 |
-| 40 | `slitCds` | Slit 2 (C_Kuz_DS) | slit | seen |  | slitCds / 1idc:Kslitds | hsize_mm=0.8, vsize_mm=0.8, hcenter_mm=0.141, vcenter_mm=-0.233 | p13, p15 |
-| 41 | `icC4` | IC4 | ic | seen |  |  | counts=899 | p13 |
-| 42 | `samC` | LabMotion SMS | sample_stage | seen |  | samC |  | p13 |
-| 43 | `dba` | DBA | unknown | seen |  |  |  | p13 |
-| 44 | `tomoC` | Tomo D1 | detector* | seen |  | tomoC / 1idc: |  | p13 |
-| 45 | `stopC` | Stop | beamstop | seen |  |  |  | p13 |
-| 46 | `shieldC` | Shield | beamstop | seen |  |  |  | p13 |
-| 47 | `d2C` | Varex D2 | detector | seen |  | d2C |  | p13 |
-| 48 | `lens7C` | Lens7 | lens | seen |  |  |  | p13 |
+| 30 | `icC1` | IC1 | ic | seen |  |  | counts=887 | cs03, p13 |
+| 31 | `icC2` | IC2 | ic | seen |  |  | counts=244 | cs03, p13 |
+| 32 | `slitCus` | Slit 1 (C_Kuz_US) | slit | seen |  | slitCus / 1idc:Kslitus | hsize_mm=0.7, vsize_mm=0.7, hcenter_mm=0.089, vcenter_mm=0.035 | cs03, p15, p13 |
+| 33 | `fourC` | fourC | stage | seen |  | 1idc: |  | cs03, cs07, cs08 |
+| 34 | `icC3` | IC3 | ic | seen |  |  | counts=1094 | cs03, p13 |
+| 35 | `lens1C` | L1 | lens | seen | 59.2 | lens1C / 1idc: |  | cs03 |
+| 36 | `lens2C` | L2 | lens | seen | 59.3 | lens2C / 1idc: |  | cs03 |
+| 37 | `lens3C` | L3 | lens | seen | 59.6 | lens3C / 1idfoc: |  | cs03 |
+| 38 | `lens4C` | L4 | lens | seen | 59.7 | lens4C / 1idfoc: |  | cs03 |
+| 39 | `lens5C` | L5 (RD) | lens | seen |  |  |  | cs03 |
+| 40 | `lens6C` | L6 (RD) | lens | seen |  |  |  | cs03 |
+| 41 | `attenC` | AttenC | attenuator | seen |  | attenC / 1idc:m82 |  | cs03 |
+| 42 | `slitCds` | Slit 2 (C_Kuz_DS) | slit | seen |  | slitCds / 1idc:Kslitds | hsize_mm=0.8, vsize_mm=0.8, hcenter_mm=0.141, vcenter_mm=-0.233 | cs03, p15, p13 |
+| 43 | `icC4` | IC4 | ic | seen |  |  | counts=899 | cs03, p13 |
+| 44 | `samC` | LabMotion SMS | sample_stage | seen |  | samC |  | cs03, cs09 |
+| 45 | `dba` | DBA (diffracted beam aperture) | stage | seen |  |  |  | cs03, cs13 |
+| 46 | `tomoC` | Tomo D1 | detector* | seen |  | tomoC / 1idc: |  | cs03 |
+| 47 | `stopC` | Stop | beamstop | seen |  |  |  | cs03 |
+| 48 | `shieldC` | Shield | beamstop | seen |  |  |  | cs03 |
+| 49 | `d2C` | Varex D2 | detector | seen |  | d2C |  | cs03 |
+| 50 | `lens7C` | Lens7 | lens | seen |  |  |  | cs03 |
 
 ## Hutch E
 
 Beam-conditioning (IC1+2, slit US, FS, Lens1-4, slit DS) then Aero SMS sample stage, Tomo D1, NF D2, D3, Hydra D4, VFF D5, Radiograph, SAXS D6
 
-Coverage: panel + hutch photos (sample stack, lens stacks, tomo stage, monitor) + motor panels + code
+Coverage: CS-Studio panel screenshot (cs04) + IOC Control (cs05) + Tomo_E screen (cs14) + hutch photos (sample stack, lens stacks, tomo stage, monitor) + motor panels + code
 
 ```
-beam > - IC1+2 - Slit US - IC3 - FS - Lens1 - Lens2 - Lens3 - Lens4 - Slit DS - IC4 - Aero SMS
-      - [Tomo D1] - [NF D2] - IC5 - D3 - IC6 - Hydra D4 - VFF D5 - Radiograph - IC8 - SAXS D6
-      - (HL-SMS) >
+beam > - IC1+2 - Slit US - IC3 - FS - Lens1 - Lens2 - Lens3 - Lens4 - Slit DS - IC4  |  Aero SMS
+      - [Tomo D1] - [NF D2]  |  IC5 - D3  |  IC6 - Hydra D4  |  VFF D5 - Radiograph - IC8
+      - SAXS D6 - (HL-SMS) >
 ```
+
+Panel groups: **Beam Conditioning System (BCS)**: IC1+2, Slit US (Kohzu_E_up), IC3, FS (E fast shutter), Lens1, Lens2, Lens3, Lens4, Slit DS (Kohzu_E_dn), IC4; **Sample region box: Aero SMS, Tomo D1, NF D2**: Aero SMS (+ Aero_Tr base), Tomo D1, NF D2; **IC5 / D3 box**: IC5, D3; **IC6 / Hydra D4 box**: IC6, Hydra D4; **VFF D5 ... SAXS D6 box**: VFF D5, Radiograph, IC8, SAXS D6
+
+Auxiliary panels (cs04): IOC&PDU, Keyence, SoftGlue, Preamps, Temperature, Tilt-Sensor, Shutter &..., Scaler, Furnace, Keithley, Det Writer, User_Setup (drop-down).
+
+Lasers (cs04): US Laser, Mid Laser, DS Laser, Wall Laser.
 
 | # | id | name | kind | conf | z (m) | device / PV | snapshot (2026-10-20) | photos |
 |--:|---|---|---|---|--:|---|---|---|
-| 49 | `icE12` | IC1+2 | ic | seen |  |  |  | p14 |
-| 50 | `slitEus` | Slit US (Kohzu_E_up) | slit | seen |  | slitEus / 1ide1:Kohzu_E_up | hsize_mm=0.59, vsize_mm=0.54, hcenter_mm=0.142, vcenter_mm=-0.563 | p14, p15 |
-| 51 | `icE3` | IC3 | ic | seen |  |  | counts=1083 | p14 |
-| 52 | `fsE` | FS (E fast shutter) | fast_shutter | seen |  | fsE / 1id:softGlue:AND-2 |  | p14 |
-| 53 | `lens1E` | Lens1 | lens | seen | 67.7 | lens1E / 1ide1: |  | p14, p08 |
-| 54 | `lens2E` | Lens2 | lens | seen | 67.9 | lens2E / 1ide1: |  | p14, p08 |
-| 55 | `lens3E` | Lens3 | lens | seen | 68.1 | lens3E / 1ide1: |  | p14, p07 |
-| 56 | `lens4E` | Lens4 | lens | seen | 68.5 | lens4E / 1ide1: |  | p14, p07 |
-| 57 | `slitEds` | Slit DS (Kohzu_E_dn) | slit | seen |  | slitEds / 1ide1:Kohzu_E_dn | hsize_mm=0.88, vsize_mm=0.7 | p14, p15 |
-| 58 | `icE4` | IC4 | ic | seen |  |  | counts=667 | p14 |
-| 59 | `samE` | Aero SMS (+ Aero_Tr base) | sample_stage | seen | 71.5 | samE |  | p14, p01, p02, p03, p04, p05, p16, p18 |
-| 60 | `tomoE` | Tomo D1 | detector* | seen |  | tomoEus / tomoEds / 1ide1: |  | p14, p04, p05 |
-| 61 | `d2E` | NF D2 | detector | seen |  | d2E / 1ide1: |  | p14 |
-| 62 | `icE5` | IC5 | ic | seen |  |  | counts=430 | p14 |
-| 63 | `d3` | D3 | detector | seen |  |  |  | p14 |
-| 64 | `icE6` | IC6 | ic | seen |  |  | counts=738 | p14 |
-| 65 | `hydra` | Hydra D4 | detector | seen |  | ff / 1ide1: |  | p14 |
-| 66 | `vff` | VFF D5 | detector | seen |  | vff / 1ide1: |  | p14 |
-| 67 | `radiograph` | Radiograph | detector | seen |  |  |  | p14, p09, p10 |
-| 68 | `icE8` | IC8 | ic | seen |  |  | counts=6566 | p14 |
-| 69 | `saxs` | SAXS D6 | detector | seen |  | saxs / saxs_pin / 1ide1: |  | p14, p17 |
-| 70 | `hl_sms` | HL-SMS | sample_stage | seen |  |  |  | p14 |
+| 51 | `icE12` | IC1+2 | ic | seen |  |  |  | cs04 |
+| 52 | `slitEus` | Slit US (Kohzu_E_up) | slit | seen |  | slitEus / 1ide1:Kohzu_E_up | hsize_mm=0.59, vsize_mm=0.54, hcenter_mm=0.142, vcenter_mm=-0.563 | cs04, p15, p14 |
+| 53 | `icE3` | IC3 | ic | seen |  |  | counts=1083 | cs04, p14 |
+| 54 | `fsE` | FS (E fast shutter) | fast_shutter | seen |  | fsE / 1id:softGlue:AND-2 |  | cs04 |
+| 55 | `lens1E` | Lens1 | lens | seen | 67.7 | lens1E / 1ide1: |  | cs04, p08 |
+| 56 | `lens2E` | Lens2 | lens | seen | 67.9 | lens2E / 1ide1: |  | cs04, p08 |
+| 57 | `lens3E` | Lens3 | lens | seen | 68.1 | lens3E / 1ide1: |  | cs04, p07 |
+| 58 | `lens4E` | Lens4 | lens | seen | 68.5 | lens4E / 1ide1: |  | cs04, p07 |
+| 59 | `slitEds` | Slit DS (Kohzu_E_dn) | slit | seen |  | slitEds / 1ide1:Kohzu_E_dn | hsize_mm=0.88, vsize_mm=0.7 | cs04, p15, p14 |
+| 60 | `icE4` | IC4 | ic | seen |  |  | counts=667 | cs04, p14 |
+| 61 | `samE` | Aero SMS (+ Aero_Tr base) | sample_stage | seen | 71.5 | samE |  | cs04, p01, p02, p03, p04, p05, p16, p18 |
+| 62 | `tomoE` | Tomo D1 | detector* | seen |  | tomoEus / tomoEds / 1ide1: |  | cs04, p04, p05, cs14, cs05 |
+| 63 | `d2E` | NF D2 | detector | seen |  | d2E / 1ide1: |  | cs04 |
+| 64 | `icE5` | IC5 | ic | seen |  |  | counts=430 | cs04, p14 |
+| 65 | `d3` | D3 | detector | seen |  |  |  | cs04 |
+| 66 | `icE6` | IC6 | ic | seen |  |  | counts=738 | cs04, p14 |
+| 67 | `hydra` | Hydra D4 | detector | seen |  | ff / 1ide1: |  | cs04 |
+| 68 | `vff` | VFF D5 | detector | seen |  | vff / 1ide1: |  | cs04 |
+| 69 | `radiograph` | Radiograph | detector | seen |  |  |  | cs04, p09, p10 |
+| 70 | `icE8` | IC8 | ic | seen |  |  | counts=6566 | cs04, p14 |
+| 71 | `saxs` | SAXS D6 | detector | seen |  | saxs / saxs_pin / 1ide1: |  | cs04, p17, p14 |
+| 72 | `hl_sms` | HL-SMS | sample_stage | seen |  |  |  | cs04 |
 
-`*` = tomo detector. Distances (z, m from the source): 12 of 70 elements known.
+`*` = tomo detector. Distances (z, m from the source): 12 of 72 elements known.
 
 ## Known distances (m from the source)
 
@@ -181,15 +196,46 @@ beam > - IC1+2 - Slit US - IC3 - FS - Lens1 - Lens2 - Lens3 - Lens4 - Slit DS - 
 | id | hutch | name | tomo | placement | conf | notes |
 |---|---|---|---|---|---|---|
 | `tomoB` | B | B-TOM | yes | in_line | seen | B-hutch tomo detector translation stage. The profile camera 'retiga2' (hutch B, PV prefix not recorded) is presumably the camera on it (unco |
-| `tomoC` | C | Tomo D1 | yes | in_line | seen | Green bar on the panel (probably in-beam indicator). Profile camera pg5 (1idSP5:, hutch C) is presumably the camera on it (unconfirmed). |
-| `d2C` | C | Varex D2 |  | in_line | seen | Green bar on the panel (probably in-beam indicator). Varex detector PV not found in mpe_bluesky. |
-| `tomoE` | E | Tomo D1 | yes | retractable | seen | On the panel Tomo D1 is drawn above the beam line and NF D2 below it (both beside the Aero SMS), so they look like alternative detectors mov |
+| `tomoC` | C | Tomo D1 | yes | in_line | seen | Green bar on the panel (probably in-beam indicator). Profile camera pg5 (1idSP5:, hutch C) is presumably the camera on it (unconfirmed). Pan |
+| `d2C` | C | Varex D2 |  | in_line | seen | Green bar on the panel (probably in-beam indicator). Varex detector PV not found in mpe_bluesky. Green bar on the beam line after Shield; th |
+| `tomoE` | E | Tomo D1 | yes | retractable | seen | Tomo D1 in E. CONFIRMED by the user: the gh1 camera (IOC 1idGH1:) is on Tomo D1. 'Tomo_E' screen (cs14: E-Tomo Y, Rz, X, Z; axes +Y up, +Z b |
 | `d2E` | E | NF D2 |  | retractable | seen | Near-field detector. Retractable placement inferred from the panel layout (see tomoE). |
-| `d3` | E | D3 |  | in_line | seen | No code device found. |
-| `hydra` | E | Hydra D4 |  | in_line | seen | Far-field detector (Hydra); CAM-9 tag below it on the panel. |
-| `vff` | E | VFF D5 |  | in_line | seen |  |
+| `d3` | E | D3 |  | in_line | seen | Shared position: ONE of GE5, Pilatus 2M or Eiger16M is mounted at D3 at any time (user 2026-11-12). Which one is installed varies by experim |
+| `hydra` | E | Hydra D4 |  | in_line | seen | Hydra D4 is the far-field detector made of GE1, GE2, GE3 and GE4 (four panels that move together; user 2026-11-12). CAM-9 tag below it on th |
+| `vff` | E | VFF D5 |  | in_line | seen | pg1 may be the camera of VFF D5 or of the Radiograph (user, unconfirmed). |
 | `radiograph` | E | Radiograph |  | in_line | seen | Radiograph detector on tall aluminium columns (label 'Rad Grph' in p09). A monitor in hutch E shows its live image (p09, p10): a conical pin |
-| `saxs` | E | SAXS D6 |  | in_line | seen |  |
+| `saxs` | E | SAXS D6 |  | in_line | seen | cs05 lists 'SAXS (s1_pixirad2:)' under Detector(E): the SAXS D6 detector is a Pixirad (IOC s1_pixirad2:). |
+
+## Detector IOCs (operator panel 'IOC Control', cs05)
+
+'1-ID IOC Control' tab Detector(E) (cs05) and Detector(B/C) (cs10). Assignments marked 'user' were given by the user 2026-11-12; cs05 itself only lists the IOCs. Rule (user 2026-11-13): where an assignment is in doubt it is left open ('element': null, candidates listed), never guessed.
+
+| label | IOC prefix | camera | twin element | note |
+|---|---|---|---|---|
+| Tomo | `1idGH1:` | gh1 | tomoE | Tomo D1 (user) |
+| Tomo | `1idPG1:` | pg1 | (one of: radiograph) | Radiograph is suspected (user inference 2026-11-13, not confirmed); left unassigned |
+| SAXS | `s1_pixirad2:` | pixirad2 | saxs |  |
+| Pilatus 2M | `1idPil:` | pilatus2m | d3 | mounted at D3, one at a time (user) |
+| GE1 | `GE1:` | ge1 | hydra | Hydra D4 = GE1-GE4 (user) |
+| GE2 | `GE2:` | ge2 | hydra | Hydra D4 = GE1-GE4 (user) |
+| GE3 | `GE3:` | ge3 | hydra | Hydra D4 = GE1-GE4 (user) |
+| GE4 | `GE4:` | ge4 | hydra | Hydra D4 = GE1-GE4 (user) |
+| GE5 | `GE5:` | ge5 | d3 | mounted at D3, one at a time (user) |
+| Eiger16M | `1idEig16M:` | eiger16m | d3 | mounted at D3, one at a time (user) |
+| Tomo | `1idSP5:` | pg5 | (one of: tomoC) | hutch C camera (tab Detector(B/C)); element not confirmed, left unassigned |
+| s1_Varex | `1idVarex1:` | varex | d2C | tab Detector(B/C); IOC name from cs09 |
+| Tomo_in_B | (not legible) | retiga2 | (one of: tomoB) | tab Detector(B/C), label 'Tomo_in_B'; PV prefix illegible; element not confirmed, left unassigned |
+
+## Other IOC Control tabs
+
+All tabs of '1-ID IOC Control' (last update 2024-09-25), rows with RUN/STOP/Status/Display. Support systems, not beam elements.
+
+- **Detector(B/C)**: Tomo (1idSP5:), s1_Varex, Tomo_in_B
+- **VME Crate**: 1id-A (1ida), 1id-B (1idb), 1id-C (1idc:), 1id-E (1ide), 1id-E1 (1ide1:), LabMotion
+- **Misc.**: Cryo Pump, PDU (1idpdu1:), HEM_Z2, AMCI_C, 1idSoft (1idSoft:), 1ID-C Zynq-1, 1ID-C Zynq-2, 1ID-E Zynq-GE, PI518 (HRM)
+- **not_captured**: Qserver
+
+VME crates = the motor IOC prefixes 1ida, 1idb, 1idc, 1ide, 1ide1 (these are what the overview buttons 1ide / 1ide1 open); HEM_Z2 and PI518 (HRM) are the HEM and HRM support IOCs.
 
 ## Assembly `samE` - Hutch E sample stage (Aero SMS) with its Aero translation base
 
@@ -229,3 +275,17 @@ Listed TOP to BOTTOM, which is also the order of the green buttons on the Aero_S
 | p16 | E | screen | CS-Studio Aero_SMS panel: samE axes, limits, readbacks, velocities; axes drawing (+Y up, +Z beam, +X into screen) |
 | p17 | E | screen | CS-Studio SAXS_D6 panel: m51 PinX, m54 PinY, m66 Pb, m52 DetX, m53 DetY |
 | p18 | E | screen | CS-Studio Aero_Trans panel: Aero X m101, Aero Z m102 (in E) |
+| cs01 | all | screen | CS-Studio 1-ID-Main overview schematic (screenshot 2026-11-12): hutch A = Filter (yellow), WB Slits (green), HE button with two blue crystal bars (whi |
+| cs02 | B | screen | CS-Studio 1-ID-B Beamline Control (screenshot 2026-11-12, PVs disconnected/magenta; complete (user: nothing follows the magenta circle)): full element |
+| cs03 | C | screen | CS-Studio 1-ID-C Beamline Control (screenshot, 'Last update 11-12-2026'): IC1,IC2,Slit 1 | fourC (circle) | BCS: IC3, L1-L6 (L5/L6 greyed RD, green ma |
+| cs04 | E | screen | CS-Studio 1-ID-E Beamline Control (screenshot, 'Last update 11-12-2026'): BCS (IC1+2, Slit US, IC3, FS, Lens1-4, Slit DS, IC4), Aero SMS/Aero_Tr/Tomo  |
+| cs05 | E | screen | CS-Studio '1-ID IOC Control', tab Detector(E) (last update 2024-09-25): IOC rows with RUN/STOP/Status/Display: Tomo (1idGH1:), Tomo (1idPG1:), SAXS (s |
+| cs06 | A | screen | Composite of CS-Studio screens: 1id:userTran3 transform record (16 rows, DISABLED), W_Beam white-beam slit panel ('Looking upstream'), ID Gap Control  |
+| cs07 | C | screen | C-hutch fourC TABLE motor panels (user-labelled): 1idc:m76 and 1idcAMCI:m5, m6, m2, m3, m4 (no axis names on screen; PVs disconnected) |
+| cs08 | C | screen | C-hutch fourC CIRCLE motor panels (user-labelled): 1idc:m40, m74, m75, m85, m86 |
+| cs09 | C | screen | CS-Studio LabMotion_SMS screen: axes (+Y up, +Z beam, +X into screen); buttons Rx, Rz, samX, samZ, samY, Labmotion, LabMotion_TransX; motor panels 1id |
+| cs10 | all | screen | 1-ID IOC Control tab Detector(B/C): Tomo (1idSP5:), s1_Varex, Tomo_in_B |
+| cs11 | all | screen | 1-ID IOC Control tab VME Crate: 1id-A (1ida), 1id-B (1idb), 1id-C (1idc:), 1id-E (1ide), 1id-E1 (1ide1:), LabMotion |
+| cs12 | all | screen | 1-ID IOC Control tab Misc.: Cryo Pump, PDU (1idpdu1:), HEM_Z2, AMCI_C, 1idSoft (1idSoft:), 1ID-C Zynq-1, Zynq-2, 1ID-E Zynq-GE, PI518 (HRM) |
+| cs13 | C | screen | DBA (diffracted beam aperture, inverted hexapod) control screen: motor 1idc:m83 and hexapod axes 1mini2:hxp:c0:m1..m6 |
+| cs14 | E | screen | CS-Studio Tomo_E screen (Tomo D1 with the gh1 camera): E-Tomo Y, Rz, X, Z = 1ide1:m40, m38, m63, m62; axes +Y up, +Z beam, +X into screen; '1idGH1: IO |
