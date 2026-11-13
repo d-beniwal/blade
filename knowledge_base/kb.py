@@ -10,6 +10,7 @@ Needs the `blade` conda env (Pillow, numpy). Data root (git-ignored / outside th
     kb.py sheet [--class tomo_view] [--unlabelled] [--doc ID] [--start 0] [-n 30]   # contact sheet JPEG for visual review
     kb.py label <sha-prefix>... key=value ... [--source vision|human] [--conf 0.9] [--note TEXT]
     kb.py labelfile FILE.tsv [--source vision]   # bulk: sha<TAB>key<TAB>value[<TAB>conf[<TAB>note]] per line
+    kb.py addimage FILE... key=value ... [--note TEXT]   # standalone reference image (no log citation), human labels
     kb.py near <sha-prefix> [--max-dist 8]       # near-duplicate images (dhash Hamming distance)
     kb.py export --out FILE.jsonl [--class ...]  # one JSON object per image (labels + citations) for training / other tools
 
@@ -89,7 +90,7 @@ def props(data):
 CAMERA = re.compile(r"\b(pg1|pg5|gh1|pg-?[0-9]|retiga2?|lambda|eiger|pilatus|dexela|ge[1-5]?)\b", re.I)
 HUTCH = re.compile(r"\b([ABCE])[\s-]?hutch\b|\b1-?ID-?([ABCE])\b|\bhutch\s*([ABCE])\b", re.I)
 SUBJECT = [                                                                       # first match wins; ordered most specific first
-    ("pin", re.compile(r"\bpin\b|alignment pin|rotation axis", re.I)),
+    ("pin", re.compile(r"(?<!diode )\b(alignment pin|w pin|tungsten pin|needle|pin)\b(?! diode)", re.I)),   # "pin diode" is a detector, not the alignment pin
     ("dark", re.compile(r"\bdark(s| field| frame)?\b", re.I)),
     ("flat_or_beam_only", re.compile(r"\bflat|white[- ]?field|open beam|no sample|hotspot|beam (position|shape|profile|on)|optical axis|direct beam", re.I)),
     ("radiograph", re.compile(r"radiograph|projection|tomo(graphy)?\b|\bnf\b|sample (in|on)", re.I)),
@@ -126,7 +127,7 @@ def rule_labels(p, ctx):
     m = HUTCH.search(text)
     if m:
         out.append(("hutch", next(g for g in m.groups() if g).upper(), 0.5, "named in nearby text"))
-    for name, rx in SUBJECT:
+    for name, rx in SUBJECT if cls == "tomo_view" else ():          # text keywords describe the SESSION, not the image: only trust them as a hint on detector frames
         if rx.search(text):
             out.append(("subject", name, 0.3, "keyword in nearby text"))
             break
@@ -286,7 +287,7 @@ def cmd_sheet(a):
     rows = con.execute(q + " ORDER BY cite LIMIT ? OFFSET ?", args + [a.n, a.start]).fetchall()
     if not rows:
         sys.exit("no images")
-    T, cols = a.thumb, 6
+    T, cols = a.thumb, a.cols
     rws = math.ceil(len(rows) / cols)
     sheet = Image.new("RGB", (cols * T, rws * (T + 34)), (30, 30, 30))
     d = ImageDraw.Draw(sheet)
@@ -330,6 +331,30 @@ def cmd_label(a):
             add_label(con, sha, k, v, a.source, a.conf, a.note)
     con.commit()
     print(f"labelled {len(shas)} image(s) with {kv}")
+
+
+def cmd_addimage(a):
+    """Register standalone reference images (no log citation), e.g. CS-Studio screenshots, with human labels: addimage FILE... key=value ..."""
+    con = connect()
+    kv = [x.split("=", 1) for x in a.items if "=" in x]
+    known = {r[0] for r in con.execute("SELECT sha256 FROM images")}
+    for f in (Path(x) for x in a.items if "=" not in x):
+        data = f.read_bytes()
+        sha = hashlib.sha256(data).hexdigest()
+        if sha not in known:
+            ext = f.suffix.lower().lstrip(".") or "bin"
+            rel = f"images/{sha[:2]}/{sha}.{ext}"
+            (KB_ROOT / rel).parent.mkdir(parents=True, exist_ok=True)
+            (KB_ROOT / rel).write_bytes(data)
+            p = props(data)
+            con.execute("INSERT INTO images VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        (sha, ext, len(data), p["width"], p["height"], p["mode"], p["n_colors"], p["sat"], p["mean"], p["std"],
+                         p["p1"], p["p99"], p["entropy"], p["dhash"], rel))
+        add_label(con, sha, "origin", "reference:" + f.name, "human", 1.0, a.note)
+        for k, v in kv:
+            add_label(con, sha, k, v, "human", 1.0, a.note)
+        print(f"{sha[:12]}  {f.name}  {'(already present)' if sha in known else 'added'}")
+    con.commit()
 
 
 def cmd_labelfile(a):
@@ -379,9 +404,10 @@ def main(argv=None):
     s = sp.add_parser("show"); s.add_argument("sha"); s.set_defaults(f=cmd_show)
     s = sp.add_parser("sheet"); s.add_argument("--class", dest="cls"); s.add_argument("--unlabelled", action="store_true")
     s.add_argument("--doc"); s.add_argument("--ids"); s.add_argument("--start", type=int, default=0); s.add_argument("-n", type=int, default=30)
-    s.add_argument("--thumb", type=int, default=220); s.set_defaults(f=cmd_sheet)
+    s.add_argument("--thumb", type=int, default=220); s.add_argument("--cols", type=int, default=6); s.set_defaults(f=cmd_sheet)
     s = sp.add_parser("label"); s.add_argument("items", nargs="+"); s.add_argument("--source", default="vision", choices=["vision", "human", "rule"])
     s.add_argument("--conf", type=float, default=0.8); s.add_argument("--note"); s.set_defaults(f=cmd_label)
+    s = sp.add_parser("addimage"); s.add_argument("items", nargs="+"); s.add_argument("--note"); s.set_defaults(f=cmd_addimage)
     s = sp.add_parser("labelfile"); s.add_argument("file"); s.add_argument("--source", default="vision", choices=["vision", "human", "rule"])
     s.add_argument("--conf", type=float, default=0.8); s.set_defaults(f=cmd_labelfile)
     s = sp.add_parser("near"); s.add_argument("sha"); s.add_argument("--max-dist", type=int, default=8); s.set_defaults(f=cmd_near)

@@ -26,12 +26,15 @@ kb_1ID/
 |---|---|---|
 | `class` | `tomo_view` (detector frame, raw or inside a viewer window), `panel_screenshot` (EPICS/MEDM: motors, slits, scalers, calc records), `plot_or_text` (plots, terminal, tables), `photo` (lab/hutch photo), `screenshot` (other), `icon`, `unknown`, `unreadable` | what kind of image |
 | `subject` | for `tomo_view`: `beam_only` (no sample, no pin), `pin`, `radiograph` (sample), `dark`, `flat`, `scintillator_focus`, `hotspot_check`, `other`; for panels: `motors`, `slits`, `scalers`, `energy_calc`, ...; for photos: `setup`, `sample_mount`, ... | what it shows |
+| `pin_visible` | `yes`/`no` (tomo_view only) | the alignment pin/needle silhouette is actually in the frame; `subject=pin` requires `yes` |
 | `camera` | `pg1`, `pg5`, `gh1`, `retiga2`, `pilatus`, `eiger`, `ge1-5`, `dexela`, `lambda` | detector (rule: named in nearby text) |
 | `hutch` | `A` `B` `C` `E` | station |
 | any other | e.g. `energy_keV`, `sample`, `slit_state` | free-form facts about the image |
 
 Rule labels are deliberately cheap and low-confidence (0.2-0.6); `subject` from rules is only a text-keyword hint (0.3). A rule `class` was spot-checked
 2026-11-12: `tomo_view` precision looked high on 2 sample sheets (36 images each, from 2024 and 2025 logs); `subject` needs the vision pass.
+
+**Re-verification 2026-11-13 (accuracy pass).** Problems found: (1) rule `subject` keywords (text near the image, e.g. "pin diode", "rotation axis") leaked onto photos/panels/plots (38 fake `pin`, ~1,200 wrong subjects) - rule subjects are now emitted only for `tomo_view`, "pin diode" no longer matches, and the stale rows were deleted; (2) the first vision pass used 36-image thumbnails and missed pins. Fix: 1,386 candidates (all `tomo_view` + grayscale plot/screenshot/unknown images) re-read at 12 per sheet (`kb.py sheet --cols 4 --thumb 440`), each with `true_class`, `subject`, `pin_visible`, confidence. Result: 15 `tomo_view` -> non-tomo, 8 non-tomo -> `tomo_view`, pins 26 -> 39 (all 26 old confirmed, 13 added, 3 added by agents rejected/downgraded after review). Residual uncertainty: `beam_only` vs `radiograph` for mottled fields and sample-edge frames (conf 0.5-0.6), a few hooked-wire pins (conf 0.5); filter on `confidence`. Beam-profile plots with a tiny beam thumbnail stay `plot_or_text`. Backup of the pre-change DB: `kb.sqlite.bak-2026-11-13`.
 
 ## Roadmap (what makes this a knowledge base, not just an image store)
 
@@ -42,6 +45,8 @@ Rule labels are deliberately cheap and low-confidence (0.2-0.6); `subject` from 
   so `sim.json` ASSUMED values can be replaced by logged evidence and rendered frames compared with real `beam_only`/`pin` views.
 - **Experiments table**: one row per log (user, dates, technique, sample class, energy, detectors) for filtering.
 - Embeddings (image + caption) can be added as extra columns/tables without changing the rest; `export` already gives per-image records.
+
+`kb.py addimage FILE... key=value ... --note TEXT` registers a standalone reference image (no log citation, human labels), e.g. the CS-Studio screenshots cs01-cs06 of 2026-11-12 (class `panel_screenshot`, label `origin=reference:<file>`; same files are the twin's `sources/photos/cs0*.png`).
 
 ## Quick use
 
