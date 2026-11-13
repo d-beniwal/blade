@@ -1,0 +1,2653 @@
+{
+ "schema": 1,
+ "beamline": "1-ID",
+ "source": "cs_registry.json + CS-Studio device panels (see tools/pvmap.py)",
+ "templates": {
+  "motor": {
+   "source": "motors/motorx.bob",
+   "fields": [
+    {
+     "field": ".DESC",
+     "what": "description",
+     "access": "read"
+    },
+    {
+     "field": ".DMOV",
+     "what": "done moving",
+     "access": "read"
+    },
+    {
+     "field": ".HLM",
+     "what": "high limit",
+     "access": "read"
+    },
+    {
+     "field": ".HLS",
+     "what": "high limit switch",
+     "access": "read"
+    },
+    {
+     "field": ".LLM",
+     "what": "low limit",
+     "access": "read"
+    },
+    {
+     "field": ".LLS",
+     "what": "low limit switch",
+     "access": "read"
+    },
+    {
+     "field": ".LVIO",
+     "what": "soft-limit violation",
+     "access": "read"
+    },
+    {
+     "field": ".RBV",
+     "what": "readback",
+     "access": "read"
+    },
+    {
+     "field": ".SET",
+     "what": "set/use mode",
+     "access": "write"
+    },
+    {
+     "field": ".STAT",
+     "what": "alarm status",
+     "access": "read"
+    },
+    {
+     "field": ".STOP",
+     "what": "stop",
+     "access": "write"
+    },
+    {
+     "field": ".SYNC",
+     "what": "sync setpoint to readback",
+     "access": "write"
+    },
+    {
+     "field": ".TWF",
+     "what": "tweak forward",
+     "access": "write"
+    },
+    {
+     "field": ".TWR",
+     "what": "tweak reverse",
+     "access": "write"
+    },
+    {
+     "field": ".TWV",
+     "what": "tweak step",
+     "access": "write"
+    },
+    {
+     "field": ".VAL",
+     "what": "setpoint",
+     "access": "write"
+    },
+    {
+     "field": ".VELO",
+     "what": "velocity",
+     "access": "read"
+    },
+    {
+     "field": "_able.VAL",
+     "what": "enable/disable",
+     "access": "write"
+    },
+    {
+     "field": "_twCh.A",
+     "what": "",
+     "access": "write"
+    }
+   ]
+  },
+  "preamp": {
+   "source": "ip/SR570.bob",
+   "fields": [
+    {
+     "field": "bias_on.VAL",
+     "what": "bias on",
+     "access": "write"
+    },
+    {
+     "field": "bias_put.VAL",
+     "what": "bias voltage",
+     "access": "write"
+    },
+    {
+     "field": "blank_on.VAL",
+     "what": "blank input",
+     "access": "write"
+    },
+    {
+     "field": "filter_reset.PROC",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "filter_type.VAL",
+     "what": "filter type",
+     "access": "write"
+    },
+    {
+     "field": "gain_mode.VAL",
+     "what": "gain mode",
+     "access": "write"
+    },
+    {
+     "field": "high_freq.VAL",
+     "what": "filter high freq",
+     "access": "write"
+    },
+    {
+     "field": "init.DESC",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "init.PROC",
+     "what": "initialise preamp",
+     "access": "write"
+    },
+    {
+     "field": "invert_on.VAL",
+     "what": "invert input",
+     "access": "write"
+    },
+    {
+     "field": "low_freq.VAL",
+     "what": "low-pass/high-pass low freq",
+     "access": "write"
+    },
+    {
+     "field": "offset_num.VAL",
+     "what": "input offset number",
+     "access": "write"
+    },
+    {
+     "field": "offset_on.VAL",
+     "what": "input offset on",
+     "access": "write"
+    },
+    {
+     "field": "offset_sign.VAL",
+     "what": "input offset sign",
+     "access": "write"
+    },
+    {
+     "field": "offset_unit.VAL",
+     "what": "input offset unit",
+     "access": "write"
+    },
+    {
+     "field": "reset.PROC",
+     "what": "reset preamp",
+     "access": "write"
+    },
+    {
+     "field": "sens_num.VAL",
+     "what": "sensitivity number",
+     "access": "write"
+    },
+    {
+     "field": "sens_unit.VAL",
+     "what": "sensitivity unit",
+     "access": "write"
+    }
+   ]
+  },
+  "scaler": {
+   "source": "scaler/scaler32_full_calc.bob",
+   "fields": [
+    {
+     "field": ".CNT",
+     "what": "start/stop counting",
+     "access": "write"
+    },
+    {
+     "field": ".T",
+     "what": "elapsed time (s)",
+     "access": "read"
+    },
+    {
+     "field": ".TP",
+     "what": "count time (s)",
+     "access": "write"
+    }
+   ]
+  },
+  "slit_axis": {
+   "source": "optics/4slitGraphic.bob",
+   "fields": [
+    {
+     "field": "center.VAL",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "size.VAL",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "sync.PROC",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "xn.VAL",
+     "what": "",
+     "access": "write"
+    },
+    {
+     "field": "xp.VAL",
+     "what": "",
+     "access": "write"
+    }
+   ]
+  }
+ },
+ "elements": {
+  "icB1": {
+   "label": "IC1",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC1-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S3",
+      "what": "counts, scaler channel 3",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 3
+     },
+     "preamp": {
+      "record": "1id:A1"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "alCRL": {
+   "label": "Al CRL",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor4x.bob)",
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m20",
+       "name": null
+      },
+      {
+       "pv": "1idb:m21",
+       "name": null
+      },
+      {
+       "pv": "1idb:m23",
+       "name": null
+      },
+      {
+       "pv": "1idb:m31",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB2": {
+   "label": "IC2",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC2-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S4",
+      "what": "counts, scaler channel 4",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 4
+     },
+     "preamp": {
+      "record": "1id:A2"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "crlB": {
+   "label": "CRL",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor4x.bob)",
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m24",
+       "name": null
+      },
+      {
+       "pv": "1idb:m25",
+       "name": null
+      },
+      {
+       "pv": "1idb:m26",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB3": {
+   "label": "IC3",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC3-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S5",
+      "what": "counts, scaler channel 5",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 5
+     },
+     "preamp": {
+      "record": "1id:A3"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "hrmC1": {
+   "label": "HRM",
+   "groups": [
+    {
+     "type": "panel",
+     "title": "Panel hrSeqCtl_All.bob",
+     "panel": "hrSeqCtl_All.bob",
+     "P": "1ida:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "hrmC2": {
+   "label": "HRM",
+   "groups": [
+    {
+     "type": "panel",
+     "title": "Panel hrSeqCtl_All.bob",
+     "panel": "hrSeqCtl_All.bob",
+     "P": "1ida:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icB4": {
+   "label": "IC4",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC4-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S6",
+      "what": "counts, scaler channel 6",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 6
+     },
+     "preamp": {
+      "record": "1id:A4"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icB5": {
+   "label": "IC5",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC5-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S7",
+      "what": "counts, scaler channel 7",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 7
+     },
+     "preamp": {
+      "record": "1id:A5"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "foilB": {
+   "label": "Foil",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Foil_wheel_in_B)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idb:m18",
+       "name": "Foil_wheel_in_B"
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_atten_wheel.bob",
+     "panel": "1id_all_atten_wheel.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "attenB": {
+   "label": "Atten",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Atten_wheel_in_B)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idb:m50",
+       "name": "Atten_wheel_in_B"
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_atten_wheel.bob",
+     "panel": "1id_all_atten_wheel.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icB8": {
+   "label": "IC8",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC8-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S8",
+      "what": "counts, scaler channel 8",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 8
+     },
+     "preamp": {
+      "record": "1id:A8"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "stackB1": {
+   "label": "Stack1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor2x.bob)",
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m43",
+       "name": null
+      },
+      {
+       "pv": "1idb:m45",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "stackB2": {
+   "label": "Stack1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor2x.bob)",
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m25",
+       "name": null
+      },
+      {
+       "pv": "1idb:m64",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "fsB": {
+   "label": "B-FS",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (FS_in_B)",
+     "panel": "motor2x_more_stack.bob",
+     "motors": [
+      {
+       "pv": "1idb:m27",
+       "name": "FS_X"
+      },
+      {
+       "pv": "1idb:m28",
+       "name": "FS_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "cork": {
+   "label": "Cork",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (B_Cork_X)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idb:m41",
+       "name": "B_Cork_X"
+      }
+     ]
+    }
+   ]
+  },
+  "slitB": {
+   "label": "KOHZU B",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (DS_Kohzu)",
+     "panel": "4slitGraphic.bob",
+     "name": "Slit",
+     "axes": {
+      "horizontal": {
+       "record": "1idb:SlitH"
+      },
+      "vertical": {
+       "record": "1idb:SlitV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "slit",
+     "title": "Slit software axes (DS_Kohzu)",
+     "panel": "4slitGraphic_lkds.bob",
+     "name": "Slit",
+     "axes": {
+      "horizontal": {
+       "record": "1idb:SlitH"
+      },
+      "vertical": {
+       "record": "1idb:SlitV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (test_slits.bob)",
+     "panel": "test_slits.bob",
+     "motors": [
+      {
+       "pv": "1idb:m32",
+       "name": null
+      },
+      {
+       "pv": "1idb:m58",
+       "name": null
+      },
+      {
+       "pv": "1idb:m60",
+       "name": null
+      },
+      {
+       "pv": "1idb:m61",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_slits.bob",
+     "panel": "1id_all_slits.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icB6": {
+   "label": "IC6",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC6-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S9",
+      "what": "counts, scaler channel 9",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 9
+     },
+     "preamp": {
+      "record": "1id:A6"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "tomoB": {
+   "label": "B-TOMO",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor2x.bob)",
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m40",
+       "name": null
+      },
+      {
+       "pv": "1idb:m52",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl3": {
+   "label": "BL3",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (B_L3(Lengeler 2D))",
+     "panel": "motor5x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m44",
+       "name": null
+      },
+      {
+       "pv": "1idb:m49",
+       "name": null
+      },
+      {
+       "pv": "1idb:m53",
+       "name": null
+      },
+      {
+       "pv": "1idb:m54",
+       "name": null
+      },
+      {
+       "pv": "1idb:m56",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl4": {
+   "label": "BL4",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor6x.bob)",
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m19",
+       "name": null
+      },
+      {
+       "pv": "1idb:m20",
+       "name": null
+      },
+      {
+       "pv": "1idb:m21",
+       "name": null
+      },
+      {
+       "pv": "1idb:m22",
+       "name": null
+      },
+      {
+       "pv": "1idb:m23",
+       "name": null
+      },
+      {
+       "pv": "1idb:m24",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "bl5": {
+   "label": "BL5",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motor6x.bob)",
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idb:m26",
+       "name": null
+      },
+      {
+       "pv": "1idb:m29",
+       "name": null
+      },
+      {
+       "pv": "1idb:m45",
+       "name": null
+      },
+      {
+       "pv": "1idb:m46",
+       "name": null
+      },
+      {
+       "pv": "1idb:m47",
+       "name": null
+      },
+      {
+       "pv": "1idb:m48",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icB7": {
+   "label": "IC7",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC7-B PreAmp)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S10",
+      "what": "counts, scaler channel 10",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 10
+     },
+     "preamp": {
+      "record": "1id:A7"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1id:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icC1": {
+   "label": "IC1",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC1-C_tiny)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S12",
+      "what": "counts, scaler channel 12",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 12
+     },
+     "preamp": {
+      "record": "1idc:A1"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icC2": {
+   "label": "IC2",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC2-C)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S13",
+      "what": "counts, scaler channel 13",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 13
+     },
+     "preamp": {
+      "record": "1idc:A2"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "slitCus": {
+   "label": "Slit 1",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kslitus)",
+     "panel": "4slitGraphic.bob",
+     "name": "Kslitus",
+     "axes": {
+      "horizontal": {
+       "record": "1idc:KslitusH"
+      },
+      "vertical": {
+       "record": "1idc:KslitusV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (Kslitus(C-hutch))",
+     "panel": "test_slits.bob",
+     "motors": [
+      {
+       "pv": "1idc:m39",
+       "name": null
+      },
+      {
+       "pv": "1idc:m61",
+       "name": null
+      },
+      {
+       "pv": "1idc:m62",
+       "name": null
+      },
+      {
+       "pv": "1idc:m64",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kslitus(C-hutch))",
+     "panel": "test_slits.bob",
+     "name": "Kslitus",
+     "axes": {},
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (motor2x.bob)",
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idc:m59",
+       "name": null
+      },
+      {
+       "pv": "1idc:m60",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 4slitGraphic_x2_lkds.bob",
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_slits.bob",
+     "panel": "1id_all_slits.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "fourC": {
+   "label": "fourc",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (fourc table)",
+     "panel": "motorx2x3x.bob",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m2",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m3",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m4",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m5",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m6",
+       "name": null
+      },
+      {
+       "pv": "1idc:m76",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "motors",
+     "title": "Motors (four circle)",
+     "panel": "motor5x.bob",
+     "motors": [
+      {
+       "pv": "1idc:m40",
+       "name": null
+      },
+      {
+       "pv": "1idc:m74",
+       "name": null
+      },
+      {
+       "pv": "1idc:m75",
+       "name": null
+      },
+      {
+       "pv": "1idc:m85",
+       "name": null
+      },
+      {
+       "pv": "1idc:m86",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icC3": {
+   "label": "IC3",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC3-C)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S14",
+      "what": "counts, scaler channel 14",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 14
+     },
+     "preamp": {
+      "record": "1idc:A3"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "lens1C": {
+   "label": "L1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L1)",
+     "panel": "motor6x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1idc:m99",
+       "name": "X"
+      },
+      {
+       "pv": "1idc:m100",
+       "name": "Y"
+      },
+      {
+       "pv": "1idc:m101",
+       "name": "Z"
+      },
+      {
+       "pv": "1idc:m102",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1idc:m103",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1idc:m104",
+       "name": "Rx (Theta)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens2C": {
+   "label": "L2",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L2)",
+     "panel": "motor6x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1idc:m65",
+       "name": "X"
+      },
+      {
+       "pv": "1idc:m66",
+       "name": "Y"
+      },
+      {
+       "pv": "1idc:m67",
+       "name": "Z"
+      },
+      {
+       "pv": "1idc:m68",
+       "name": "Rx (Theta)"
+      },
+      {
+       "pv": "1idc:m69",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1idc:m70",
+       "name": "Rz (Chi)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens3C": {
+   "label": "L3",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L3)",
+     "panel": "motor6x_H_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1idfoc:m1",
+       "name": "X"
+      },
+      {
+       "pv": "1idfoc:m2",
+       "name": "Y"
+      },
+      {
+       "pv": "1idfoc:m3",
+       "name": "Z"
+      },
+      {
+       "pv": "1idfoc:m4",
+       "name": "Rx"
+      },
+      {
+       "pv": "1idfoc:m5",
+       "name": "Phi (Ry)"
+      },
+      {
+       "pv": "1idfoc:m6",
+       "name": "Rz"
+      }
+     ]
+    }
+   ]
+  },
+  "lens4C": {
+   "label": "L4",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L4)",
+     "panel": "motor6x_H_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1idfoc:m7",
+       "name": "x"
+      },
+      {
+       "pv": "1idfoc:m8",
+       "name": "Y"
+      },
+      {
+       "pv": "1idfoc:m9",
+       "name": "Z"
+      },
+      {
+       "pv": "1idfoc:m10",
+       "name": "Theta (Rx)"
+      },
+      {
+       "pv": "1idfoc:m11",
+       "name": "Phi (Ry)"
+      },
+      {
+       "pv": "1idfoc:m12",
+       "name": "Chi (Rz)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens5C": {
+   "label": "L5(RD)",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L5)",
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idc:m99",
+       "name": null
+      },
+      {
+       "pv": "1idc:m100",
+       "name": null
+      },
+      {
+       "pv": "1idc:m101",
+       "name": null
+      },
+      {
+       "pv": "1idc:m102",
+       "name": null
+      },
+      {
+       "pv": "1idc:m103",
+       "name": null
+      },
+      {
+       "pv": "1idc:m104",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "lens6C": {
+   "label": "L6(RD)",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (C_L6)",
+     "panel": "motor6x.bob",
+     "motors": [
+      {
+       "pv": "1idfoc:m13",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m14",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m15",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m16",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m17",
+       "name": null
+      },
+      {
+       "pv": "1idfoc:m18",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "attenC": {
+   "label": "AttenC",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (atten_C)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idc:m82",
+       "name": "atten_C"
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_atten_wheel.bob",
+     "panel": "1id_all_atten_wheel.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "slitCds": {
+   "label": "Slit 2",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kslitds(C-hutch))",
+     "panel": "4slitGraphic.bob",
+     "name": "Kslitds",
+     "axes": {
+      "horizontal": {
+       "record": "1idc:KslitdsH"
+      },
+      "vertical": {
+       "record": "1idc:KslitdsV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (Kslitds(C-hutch) ind)",
+     "panel": "test_slits.bob",
+     "motors": [
+      {
+       "pv": "1idc:m32",
+       "name": null
+      },
+      {
+       "pv": "1idc:m71",
+       "name": null
+      },
+      {
+       "pv": "1idc:m97",
+       "name": null
+      },
+      {
+       "pv": "1idc:m98",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kslitds(C-hutch) ind)",
+     "panel": "test_slits.bob",
+     "name": "Kslitds",
+     "axes": {},
+     "blade_motors": {}
+    },
+    {
+     "type": "panel",
+     "title": "Panel 4slitGraphic_x2_lkds.bob",
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_slits.bob",
+     "panel": "1id_all_slits.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icC4": {
+   "label": "IC4",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC4-C)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1id:S1:scaler1.S15",
+      "what": "counts, scaler channel 15",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1id:S1:scaler1",
+      "channel": 15
+     },
+     "preamp": {
+      "record": "1idc:A4"
+     }
+    },
+    {
+     "type": "panel",
+     "title": "Panel SR570.bob",
+     "panel": "SR570.bob",
+     "P": "1idc:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "samC": {
+   "label": "LabMotion SMS",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (LabMotion_SMS)",
+     "panel": "1idc_SMS_stack.bob",
+     "motors": [
+      {
+       "pv": "1idELMO:m1",
+       "name": "Labmotion"
+      },
+      {
+       "pv": "1idc:m25",
+       "name": "samZ"
+      },
+      {
+       "pv": "1idc:m26",
+       "name": "samY"
+      },
+      {
+       "pv": "1idc:m27",
+       "name": "samX"
+      },
+      {
+       "pv": "1idc:m28",
+       "name": "Rx"
+      },
+      {
+       "pv": "1idc:m29",
+       "name": "Rz"
+      },
+      {
+       "pv": "1idc:m31",
+       "name": "LabMotion_TransX"
+      }
+     ]
+    },
+    {
+     "type": "motors",
+     "title": "Motors (Sample_Wheel_in_C)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idc:m30",
+       "name": "Sample_Wheel_in_C"
+      }
+     ]
+    }
+   ]
+  },
+  "dba": {
+   "label": "DBA",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (motorx3x3x.bob)",
+     "panel": "motorx3x3x.bob",
+     "motors": [
+      {
+       "pv": "1mini2:hxp:c0:m1",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m2",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m3",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m4",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m5",
+       "name": null
+      },
+      {
+       "pv": "1mini2:hxp:c0:m6",
+       "name": null
+      },
+      {
+       "pv": "1idc:m83",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "tomoC": {
+   "label": "Tomo D1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Tomo_C)",
+     "panel": "motor3x.bob",
+     "motors": [
+      {
+       "pv": "1idc:m77",
+       "name": null
+      },
+      {
+       "pv": "1idc:m79",
+       "name": null
+      },
+      {
+       "pv": "1idc:m84",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (TomoC (1idSP5))",
+     "panel": "ADSpinnaker.bob",
+     "prefix": "1idSP5:",
+     "driver": "ADSpinnaker",
+     "model": "PGR_GS3_U3_23S6M",
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (TomoC (1idPG5))",
+     "panel": "pointGrey.bob",
+     "prefix": "1idPG5:",
+     "driver": "pointGrey",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    }
+   ]
+  },
+  "stopC": {
+   "label": "Stop",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (WAXS_Stop)",
+     "panel": "motor2x.bob",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m9",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m10",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "shieldC": {
+   "label": "Shield",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (D2_Shield)",
+     "panel": "motorx_more.bob",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m11",
+       "name": "D2_Shield"
+      }
+     ]
+    }
+   ]
+  },
+  "d2C": {
+   "label": "Varex D2",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (D2)",
+     "panel": "motor3x.bob",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m7",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m8",
+       "name": null
+      },
+      {
+       "pv": "1idc:m78",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "motors",
+     "title": "Motors (D2_in_C)",
+     "panel": "motor3x3x.bob",
+     "motors": [
+      {
+       "pv": "1idcAMCI:m7",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m8",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m9",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m10",
+       "name": null
+      },
+      {
+       "pv": "1idcAMCI:m11",
+       "name": null
+      },
+      {
+       "pv": "1idc:m78",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (Varex_in_C)",
+     "panel": "PerkinElmer.bob",
+     "prefix": "1idVarex1:",
+     "driver": "PerkinElmer",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    }
+   ]
+  },
+  "lens7C": {
+   "label": "Lens7",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Lens7)",
+     "panel": "motor5x.bob",
+     "motors": [
+      {
+       "pv": "1idc:m42",
+       "name": null
+      },
+      {
+       "pv": "1idc:m43",
+       "name": null
+      },
+      {
+       "pv": "1idc:m44",
+       "name": null
+      },
+      {
+       "pv": "1idc:m45",
+       "name": null
+      },
+      {
+       "pv": "1idc:m46",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icE12": {
+   "label": "IC1+2",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (SIC1_Y)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m19",
+       "name": "SIC1_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "slitEus": {
+   "label": "Slit US",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kohzu_E_up)",
+     "panel": "4slitGraphic.bob",
+     "name": "Kohzu_E_up",
+     "axes": {
+      "horizontal": {
+       "record": "1ide1:Kohzu_E_upH"
+      },
+      "vertical": {
+       "record": "1ide1:Kohzu_E_upV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kohzu_E_up)",
+     "panel": "4slitGraphic_lkds.bob",
+     "name": "Kohzu_E_up",
+     "axes": {
+      "horizontal": {
+       "record": "1ide1:Kohzu_E_upH"
+      },
+      "vertical": {
+       "record": "1ide1:Kohzu_E_upV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (Kohzu_E_up)",
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m20",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m21",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m22",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m23",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 4slitGraphic_x2_lkds.bob",
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1ide1:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_slits_RBV.bob",
+     "panel": "1id_all_slits_RBV.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icE3": {
+   "label": "IC3",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC3-E)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1ide2:S1:scaler1.S5",
+      "what": "counts, scaler channel 5",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1ide2:S1:scaler1",
+      "channel": 5
+     },
+     "preamp": {
+      "record": "1ide:A3"
+     }
+    }
+   ]
+  },
+  "fsE": {
+   "label": "FS",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (FastShutter)",
+     "panel": "motor2x_more_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m75",
+       "name": "FS_X"
+      },
+      {
+       "pv": "1ide1:m77",
+       "name": "FS_Y"
+      }
+     ]
+    }
+   ]
+  },
+  "lens1E": {
+   "label": "Lens1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (E_L1 (V))",
+     "panel": "motor5x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m28",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m30",
+       "name": "Rx"
+      },
+      {
+       "pv": "1ide1:m31",
+       "name": "Rz"
+      },
+      {
+       "pv": "1ide1:m117",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m119",
+       "name": "Ry"
+      }
+     ]
+    }
+   ]
+  },
+  "lens2E": {
+   "label": "Lens2",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (E_L2 (V))",
+     "panel": "motor5x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m29",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m32",
+       "name": "Rx (Th)"
+      },
+      {
+       "pv": "1ide1:m33",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m118",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m120",
+       "name": "Ry (Phi)"
+      }
+     ]
+    }
+   ]
+  },
+  "lens3E": {
+   "label": "Lens3",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (E_L3 (H-IB))",
+     "panel": "motor6x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m44",
+       "name": "Rx (Th)"
+      },
+      {
+       "pv": "1ide1:m45",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m81",
+       "name": "Z"
+      },
+      {
+       "pv": "1ide1:m82",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m83",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1ide1:m89",
+       "name": "Y"
+      }
+     ]
+    }
+   ]
+  },
+  "lens4E": {
+   "label": "Lens4",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (E_L4 (H-OB))",
+     "panel": "motor6x_V_lens_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m84",
+       "name": "Rz (Chi)"
+      },
+      {
+       "pv": "1ide1:m85",
+       "name": "X"
+      },
+      {
+       "pv": "1ide1:m88",
+       "name": "Ry (Phi)"
+      },
+      {
+       "pv": "1ide1:m114",
+       "name": "Y"
+      },
+      {
+       "pv": "1ide1:m115",
+       "name": "Z"
+      },
+      {
+       "pv": "1ide1:m116",
+       "name": "Rx (Th)"
+      }
+     ]
+    }
+   ]
+  },
+  "slitEds": {
+   "label": "Slit DS",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kohzu_E_dn)",
+     "panel": "4slitGraphic.bob",
+     "name": "Kohzu_E_dn",
+     "axes": {
+      "horizontal": {
+       "record": "1ide1:Kohzu_E_dnH"
+      },
+      "vertical": {
+       "record": "1ide1:Kohzu_E_dnV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "slit",
+     "title": "Slit software axes (Kohzu_E_dn)",
+     "panel": "4slitGraphic_lkds.bob",
+     "name": "Kohzu_E_dn",
+     "axes": {
+      "horizontal": {
+       "record": "1ide1:Kohzu_E_dnH"
+      },
+      "vertical": {
+       "record": "1ide1:Kohzu_E_dnV"
+      }
+     },
+     "blade_motors": {}
+    },
+    {
+     "type": "motors",
+     "title": "Motors (Kohzu_E_dn)",
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m24",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m25",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m26",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m27",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 4slitGraphic_x2_lkds.bob",
+     "panel": "4slitGraphic_x2_lkds.bob",
+     "P": "1ide1:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1id_all_slits_RBV.bob",
+     "panel": "1id_all_slits_RBV.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "icE4": {
+   "label": "IC4",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC4-E)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1ide2:S1:scaler1.S7",
+      "what": "counts, scaler channel 7",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1ide2:S1:scaler1",
+      "channel": 7
+     },
+     "preamp": {
+      "record": "1ide:A4"
+     }
+    }
+   ]
+  },
+  "samE": {
+   "label": "Aero SMS",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Aero_SMS)",
+     "panel": "motor6x_Aero_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide:m9",
+       "name": "Aero Rot (Ry)"
+      },
+      {
+       "pv": "1ide1:m34",
+       "name": "samX"
+      },
+      {
+       "pv": "1ide1:m35",
+       "name": "samY"
+      },
+      {
+       "pv": "1ide1:m36",
+       "name": "samZ"
+      },
+      {
+       "pv": "1ide1:m86",
+       "name": "sam_Rz"
+      },
+      {
+       "pv": "1ide1:m87",
+       "name": "sam_Rx"
+      }
+     ]
+    }
+   ]
+  },
+  "hl_sms": {
+   "label": "HL-SMS",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (MTS Table)",
+     "panel": "1ide_MTS_table.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "type": "motors",
+     "title": "Motors (MTS Table w/ IR Furnace)",
+     "panel": "1ide_MTS_table_w_furnace.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "type": "motors",
+     "title": "Motors (HL-SMS Table)",
+     "panel": "motor8x_MTS_SMS_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m1",
+       "name": "Y1"
+      },
+      {
+       "pv": "1ide1:m2",
+       "name": "Y2"
+      },
+      {
+       "pv": "1ide1:m3",
+       "name": "Y3"
+      },
+      {
+       "pv": "1ide1:m4",
+       "name": "MTS_Phi"
+      },
+      {
+       "pv": "1ide1:m9",
+       "name": "MTS_X2"
+      },
+      {
+       "pv": "1ide1:m13",
+       "name": "MTS_X"
+      },
+      {
+       "pv": "1ide1:m14",
+       "name": "MTS_Z"
+      },
+      {
+       "pv": "1ide1:m16",
+       "name": "MTS_Y"
+      }
+     ]
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1ide_MTS_table_w_Ystage.bob",
+     "panel": "1ide_MTS_table_w_Ystage.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "tomoE": {
+   "label": "Tomo D1",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Tomo_E)",
+     "panel": "motor4x_more_tomo_stack.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m38",
+       "name": "E-Tomo Rz"
+      },
+      {
+       "pv": "1ide1:m40",
+       "name": "E-Tomo Y"
+      },
+      {
+       "pv": "1ide1:m62",
+       "name": "E-Tomo Z"
+      },
+      {
+       "pv": "1ide1:m63",
+       "name": "E-Tomo X"
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (ADSpinnaker.bob)",
+     "panel": "ADSpinnaker.bob",
+     "prefix": "1idGH1:",
+     "driver": "ADSpinnaker",
+     "model": "PGR_GS3-U3-123S6M",
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "motors",
+     "title": "Motors (tomo_E_shielding)",
+     "panel": "motorx_more.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m47",
+       "name": "tomo_E_shielding"
+      }
+     ]
+    }
+   ]
+  },
+  "d2E": {
+   "label": "NF D2",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (NF_D2)",
+     "panel": "motor8x.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m5",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m6",
+       "name": null
+      },
+      {
+       "pv": "1ide:m6",
+       "name": null
+      },
+      {
+       "pv": "1ide:m7",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m12",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m39",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m59",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m104",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "icE5": {
+   "label": "IC5",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC5-E)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1ide2:S1:scaler1.S6",
+      "what": "counts, scaler channel 6",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1ide2:S1:scaler1",
+      "channel": 6
+     },
+     "preamp": {
+      "record": "1ide:A5"
+     }
+    }
+   ]
+  },
+  "d3": {
+   "label": "D3",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (D3 in E)",
+     "panel": "motor3x_keyence.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m50",
+       "name": "GE_Z in E"
+      },
+      {
+       "pv": "1ide1:m97",
+       "name": "GE_Y in E"
+      },
+      {
+       "pv": "1ide1:m103",
+       "name": "GE_X in E"
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (GE5)",
+     "panel": "ADEPT.bob",
+     "prefix": "GE5:",
+     "driver": "ADEPT",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "panel",
+     "title": "Panel ESL4406.bob",
+     "panel": "ESL4406.bob",
+     "P": "1ide:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (pilatusDetector.bob)",
+     "panel": "pilatusDetector.bob",
+     "prefix": "1idPil:",
+     "driver": "pilatusDetector",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (Eiger16M)",
+     "panel": "eiger2Detector.bob",
+     "prefix": "1idEig16M:",
+     "driver": "eiger2Detector",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    }
+   ]
+  },
+  "icE6": {
+   "label": "IC6",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC6-E)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1ide2:S1:scaler1.S8",
+      "what": "counts, scaler channel 8",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1ide2:S1:scaler1",
+      "channel": 8
+     },
+     "preamp": {
+      "record": "1ide:A6"
+     }
+    }
+   ]
+  },
+  "hydra": {
+   "label": "Hydra D4",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Hydra_D4)",
+     "panel": "motorx_more2.bob",
+     "motors": [
+      {
+       "pv": "1idc:m7",
+       "name": "Hydra_D4"
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (GE1)",
+     "panel": "ADEPT.bob",
+     "prefix": "GE1:",
+     "driver": "ADEPT",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (GE2)",
+     "panel": "ADEPT.bob",
+     "prefix": "GE2:",
+     "driver": "ADEPT",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (GE3)",
+     "panel": "ADEPT.bob",
+     "prefix": "GE3:",
+     "driver": "ADEPT",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (GE4)",
+     "panel": "ADEPT.bob",
+     "prefix": "GE4:",
+     "driver": "ADEPT",
+     "model": null,
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 1ide_AD_writer_status_hydra_saxs_tomo.bob",
+     "panel": "1ide_AD_writer_status_hydra_saxs_tomo.bob",
+     "P": null,
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "vff": {
+   "label": "VFF D5",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (VFF_D5)",
+     "panel": "motor2x_more.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m41",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m73",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "radiograph": {
+   "label": "Radiography",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (Radiography)",
+     "panel": "motor2x_more.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m111",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m112",
+       "name": null
+      }
+     ]
+    },
+    {
+     "type": "camera",
+     "title": "Camera / detector IOC (SAXSRad_1idPG1)",
+     "panel": "ADSpinnaker.bob",
+     "prefix": "1idPG1:",
+     "driver": "ADSpinnaker",
+     "model": "PGR_GS3_U3_23S6M",
+     "note": "Full parameter list is in the driver panel above; it is not enumerated here."
+    }
+   ]
+  },
+  "icE8": {
+   "label": "IC8",
+   "groups": [
+    {
+     "type": "ic_readout",
+     "title": "Ion chamber read-out (IC8-E)",
+     "panel": "SR570m_tiny.bob",
+     "readback": {
+      "pv": "1ide2:S1:scaler1.S10",
+      "what": "counts, scaler channel 10",
+      "access": "read"
+     },
+     "scaler": {
+      "record": "1ide2:S1:scaler1",
+      "channel": 10
+     },
+     "preamp": {
+      "record": "1ide:A8"
+     }
+    }
+   ]
+  },
+  "saxs": {
+   "label": "SAXS D6",
+   "groups": [
+    {
+     "type": "motors",
+     "title": "Motors (SAXS_D6)",
+     "panel": "motor5x.bob",
+     "motors": [
+      {
+       "pv": "1ide1:m51",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m52",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m53",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m54",
+       "name": null
+      },
+      {
+       "pv": "1ide1:m66",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "filterA": {
+   "label": "Filter",
+   "groups": [
+    {
+     "type": "panel",
+     "title": "Panel 2filter.bob",
+     "panel": "2filter.bob",
+     "P": "1ida:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    },
+    {
+     "type": "panel",
+     "title": "Panel 2filter_setup.bob",
+     "panel": "2filter_setup.bob",
+     "P": "1ida:",
+     "note": "Opens a control panel; the layout button gives only its IOC prefix, no individual PVs were extracted."
+    }
+   ]
+  },
+  "wbSlits": {
+   "label": "WB Slits",
+   "groups": [
+    {
+     "type": "slit",
+     "title": "Slit software axes (WB Slits)",
+     "panel": "4slitGraphic.bob",
+     "name": "W_Beam",
+     "axes": {
+      "horizontal": {
+       "record": "1ida:Slit1H"
+      },
+      "vertical": {
+       "record": "1ida:Slit1V"
+      }
+     },
+     "blade_motors": {
+      "mXp": "1ida:m5",
+      "mXn": "1ida:m3",
+      "mYp": "1ida:m4",
+      "mYn": "1ida:m6"
+     }
+    },
+    {
+     "type": "motors",
+     "title": "Motors (WB slits)",
+     "panel": "motor4x.bob",
+     "motors": [
+      {
+       "pv": "1ida:m3",
+       "name": null
+      },
+      {
+       "pv": "1ida:m4",
+       "name": null
+      },
+      {
+       "pv": "1ida:m5",
+       "name": null
+      },
+      {
+       "pv": "1ida:m6",
+       "name": null
+      }
+     ]
+    }
+   ]
+  },
+  "hem": {
+   "label": "HE Mono",
+   "groups": []
+  }
+ }
+}

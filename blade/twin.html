@@ -79,6 +79,9 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
 #toast{position:fixed;right:16px;bottom:16px;z-index:95;background:var(--ok);color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;display:none}
 .vb{display:inline-block;padding:1px 8px;border-radius:99px;font:11.5px var(--mono);border:1px solid var(--line)}.vb.unverified{background:var(--warnbg);color:var(--warn);border-color:transparent}.vb.verified{background:var(--okbg);color:var(--ok);border-color:transparent}.vb.wrong{background:var(--bad);color:#fff;border-color:transparent}
 table.vt td,table.vt th{text-align:left;vertical-align:top;font:12.5px system-ui}table.vt td.mono{font:12px var(--mono)}
+.pvg{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-top:8px}.pvg h3{margin:0 0 4px;font-size:12.5px}
+.pv{font:12px var(--mono);word-break:break-all}.rd{color:var(--ok)}.wr{color:var(--warn)}details.pvd>summary{cursor:pointer;color:var(--acc);font-size:12px;margin:2px 0}
+table.pvt td,table.pvt th{text-align:left;font:12px var(--mono);padding:1px 5px;vertical-align:top}
 .vneed{border:1px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;margin-top:10px;font-size:12.5px}
 </style></head><body><div class="wrap">
 
@@ -363,9 +366,44 @@ function side(){
  const ph=(e.src||[]).map(id=>t.photos.find(p=>p.id===id)).filter(Boolean);
  const thumbs=ph.length?`<h2 style="margin-top:12px">Source photos</h2><div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`:'';
  el.innerHTML=`<h2>Element</h2><div style="font-size:17px;font-weight:700">${eEl(e,'name','str','name',esc(e.name))}</div><div class="mono mute">${esc(e.id)}</div><dl class="kv" style="margin-top:8px">${kv.join('')}</dl>
-  ${verifyFor(e).map(v=>`<div class="vneed"><b>To verify:</b> ${esc(v.subject)} — <span class="mono">${esc(v.value)}</span><div class="mute">${esc(v.why)}</div></div>`).join('')}<div class="note" style="color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes — right-click to add)</span>')}</div>${blade}${ctl}${state}${thumbs}
+  ${verifyFor(e).map(v=>`<div class="vneed"><b>To verify:</b> ${esc(v.subject)} — <span class="mono">${esc(v.value)}</span><div class="mute">${esc(v.why)}</div></div>`).join('')}<div class="note" style="color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes — right-click to add)</span>')}</div>${blade}${pvSection(e)}${ctl}${state}${thumbs}
   <div style="margin-top:12px"><button class="chip" id="clr">← profile &amp; twin info</button></div>`;
  $('clr').onclick=()=>{sel=null;hash();side();paint()};
+}
+
+/* ---------- PVs from the CS-Studio displays (pv_map.json) ---------- */
+function pvFields(base,tkey){
+ const T=(P.twin.pv_templates||{})[tkey];if(!T)return '';
+ return `<details class="pvd"><summary>${T.fields.length} fields (${esc(T.source)})</summary><table class="pvt"><tbody>${T.fields.map(f=>`<tr><td class="${f.access==='read'?'rd':'wr'}">${f.access==='read'?'read':'write'}</td><td>${esc(base+f.field)}</td><td class="mute">${esc(f.what)}</td></tr>`).join('')}</tbody></table></details>`;
+}
+function pvSection(e){
+ const m=e.pvmap;
+ let h=`<h2 style="margin-top:12px">PVs, controls &amp; readbacks</h2>`;
+ if(!m){
+  h+=`<div class="note" style="margin-top:0">${e.kind==='ic'?'This ion chamber has no read-out channel on the operator display (no scaler/preamp PV found).':'No operator-display entry for this element (it is not a button on the CS-Studio layout); see device / PV / Controls from the twin below.'}</div>`;
+  return h;
+ }
+ h+=`<div class="note" style="margin-top:0">From the CS-Studio displays (${esc((m.label||''))}); read = monitored, write = setpoint/command (usual direction for the EPICS field, not checked live).</div>`;
+ if(e.kind==='ic'&&!m.groups.some(g=>g.type==='ic_readout'))h+=`<div class="vneed"><b>No ion-chamber read-out PV.</b> The operator display has no read-out (scaler channel / preamp) button for this chamber, so none is recorded. Check with the beamline staff before assuming a channel.</div>`;
+ m.groups.forEach(g=>{
+  let b='';
+  if(g.type==='ic_readout'){
+   b=`<table class="pvt"><tbody><tr><td class="rd">read</td><td class="pv"><b>${esc(g.readback.pv)}</b></td><td class="mute">${esc(g.readback.what)}</td></tr></tbody></table>
+    <div style="margin-top:4px" class="mute">Scaler <span class="pv">${esc(g.scaler.record)}</span> (shared counter)</div>${pvFields(g.scaler.record,'scaler')}
+    <div class="mute">Preamp SR570 <span class="pv">${esc(g.preamp.record)}</span></div>${pvFields(g.preamp.record,'preamp')}`;
+  }else if(g.type==='motors'){
+   b=g.motors.map(x=>`<div style="margin-top:3px"><span class="pv"><b>${esc(x.pv)}</b></span> ${x.name?`<span class="mute">${esc(x.name)}</span>`:''}</div>
+    <div class="pv"><span class="wr">set</span> ${esc(x.pv)}.VAL · <span class="rd">read</span> ${esc(x.pv)}.RBV · <span class="rd">moving</span> ${esc(x.pv)}.DMOV</div>${pvFields(x.pv,'motor')}`).join('');
+  }else if(g.type==='slit'){
+   b=Object.entries(g.axes).map(([a,x])=>`<div style="margin-top:3px"><span class="mute">${esc(a)}</span> <span class="pv"><b>${esc(x.record)}</b></span></div>
+    <div class="pv"><span class="wr">set/read</span> ${esc(x.record)}size.VAL · ${esc(x.record)}center.VAL</div>${pvFields(x.record,'slit_axis')}`).join('')
+    +(Object.keys(g.blade_motors).length?`<div class="mute" style="margin-top:4px">blade motors: ${Object.entries(g.blade_motors).map(([k,v])=>`${esc(k)} <span class="pv">${esc(v)}</span>`).join(' · ')}</div>`:'');
+  }else if(g.type==='camera'){
+   b=`<div class="pv"><b>${esc(g.prefix)}</b> <span class="mute">${esc(g.driver)}${g.model?' · '+esc(g.model):''}</span></div><div class="note" style="margin-top:2px">${esc(g.note)}</div>`;
+  }else b=`<div class="pv">${g.P?esc(g.P):'<span class="mute">(no prefix)</span>'}</div><div class="note" style="margin-top:2px">${esc(g.note)}</div>`;
+  h+=`<div class="pvg"><h3>${esc(g.title)} <span class="mute" style="font-weight:400">· ${esc(g.panel||'')}</span></h3>${b}</div>`;
+ });
+ return h;
 }
 function twinCard(){
  const t=P.twin,f=t.frame;

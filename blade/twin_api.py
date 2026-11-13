@@ -68,6 +68,14 @@ def _blade_targets(prof, elements):
     return hits
 
 
+def _pv_map(tid):
+    f = paths.TWINS_DIR / tid / "pv_map.json"
+    try:
+        return json.loads(f.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
 def twin_payload(profile):
     prof = read_profile(profile)
     stations = {s: {"description": v.get("description", ""), "motors": {r: {"name": m.get("name"), "pv": m.get("pv"), "role": m.get("role")}
@@ -86,12 +94,15 @@ def twin_payload(profile):
     errs, warns = tm.check(t)
     bl = t["beamline"]
     els = t["path"]
+    pvm = _pv_map(tid)
+    for e in els:
+        e["pvmap"] = (pvm.get("elements") or {}).get(e["id"])      # generated from the CS-Studio displays (beamline_twins/tools/pvmap.py); None = no operator display
     out["twin"] = {
         "id": tid, "name": bl["name"], "frame": bl["frame"], "hutch_order": bl["hutch_order"], "snapshot": bl.get("snapshot", {}),
         "hutches": {h: {"description": bl["hutches"].get(h, ""), "coverage": bl.get("coverage", {}).get(h, ""), "note": t["hutches"].get(h, {}).get("note", ""),
                         **{k: t["hutches"].get(h, {})[k] for k in ("groups", "panel", "aux_panels", "lasers") if k in t["hutches"].get(h, {})}}
                     for h in bl["hutch_order"]},
-        "elements": els, "assemblies": t["assemblies"],
+        "pv_templates": pvm.get("templates"), "elements": els, "assemblies": t["assemblies"],
         **{k: bl[k] for k in ("detector_iocs", "ioc_panels", "header_pvs", "beam_types", "ic_readout") if k in bl},
         "overview": bl.get("operator_screens", {}).get("overview_cs01"),
         "verify": edit_api.verify_items(tid), "photos": [{**p, "local": (tm.photos_dir(tid) / p["file"]).is_file()} for p in t["photos"].values()],
