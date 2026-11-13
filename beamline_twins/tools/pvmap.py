@@ -95,24 +95,125 @@ def build_element(el, tpl):
     return groups
 
 
+def _top(pairs):
+    """Most frequent value of a [[value, count], ...] list (None when empty)."""
+    return max(pairs, key=lambda p: p[1])[0] if pairs else None
+
+
+def registry_index(bl):
+    """PV -> what the logbook panel screenshots say about it (panel_registry.json; tier-A statistics only).
+    linked[pv]   = the ONE device label whose window title printed that PV (rule of the registry: >=3 images, >=90 % share, not claimed twice)
+    cands[pv]    = device labels that merely list the PV among several candidates (ambiguous: never used as a name)."""
+    f = TWINS / bl / "panel_registry.json"
+    if not f.is_file():
+        return {}, {}
+    pr = json.loads(f.read_text())
+    linked, cands = {}, {}
+    for key, v in pr.items():
+        if re.search(r"readback", key):
+            continue
+        if v.get("pv_status") == "visible_on_screen" and v.get("pv"):
+            linked.setdefault(v["pv"], []).append((key, v))
+        for c in v.get("pv_candidates") or []:
+            if v.get("pv_status") != "visible_on_screen":
+                cands.setdefault(c["pv"], []).append(v.get("display") or key)
+    return linked, cands
+
+
+def _log_info(entries):
+    """Merge the registry entries of one PV; if they disagree on the device label (e.g. 'B24 L4B Th (Rx)' and 'B24 L4B Th' = the same title read twice) keep the longest."""
+    key, v = max(entries, key=lambda kv: len(kv[1].get("display") or ""))
+    units = v.get("units") or {}
+    u = max(units, key=units.get) if units else None
+    lim = v.get("limits") or {}
+    out = {"log_label": v.get("display"), "log_images": v.get("n_images"), "log_first": v.get("first"), "log_last": v.get("last")}
+    if u:
+        out["units"] = "deg" if u in ("degrees", "o") else u
+    if v.get("tweak_step", {}).get("modal"):
+        out["step"] = _top(v["tweak_step"]["modal"])
+    if lim.get("hi_user") and lim.get("lo_user"):
+        out["limits"] = {"lo": _top(lim["lo_user"]), "hi": _top(lim["hi_user"]), "frame": "user"}
+    return out
+
+
+BLADE_ROLE = {"mXp": "X+ blade", "mXn": "X- blade", "mYp": "Y+ blade", "mYn": "Y- blade"}
+
+
+def slit_roles(bl):
+    """motor PV -> 'X+ blade (slit 1idc:Kslitus)': from the slit software records the operator top panel binds (cs_registry 'slits')."""
+    cs = json.loads((TWINS / bl / "cs_registry.json").read_text())
+    return {pv: f"{BLADE_ROLE[k]} (slit {rec})" for rec, d in cs.get("slits", {}).items() for k, pv in d["motors"].items() if k in BLADE_ROLE}
+
+
+def enrich(elements, bl):
+    """Add to every motor: log label / units / tweak step / soft limits (from the log panels, tier A), `shared_with` (other twin elements whose
+    display button drives the same PV) and, for PVs that stay unlabelled, `candidates` (ambiguous log labels, never assigned)."""
+    linked, cands = registry_index(bl)
+    roles = slit_roles(bl)
+    users = {}
+    for eid, el in elements.items():
+        for g in el["groups"]:
+            for m in g.get("motors") or []:
+                users.setdefault(m["pv"], set()).add(eid)
+            for pv in (g.get("blade_motors") or {}).values():
+                users.setdefault(pv, set()).add(eid)
+    n_lab = 0
+    for eid, el in elements.items():
+        for g in el["groups"]:
+            for m in g.get("motors") or []:
+                if m["pv"] in linked:
+                    m.update(_log_info(linked[m["pv"]]))
+                elif m["pv"] in cands:
+                    m["candidates"] = sorted(set(cands[m["pv"]]))
+                if m["pv"] in roles:
+                    m["role"] = roles[m["pv"]]
+                others = sorted(users[m["pv"]] - {eid})
+                if others:
+                    m["shared_with"] = others
+                n_lab += bool(m.get("name") or m.get("log_label"))
+    return n_lab
+
+
 def build(bl="1-ID"):
     reg = json.loads((TWINS / bl / "cs_registry.json").read_text())
     tpl = templates(bl)
-    out = {"schema": 1, "beamline": bl, "source": "cs_registry.json + CS-Studio device panels (see tools/pvmap.py)", "templates": tpl,
+    out = {"schema": 2, "beamline": bl, "source": "cs_registry.json + CS-Studio device panels + panel_registry.json (tier-A log-panel labels/limits; see tools/pvmap.py)", "templates": tpl,
            "elements": {eid: {"label": el.get("label"), "groups": build_element(el, tpl)} for eid, el in reg["elements"].items()}}
+    enrich(out["elements"], bl)
     (TWINS / bl / "pv_map.json").write_text(json.dumps(out, indent=1) + "\n")
     return out
 
 
+def report(bl="1-ID"):
+    """Motors by label status: what is resolved and what stays open (with candidates)."""
+    o = json.loads((TWINS / bl / "pv_map.json").read_text())
+    seen, rows = set(), []
+    for eid, el in o["elements"].items():
+        for g in el["groups"]:
+            for m in g.get("motors") or []:
+                if m["pv"] in seen:
+                    continue
+                seen.add(m["pv"])
+                how = "display" if m.get("name") else "log panel" if m.get("log_label") else "slit blade" if m.get("role") else "ambiguous" if m.get("candidates") else "unlabelled"
+                rows.append((how, eid, m["pv"], m.get("name") or m.get("log_label") or ", ".join(m.get("candidates") or [])))
+    from collections import Counter
+    print(Counter(r[0] for r in rows))
+    for r in sorted(rows):
+        if r[0] in ("ambiguous", "unlabelled"):
+            print(*r, sep=" | ")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("cmd", choices=("build", "show"))
+    ap.add_argument("cmd", choices=("build", "show", "report"))
     ap.add_argument("id", nargs="?")
     ap.add_argument("--bl", default="1-ID")
     a = ap.parse_args()
     if a.cmd == "build":
         o = build(a.bl)
         print(f"wrote {TWINS / a.bl / 'pv_map.json'}: {len(o['elements'])} elements")
+    elif a.cmd == "report":
+        report(a.bl)
     else:
         o = json.loads((TWINS / a.bl / "pv_map.json").read_text())
         print(json.dumps(o["elements"].get(a.id), indent=1))

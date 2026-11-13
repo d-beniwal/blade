@@ -28,7 +28,7 @@ select#prof{font-weight:600;border-color:var(--acc)}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{font:13px system-ui;padding:4px 14px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer}
 .tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .chip{font:12px system-ui;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}.chip.off{opacity:.35}
-.main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:12px;align-items:start}
 @media(max-width:1100px){.main{grid-template-columns:1fr}}
 .side{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}
 .scroll{overflow-x:auto}
@@ -82,7 +82,25 @@ table.vt td,table.vt th{text-align:left;vertical-align:top;font:12.5px system-ui
 .pvg{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-top:8px}.pvg h3{margin:0 0 4px;font-size:12.5px}
 .pv{font:12px var(--mono);word-break:break-all}.rd{color:var(--ok)}.wr{color:var(--warn)}details.pvd>summary{cursor:pointer;color:var(--acc);font-size:12px;margin:2px 0}
 table.pvt td,table.pvt th{text-align:left;font:12px var(--mono);padding:1px 5px;vertical-align:top}
-.vneed{border:1px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;margin-top:10px;font-size:12.5px}
+
+.eh-long{font-size:17px;font-weight:700;line-height:1.3}.eh-sub{margin-top:3px;font-size:13px}.eh-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.secbar{display:flex;gap:6px;justify-content:flex-end;margin:8px 0 2px}.secbar .chip{font-size:11px;padding:1px 8px;color:var(--mute)}
+details.sec{border:1px solid var(--line);border-radius:8px;margin-top:8px;background:var(--panel)}
+details.sec>summary{cursor:pointer;list-style:none;padding:6px 10px;display:flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:700;user-select:none}
+details.sec>summary::-webkit-details-marker{display:none}details.sec>summary::before{content:"\25B8";font-size:11px;color:var(--acc);transition:transform .12s}details.sec[open]>summary::before{transform:rotate(90deg)}
+details.sec[open]>summary{color:var(--ink);border-bottom:1px solid var(--line)}details.sec>summary:hover{background:var(--accbg)}
+.cnt{margin-left:auto;font:11px var(--mono);padding:0 7px;border-radius:99px;background:var(--accbg);color:var(--acc);letter-spacing:0;text-transform:none}
+.secb{padding:6px 10px 10px}
+.cg{margin-top:8px}.cg:first-child{margin-top:2px}.cg h3{margin:0 0 3px;font-size:11.5px;color:var(--mute);letter-spacing:.05em;text-transform:uppercase}
+.ch{padding:4px 0;border-bottom:1px solid var(--line)}.ch:last-child{border-bottom:0}
+.chl{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.chl b{font-size:13px}
+.pv{font:12px var(--mono);word-break:break-all}.pv.cp{cursor:copy}.pv.cp:hover{color:var(--acc)}
+.chd{font-size:11.5px;color:var(--mute);margin-top:1px}.aka{font:10px var(--mono);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);border-radius:4px;padding:0 3px}
+.tags{display:flex;gap:3px;flex:none}.stag{display:inline-block;min-width:15px;text-align:center;font:10px var(--mono);padding:0 3px;border-radius:4px;border:1px solid var(--line);color:var(--mute)}
+.legend2{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:8px;font-size:11px;color:var(--mute)}
+.op{padding:5px 8px;margin-top:5px;border-radius:6px;font-size:12.5px;border-left:3px solid var(--warn);background:var(--warnbg)}.op:first-child{margin-top:0}
+.op .ok{font:10.5px var(--mono);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-right:4px}
+.op.ambiguous,.op.gap{border-left-color:var(--mute);background:var(--bg)}.op.conflict{border-left-color:var(--bad)}.op .why{font-size:11.5px;color:var(--mute);margin-top:2px}
 </style></head><body><div class="wrap">
 
 <div class="card top">
@@ -343,67 +361,81 @@ function profileCard(){
  return `<h2>Profile ${esc(p.name)}</h2><dl class="kv"><dt>beamline</dt><dd>${esc(p.beamline)}</dd><dt>backends</dt><dd>${esc((p.backends||[]).join(', '))}</dd></dl>
   <div style="margin-top:6px">${camT}</div><div style="margin-top:8px">${stT}</div><div class="note">Right-click a value to edit it (you confirm before anything is saved).</div>`;
 }
+/* ---------- element info panel: ONE layout for every element ----------
+   1 header (long name, short name, kind, hutch)   2 open items (verify / conflict / gap, only when there are any)
+   3 Controls & PVs (always open, groups in a fixed order, every row = label | source tags / PV / detail)
+   4 collapsed by default, one click to open: Notes, Logged snapshot, Record fields, Provenance & metadata, Source photos
+   Open/closed state of each section is remembered in this browser. */
+const SRCTAG={display:['D','CS-Studio display'],log:['L','log-panel screenshots (tier A)'],code:['C','mpe_bluesky code / twin record'],user:['U','user statement']};
+const KINDTAG={verify:'To verify',conflict:'Conflict',ambiguous:'Ambiguous',gap:'Open'};
+function secState(){try{return JSON.parse(localStorage.getItem('blade.sec')||'{}')}catch(e){return{}}}
+function secSet(id,v){const s=secState();s[id]=v;try{localStorage.setItem('blade.sec',JSON.stringify(s))}catch(e){}}
+function sec(id,title,body,def,count){const st=secState(),o=id in st?st[id]:def;
+ return `<details class="sec" data-sec="${id}" ${o?'open':''}><summary><span class="st">${esc(title)}</span>${count!=null?`<span class="cnt">${esc(count)}</span>`:''}</summary><div class="secb">${body}</div></details>`}
+document.addEventListener('toggle',ev=>{const d=ev.target;if(d&&d.classList&&d.classList.contains('sec'))secSet(d.dataset.sec,d.open)},true);
+document.addEventListener('click',ev=>{
+ const c=ev.target.closest&&ev.target.closest('[data-copy]');if(c){try{navigator.clipboard.writeText(c.dataset.copy);toast('copied '+c.dataset.copy)}catch(e){}}
+ const x=ev.target.closest&&ev.target.closest('[data-secall]');if(x){const o=x.dataset.secall==='1';document.querySelectorAll('#side details.sec').forEach(d=>{d.open=o})}
+});
+function chRow(e,g,r,hideShared){
+ const tags=(r.src||[]).map(k=>`<span class="stag" title="${esc(SRCTAG[k][1])}">${SRCTAG[k][0]}</span>`).join('');
+ let pv;
+ if(g==='Device & prefix'&&r.label==='device name')pv=eEl(e,'dev','str','device name',`<span class="pv">${esc(r.pv)}</span>`);
+ else if(g==='Device & prefix'&&r.label==='PV / prefix')pv=eEl(e,'pv','str','PV',`<span class="pv">${esc(r.pv)}</span>`);
+ else pv=`<span class="pv cp" data-copy="${esc(String(r.pv).split(' ')[0])}" title="click to copy">${esc(r.pv)}</span>`;
+ const lines=[];
+ if(r.detail)lines.push(esc(r.detail));
+ if(r.also&&r.also.length)lines.push('<span class="aka">aka</span> '+r.also.map(esc).join(' · '));
+ if(!hideShared&&r.shared_with&&r.shared_with.length)lines.push('also on the button of: '+r.shared_with.map(esc).join(', '));
+ return `<div class="ch"><div class="chl"><b>${r.label?esc(r.label):'<span class="mute">(no name)</span>'}</b><span class="tags">${tags}</span></div><div>${pv}</div>${lines.map(l=>`<div class="chd">${l}</div>`).join('')}</div>`;
+}
 function side(){
  const el=$('side');if(!el)return;const t=P.twin,e=sel&&EL[sel];
  if(!e){el.innerHTML=profileCard()+`<div class="note">Click an element for its details, controls and source photos.</div>`+twinCard();return}
- const bt=(t.blade_targets||{})[e.id],kv=[],add=(k,v)=>{if(v!=null&&v!=='')kv.push(`<dt>${k}</dt><dd>${v}</dd>`)};
- add('kind',`<span class="sw" style="--k:var(--k-${grp(e.kind)})"></span>`+esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
- add('confidence',eEl(e,'conf',CONFS,'confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)}`)+` <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
+ const pi=e.panel_info||{channels:[],open:[],templates:[]},bt=(t.blade_targets||{})[e.id];
+ /* 1 header */
+ const hdr=`<div class="eh"><div class="eh-long">${eEl(e,'long_name','str','long name',esc(e.long_name||e.name))}</div>
+  <div class="eh-sub"><span class="sw" style="--k:var(--k-${grp(e.kind)})"></span>${eEl(e,'name','str','short name (as on the panel)',esc(e.name))} <span class="mute">·</span> <span class="mono">${esc(e.id)}</span> <span class="mute">· ${esc(e.kind)} · hutch ${esc(e.hutch)} · #${e.index+1} along the beam</span></div>
+  <div class="eh-badges">${e.tomo?'<span class="badge bt">tomo detector</span>':''}${bt?'<span class="badge bt">BLADE alignment target</span>':''}<span class="badge"><span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)}</span>${pi.open.length?`<span class="badge" style="background:var(--warnbg);color:var(--warn);border-color:transparent" title="listed below the controls">${pi.open.length} open item${pi.open.length>1?'s':''} ↓</span>`:''}</div>
+  ${bt?`<div class="note mono" style="margin-top:2px">${bt.map(esc).join('<br>')}</div>`:''}</div>`;
+ /* 2 open items */
+ const ops=pi.open.slice().sort((a,b)=>Object.keys(KINDTAG).indexOf(a.kind)-Object.keys(KINDTAG).indexOf(b.kind));
+ const open=ops.length?sec('open','Open items',ops.map(o=>`<div class="op ${o.kind}"><span class="ok">${esc(KINDTAG[o.kind]||o.kind)}</span> ${esc(o.text)}${o.why?`<div class="why">${esc(o.why)}</div>`:''}</div>`).join(''),true,ops.length):'';
+ /* 3 controls & PVs */
+ const have={};pi.channels.forEach(g=>have[g.group]=g);
+ const groups=['Device & prefix','Motors & axes','Slit axes','Read-outs','Signals & switches'];
+ let ctl=groups.filter(g=>have[g]||g==='Device & prefix').map(g=>{
+  let rows=(have[g]?have[g].rows:[]).slice();
+  if(g==='Device & prefix'){if(!rows.some(r=>r.label==='device name'))rows.unshift({label:'device name',pv:'',src:['code']});if(!rows.some(r=>r.label==='PV / prefix'))rows.splice(1,0,{label:'PV / prefix',pv:'',src:['code']})}
+  const title=g==='Motors & axes'?eEl(e,'controls','json','controls (JSON)',g):esc(g);
+  const shs=rows.filter(r=>r.shared_with&&r.shared_with.length).map(r=>r.shared_with.join(',')),uni=shs.length>1&&shs.every(x=>x===shs[0]);
+  const shNote=uni?`<div class="chd" style="margin:0 0 3px">All ${shs.length} motors with a shared button are also driven from: <b>${esc(shs[0].split(',').join(', '))}</b></div>`:'';
+  return `<div class="cg"><h3>${title}${have[g]&&g!=='Device & prefix'?` <span class="mute">${have[g].rows.length}</span>`:''}</h3>${shNote}${rows.map(r=>r.pv===''?`<div class="ch"><div class="chl"><b>${esc(r.label)}</b></div><div>${eEl(e,r.label==='device name'?'dev':'pv','str',r.label,'<span class="mute">(none recorded)</span>')}</div></div>`:chRow(e,g,r,uni)).join('')}</div>`}).join('');
+ const lg2=`<div class="legend2">${Object.entries(SRCTAG).map(([k,v])=>`<span><span class="stag">${v[0]}</span> ${esc(v[1])}</span>`).join('')}</div>`;
+ const ctlSec=sec('ctl','Controls & PVs',ctl+lg2,true);
+ /* 4 collapsed metadata */
+ const notes=sec('notes','Notes',`<div class="note" style="margin-top:0;color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes - right-click to add)</span>')}</div>`,false);
+ let snap='';if(e.state){snap=sec('snap','Logged snapshot'+(e.state.when?' · '+e.state.when:''),`<table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(typeof v==='object'?JSON.stringify(v):v)}</td></tr>`).join('')+`</tbody></table><div class="note">${eEl(e,'state','json','snapshot (JSON)','edit snapshot (JSON)')}</div>`,false)}
+ const T=P.twin.pv_templates||{};
+ const flds=(pi.templates||[]).filter(k=>T[k]);
+ const rf=flds.length?sec('fields','Record fields (.VAL, .RBV, …)',flds.map(k=>`<div class="cg"><h3>${esc({motor:'Motor record',slit_axis:'Slit axis record',scaler:'Scaler record',preamp:'SR570 preamp record'}[k]||k)} <span class="mute">${esc(T[k].source)}</span></h3><table class="pvt"><tbody>${T[k].fields.map(f=>`<tr><td class="${f.access==='read'?'rd':'wr'}">${f.access==='read'?'read':'write'}</td><td>&lt;PV&gt;${esc(f.field)}</td><td class="mute">${esc(f.what)}</td></tr>`).join('')}</tbody></table></div>`).join('')+`<div class="note">read = monitored, write = setpoint/command (usual direction of the EPICS field, not checked live).</div>`,false,flds.length+' kinds'):'';
+ const panels=[...new Set((e.pvmap?e.pvmap.groups:[]).map(g=>g.panel).filter(Boolean))];
+ const kv=[],add=(k,v)=>{if(v!=null&&v!=='')kv.push(`<dt>${k}</dt><dd>${v}</dd>`)};
+ add('kind',esc(e.kind)+(e.tomo?' · tomo detector':''));
+ add('confidence',eEl(e,'conf',CONFS,'confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)}`)+` <span class="mute">- ${esc(CONFTXT[e.conf])}</span>`);
  add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
  add('panel group',e.group&&esc(((t.hutches[e.hutch].groups||[]).find(q=>q.id===e.group)||{}).name||e.group));
  if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));
- const EM='<span class="mute">(empty)</span>';kv.push(`<dt>device</dt><dd>${eEl(e,'dev','str','device name',e.dev?`<span class="mono">${esc(e.dev)}</span>`:EM)}</dd>`);kv.push(`<dt>PV</dt><dd>${eEl(e,'pv','str','PV',e.pv?`<span class="mono">${esc(e.pv)}</span>`:EM)}</dd>`);
- add('z',eEl(e,'z_m','num?','distance z (m)',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b>`)+(e.z_m==null?'':` <span class="mute">— ${eEl(e,'z_conf','str','z confidence',esc(e.z_conf))}</span><div class="note" style="margin-top:2px">${eEl(e,'z_src','str','z source',esc(e.z_src))}</div>`));
- let ctl='';
- if(e.controls){ctl=`<h2 style="margin-top:12px">${eEl(e,'controls','json','controls (JSON)','Controls')} <span class="mute" style="text-transform:none;letter-spacing:0">(right-click: edit)</span></h2><table><tbody>`+Object.entries(e.controls).map(([k,v])=>{
-   if(v&&typeof v==='object'&&!Array.isArray(v)){const f=Object.entries(v).map(([a,b])=>`${esc(a)} ${esc(Array.isArray(b)?b.join('…'):typeof b==='object'?JSON.stringify(b):b)}`).join(' · ');return `<tr><td class="l">${esc(k)}</td><td class="l">${f}</td></tr>`}
-   return `<tr><td class="l">${esc(k)}</td><td class="l">${esc(v)}</td></tr>`}).join('')+`</tbody></table>`}
- let state='';if(e.state){state=`<h2 style="margin-top:12px">${eEl(e,'state','json','snapshot (JSON)','Snapshot')}${e.state.when?' · '+esc(e.state.when):''}</h2><table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(v)}</td></tr>`).join('')+`</tbody></table>`}
- let blade='';
- if(bt)blade+=`<div style="margin-top:10px"><span class="badge bt">BLADE alignment target</span><div class="note mono">${bt.map(esc).join('<br>')}</div></div>`;
- if(e.tomo){const cams=Object.entries(P.profile.cameras||{}).filter(([k,v])=>v.hutch===e.hutch);
-  blade+=`<div class="note" style="margin-top:8px">Profile cameras in hutch ${esc(e.hutch)}: ${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (${v.pixel_um} µm/px)`).join(', '):'none'}. Which camera sits on this detector is <b>not established</b> in the twin.</div>`}
+ add('z',eEl(e,'z_m','num?','distance z (m)',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b>`)+(e.z_m==null?'':` <span class="mute">- ${eEl(e,'z_conf','str','z confidence',esc(e.z_conf))}</span><div class="note" style="margin-top:2px">${eEl(e,'z_src','str','z source',esc(e.z_src))}</div>`));
+ add('operator panels',panels.length?panels.map(x=>`<span class="mono">${esc(x)}</span>`).join(', '):'<span class="mute">none</span>');
+ add('user statement',e.user&&esc(e.user));
+ if(e.tomo){const cams=Object.entries(P.profile.cameras||{}).filter(([k,v])=>v.hutch===e.hutch);add('cameras',`profile cameras in hutch ${esc(e.hutch)}: ${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (${v.pixel_um} µm/px)`).join(', '):'none'}`)}
+ const meta=sec('meta','Provenance & metadata',`<dl class="kv">${kv.join('')}</dl>`,false);
  const ph=(e.src||[]).map(id=>t.photos.find(p=>p.id===id)).filter(Boolean);
- const thumbs=ph.length?`<h2 style="margin-top:12px">Source photos</h2><div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`:'';
- el.innerHTML=`<h2>Element</h2><div style="font-size:17px;font-weight:700">${eEl(e,'name','str','name',esc(e.name))}</div><div class="mono mute">${esc(e.id)}</div><dl class="kv" style="margin-top:8px">${kv.join('')}</dl>
-  ${verifyFor(e).map(v=>`<div class="vneed"><b>To verify:</b> ${esc(v.subject)} — <span class="mono">${esc(v.value)}</span><div class="mute">${esc(v.why)}</div></div>`).join('')}<div class="note" style="color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes — right-click to add)</span>')}</div>${blade}${pvSection(e)}${ctl}${state}${thumbs}
+ const thumbs=ph.length?sec('photos','Source photos',`<div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`,false,ph.length):'';
+ el.innerHTML=`${hdr}<div class="secbar"><button class="chip" data-secall="1">expand all</button><button class="chip" data-secall="0">collapse all</button></div>${ctlSec}${open}${notes}${snap}${rf}${meta}${thumbs}
   <div style="margin-top:12px"><button class="chip" id="clr">← profile &amp; twin info</button></div>`;
  $('clr').onclick=()=>{sel=null;hash();side();paint()};
-}
-
-/* ---------- PVs from the CS-Studio displays (pv_map.json) ---------- */
-function pvFields(base,tkey){
- const T=(P.twin.pv_templates||{})[tkey];if(!T)return '';
- return `<details class="pvd"><summary>${T.fields.length} fields (${esc(T.source)})</summary><table class="pvt"><tbody>${T.fields.map(f=>`<tr><td class="${f.access==='read'?'rd':'wr'}">${f.access==='read'?'read':'write'}</td><td>${esc(base+f.field)}</td><td class="mute">${esc(f.what)}</td></tr>`).join('')}</tbody></table></details>`;
-}
-function pvSection(e){
- const m=e.pvmap;
- let h=`<h2 style="margin-top:12px">PVs, controls &amp; readbacks</h2>`;
- if(!m){
-  h+=`<div class="note" style="margin-top:0">${e.kind==='ic'?'This ion chamber has no read-out channel on the operator display (no scaler/preamp PV found).':'No operator-display entry for this element (it is not a button on the CS-Studio layout); see device / PV / Controls from the twin below.'}</div>`;
-  return h;
- }
- h+=`<div class="note" style="margin-top:0">From the CS-Studio displays (${esc((m.label||''))}); read = monitored, write = setpoint/command (usual direction for the EPICS field, not checked live).</div>`;
- if(e.kind==='ic'&&!m.groups.some(g=>g.type==='ic_readout'))h+=`<div class="vneed"><b>No ion-chamber read-out PV.</b> The operator display has no read-out (scaler channel / preamp) button for this chamber, so none is recorded. Check with the beamline staff before assuming a channel.</div>`;
- m.groups.forEach(g=>{
-  let b='';
-  if(g.type==='ic_readout'){
-   b=`<table class="pvt"><tbody><tr><td class="rd">read</td><td class="pv"><b>${esc(g.readback.pv)}</b></td><td class="mute">${esc(g.readback.what)}</td></tr></tbody></table>
-    <div style="margin-top:4px" class="mute">Scaler <span class="pv">${esc(g.scaler.record)}</span> (shared counter)</div>${pvFields(g.scaler.record,'scaler')}
-    <div class="mute">Preamp SR570 <span class="pv">${esc(g.preamp.record)}</span></div>${pvFields(g.preamp.record,'preamp')}`;
-  }else if(g.type==='motors'){
-   b=g.motors.map(x=>`<div style="margin-top:3px"><span class="pv"><b>${esc(x.pv)}</b></span> ${x.name?`<span class="mute">${esc(x.name)}</span>`:''}</div>
-    <div class="pv"><span class="wr">set</span> ${esc(x.pv)}.VAL · <span class="rd">read</span> ${esc(x.pv)}.RBV · <span class="rd">moving</span> ${esc(x.pv)}.DMOV</div>${pvFields(x.pv,'motor')}`).join('');
-  }else if(g.type==='slit'){
-   b=Object.entries(g.axes).map(([a,x])=>`<div style="margin-top:3px"><span class="mute">${esc(a)}</span> <span class="pv"><b>${esc(x.record)}</b></span></div>
-    <div class="pv"><span class="wr">set/read</span> ${esc(x.record)}size.VAL · ${esc(x.record)}center.VAL</div>${pvFields(x.record,'slit_axis')}`).join('')
-    +(Object.keys(g.blade_motors).length?`<div class="mute" style="margin-top:4px">blade motors: ${Object.entries(g.blade_motors).map(([k,v])=>`${esc(k)} <span class="pv">${esc(v)}</span>`).join(' · ')}</div>`:'');
-  }else if(g.type==='camera'){
-   b=`<div class="pv"><b>${esc(g.prefix)}</b> <span class="mute">${esc(g.driver)}${g.model?' · '+esc(g.model):''}</span></div><div class="note" style="margin-top:2px">${esc(g.note)}</div>`;
-  }else b=`<div class="pv">${g.P?esc(g.P):'<span class="mute">(no prefix)</span>'}</div><div class="note" style="margin-top:2px">${esc(g.note)}</div>`;
-  h+=`<div class="pvg"><h3>${esc(g.title)} <span class="mute" style="font-weight:400">· ${esc(g.panel||'')}</span></h3>${b}</div>`;
- });
- return h;
 }
 function twinCard(){
  const t=P.twin,f=t.frame;

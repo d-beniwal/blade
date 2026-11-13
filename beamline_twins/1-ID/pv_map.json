@@ -1,7 +1,7 @@
 {
- "schema": 1,
+ "schema": 2,
  "beamline": "1-ID",
- "source": "cs_registry.json + CS-Studio device panels (see tools/pvmap.py)",
+ "source": "cs_registry.json + CS-Studio device panels + panel_registry.json (tier-A log-panel labels/limits; see tools/pvmap.py)",
  "templates": {
   "motor": {
    "source": "motors/motorx.bob",
@@ -289,15 +289,42 @@
      "motors": [
       {
        "pv": "1idb:m20",
-       "name": null
+       "name": null,
+       "log_label": "B20 L4B X",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "bl4"
+       ]
       },
       {
        "pv": "1idb:m21",
-       "name": null
+       "name": null,
+       "log_label": "B21 L4B Z",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.1,
+       "shared_with": [
+        "bl4"
+       ]
       },
       {
        "pv": "1idb:m23",
-       "name": null
+       "name": null,
+       "log_label": "B23 L4B Phi",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 0.1,
+       "shared_with": [
+        "bl4"
+       ]
       },
       {
        "pv": "1idb:m31",
@@ -346,15 +373,41 @@
      "motors": [
       {
        "pv": "1idb:m24",
-       "name": null
+       "name": null,
+       "log_label": "B24 L4B Th (Rx)",
+       "log_images": 21,
+       "log_first": "2022",
+       "log_last": "2025-06-10",
+       "units": "deg",
+       "step": 0.00282,
+       "limits": {
+        "lo": -2.0,
+        "hi": 2.0,
+        "frame": "user"
+       },
+       "shared_with": [
+        "bl4"
+       ]
       },
       {
        "pv": "1idb:m25",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "stackB2"
+       ]
       },
       {
        "pv": "1idb:m26",
-       "name": null
+       "name": null,
+       "log_label": "B26 L5B Chi",
+       "log_images": 13,
+       "log_first": "2025-03-04",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 1.0,
+       "shared_with": [
+        "bl5"
+       ]
       }
      ]
     }
@@ -560,7 +613,16 @@
       },
       {
        "pv": "1idb:m45",
-       "name": null
+       "name": null,
+       "log_label": "B45 L5B X",
+       "log_images": 14,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "bl5"
+       ]
       }
      ]
     }
@@ -576,7 +638,10 @@
      "motors": [
       {
        "pv": "1idb:m25",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "crlB"
+       ]
       },
       {
        "pv": "1idb:m64",
@@ -600,7 +665,18 @@
       },
       {
        "pv": "1idb:m28",
-       "name": "FS_Y"
+       "name": "FS_Y",
+       "log_label": "(28) shutterYb",
+       "log_images": 4,
+       "log_first": "2024-08-04",
+       "log_last": "2026-07-17",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -1.2,
+        "hi": 1.4,
+        "frame": "user"
+       }
       }
      ]
     }
@@ -666,15 +742,29 @@
       },
       {
        "pv": "1idb:m58",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1idb:Slit)"
       },
       {
        "pv": "1idb:m60",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1idb:Slit)"
       },
       {
        "pv": "1idb:m61",
-       "name": null
+       "name": null,
+       "log_label": "B Kslit Top",
+       "log_images": 3,
+       "log_first": "2024-08-04",
+       "log_last": "2025-11-01",
+       "units": "mm",
+       "step": 0.5,
+       "limits": {
+        "lo": -0.857,
+        "hi": 3.743,
+        "frame": "user"
+       },
+       "role": "Y+ blade (slit 1idb:Slit)"
       }
      ]
     },
@@ -746,23 +836,58 @@
      "motors": [
       {
        "pv": "1idb:m44",
-       "name": null
+       "name": null,
+       "log_label": "RL Y",
+       "log_images": 11,
+       "log_first": "2024-11-13",
+       "log_last": "2026-09-23",
+       "units": "mm",
+       "step": 0.001
       },
       {
        "pv": "1idb:m49",
-       "name": null
+       "name": null,
+       "log_label": "RL Phi",
+       "log_images": 11,
+       "log_first": "2024-11-13",
+       "log_last": "2026-09-23",
+       "units": "mm",
+       "step": 0.01
       },
       {
        "pv": "1idb:m53",
-       "name": null
+       "name": null,
+       "log_label": "RL Theta",
+       "log_images": 11,
+       "log_first": "2024-11-13",
+       "log_last": "2026-09-23",
+       "units": "deg",
+       "step": 0.1
       },
       {
        "pv": "1idb:m54",
-       "name": null
+       "name": null,
+       "log_label": "RL X",
+       "log_images": 13,
+       "log_first": "2024-11-13",
+       "log_last": "2026-09-23",
+       "units": "mm",
+       "step": 0.001,
+       "limits": {
+        "lo": -12.1,
+        "hi": 7.9,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idb:m56",
-       "name": null
+       "name": null,
+       "log_label": "RL Chi",
+       "log_images": 11,
+       "log_first": "2024-11-13",
+       "log_last": "2026-09-23",
+       "units": "deg",
+       "step": 0.1
       }
      ]
     }
@@ -778,27 +903,80 @@
      "motors": [
       {
        "pv": "1idb:m19",
-       "name": null
+       "name": null,
+       "log_label": "B19 L4B Chi",
+       "log_images": 12,
+       "log_first": "2025-03-04",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 1.0
       },
       {
        "pv": "1idb:m20",
-       "name": null
+       "name": null,
+       "log_label": "B20 L4B X",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "alCRL"
+       ]
       },
       {
        "pv": "1idb:m21",
-       "name": null
+       "name": null,
+       "log_label": "B21 L4B Z",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.1,
+       "shared_with": [
+        "alCRL"
+       ]
       },
       {
        "pv": "1idb:m22",
-       "name": null
+       "name": null,
+       "log_label": "B22 L4B Y",
+       "log_images": 12,
+       "log_first": "2025-03-04",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 1.0
       },
       {
        "pv": "1idb:m23",
-       "name": null
+       "name": null,
+       "log_label": "B23 L4B Phi",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 0.1,
+       "shared_with": [
+        "alCRL"
+       ]
       },
       {
        "pv": "1idb:m24",
-       "name": null
+       "name": null,
+       "log_label": "B24 L4B Th (Rx)",
+       "log_images": 21,
+       "log_first": "2022",
+       "log_last": "2025-06-10",
+       "units": "deg",
+       "step": 0.00282,
+       "limits": {
+        "lo": -2.0,
+        "hi": 2.0,
+        "frame": "user"
+       },
+       "shared_with": [
+        "crlB"
+       ]
       }
      ]
     }
@@ -814,27 +992,74 @@
      "motors": [
       {
        "pv": "1idb:m26",
-       "name": null
+       "name": null,
+       "log_label": "B26 L5B Chi",
+       "log_images": 13,
+       "log_first": "2025-03-04",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 1.0,
+       "shared_with": [
+        "crlB"
+       ]
       },
       {
        "pv": "1idb:m29",
-       "name": null
+       "name": null,
+       "log_label": "B29 L5B Th",
+       "log_images": 13,
+       "log_first": "2025-03-04",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 0.1
       },
       {
        "pv": "1idb:m45",
-       "name": null
+       "name": null,
+       "log_label": "B45 L5B X",
+       "log_images": 14,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "stackB1"
+       ]
       },
       {
        "pv": "1idb:m46",
-       "name": null
+       "name": null,
+       "log_label": "B46 L5B Z",
+       "log_images": 14,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1idb:m47",
-       "name": null
+       "name": null,
+       "log_label": "B47 L5B Y (inv)",
+       "log_images": 28,
+       "log_first": "2022",
+       "log_last": "2026-03-18",
+       "units": "mm",
+       "step": 1.0,
+       "limits": {
+        "lo": -2.01737,
+        "hi": 2.38512,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idb:m48",
-       "name": null
+       "name": null,
+       "log_label": "B48 L5B Phi",
+       "log_images": 14,
+       "log_first": "2022-06-09",
+       "log_last": "2026-03-18",
+       "units": "deg",
+       "step": 0.1
       }
      ]
     }
@@ -952,19 +1177,23 @@
      "motors": [
       {
        "pv": "1idc:m39",
-       "name": null
+       "name": null,
+       "role": "Y+ blade (slit 1idc:Kslitus)"
       },
       {
        "pv": "1idc:m61",
-       "name": null
+       "name": null,
+       "role": "X- blade (slit 1idc:Kslitus)"
       },
       {
        "pv": "1idc:m62",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1idc:Kslitus)"
       },
       {
        "pv": "1idc:m64",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1idc:Kslitus)"
       }
      ]
     },
@@ -1109,27 +1338,79 @@
      "motors": [
       {
        "pv": "1idc:m99",
-       "name": "X"
+       "name": "X",
+       "log_label": "lens1_x",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "lens5C"
+       ]
       },
       {
        "pv": "1idc:m100",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "lens1_y (upr)",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.1,
+       "shared_with": [
+        "lens5C"
+       ]
       },
       {
        "pv": "1idc:m101",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "lens1_z",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "lens5C"
+       ]
       },
       {
        "pv": "1idc:m102",
-       "name": "Rz (Chi)"
+       "name": "Rz (Chi)",
+       "log_label": "lens1_rotx",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "step": 0.005,
+       "shared_with": [
+        "lens5C"
+       ]
       },
       {
        "pv": "1idc:m103",
-       "name": "Ry (Phi)"
+       "name": "Ry (Phi)",
+       "log_label": "lens1_roty",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "step": 0.05,
+       "shared_with": [
+        "lens5C"
+       ]
       },
       {
        "pv": "1idc:m104",
-       "name": "Rx (Theta)"
+       "name": "Rx (Theta)",
+       "log_label": "lens1_rotz",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "deg",
+       "step": 0.2,
+       "shared_with": [
+        "lens5C"
+       ]
       }
      ]
     }
@@ -1145,27 +1426,54 @@
      "motors": [
       {
        "pv": "1idc:m65",
-       "name": "X"
+       "name": "X",
+       "log_label": "lens2_x",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10"
       },
       {
        "pv": "1idc:m66",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "lens2_y (inv)",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10"
       },
       {
        "pv": "1idc:m67",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "lens2_z",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10",
+       "step": 1.0
       },
       {
        "pv": "1idc:m68",
-       "name": "Rx (Theta)"
+       "name": "Rx (Theta)",
+       "log_label": "lens2_rotx",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10"
       },
       {
        "pv": "1idc:m69",
-       "name": "Ry (Phi)"
+       "name": "Ry (Phi)",
+       "log_label": "lens2_roty",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10",
+       "step": 0.05
       },
       {
        "pv": "1idc:m70",
-       "name": "Rz (Chi)"
+       "name": "Rz (Chi)",
+       "log_label": "lens2_rotz",
+       "log_images": 4,
+       "log_first": "2025-03-14",
+       "log_last": "2025-06-10",
+       "step": 0.4136
       }
      ]
     }
@@ -1181,27 +1489,57 @@
      "motors": [
       {
        "pv": "1idfoc:m1",
-       "name": "X"
+       "name": "X",
+       "log_label": "lens3_x (out)",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.001
       },
       {
        "pv": "1idfoc:m2",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "lens3_y",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.1
       },
       {
        "pv": "1idfoc:m3",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "lens3_z",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 1.0
       },
       {
        "pv": "1idfoc:m4",
-       "name": "Rx"
+       "name": "Rx",
+       "log_label": "lens3_rotx",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.05
       },
       {
        "pv": "1idfoc:m5",
-       "name": "Phi (Ry)"
+       "name": "Phi (Ry)",
+       "log_label": "lens3_roty",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.005
       },
       {
        "pv": "1idfoc:m6",
-       "name": "Rz"
+       "name": "Rz",
+       "log_label": "lens3_rotz",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 1.0
       }
      ]
     }
@@ -1217,27 +1555,57 @@
      "motors": [
       {
        "pv": "1idfoc:m7",
-       "name": "x"
+       "name": "x",
+       "log_label": "lens4_x (in)",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 1.0
       },
       {
        "pv": "1idfoc:m8",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "lens4_y",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.5
       },
       {
        "pv": "1idfoc:m9",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "lens4_z",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 1.0
       },
       {
        "pv": "1idfoc:m10",
-       "name": "Theta (Rx)"
+       "name": "Theta (Rx)",
+       "log_label": "lens4_rotx",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.00224
       },
       {
        "pv": "1idfoc:m11",
-       "name": "Phi (Ry)"
+       "name": "Phi (Ry)",
+       "log_label": "lens4_roty",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.005
       },
       {
        "pv": "1idfoc:m12",
-       "name": "Chi (Rz)"
+       "name": "Chi (Rz)",
+       "log_label": "lens4_rotz",
+       "log_images": 3,
+       "log_first": "2025-03-14",
+       "log_last": "2026-04-06",
+       "step": 0.329
       }
      ]
     }
@@ -1253,27 +1621,79 @@
      "motors": [
       {
        "pv": "1idc:m99",
-       "name": null
+       "name": null,
+       "log_label": "lens1_x",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "lens1C"
+       ]
       },
       {
        "pv": "1idc:m100",
-       "name": null
+       "name": null,
+       "log_label": "lens1_y (upr)",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.1,
+       "shared_with": [
+        "lens1C"
+       ]
       },
       {
        "pv": "1idc:m101",
-       "name": null
+       "name": null,
+       "log_label": "lens1_z",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "mm",
+       "step": 0.2,
+       "shared_with": [
+        "lens1C"
+       ]
       },
       {
        "pv": "1idc:m102",
-       "name": null
+       "name": null,
+       "log_label": "lens1_rotx",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "step": 0.005,
+       "shared_with": [
+        "lens1C"
+       ]
       },
       {
        "pv": "1idc:m103",
-       "name": null
+       "name": null,
+       "log_label": "lens1_roty",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "step": 0.05,
+       "shared_with": [
+        "lens1C"
+       ]
       },
       {
        "pv": "1idc:m104",
-       "name": null
+       "name": null,
+       "log_label": "lens1_rotz",
+       "log_images": 5,
+       "log_first": "2025-01-29",
+       "log_last": "2025-06-10",
+       "units": "deg",
+       "step": 0.2,
+       "shared_with": [
+        "lens1C"
+       ]
       }
      ]
     }
@@ -1363,19 +1783,23 @@
      "motors": [
       {
        "pv": "1idc:m32",
-       "name": null
+       "name": null,
+       "role": "Y+ blade (slit 1idc:Kslitds)"
       },
       {
        "pv": "1idc:m71",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1idc:Kslitds)"
       },
       {
        "pv": "1idc:m97",
-       "name": null
+       "name": null,
+       "role": "X- blade (slit 1idc:Kslitds)"
       },
       {
        "pv": "1idc:m98",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1idc:Kslitds)"
       }
      ]
     },
@@ -1442,31 +1866,103 @@
      "motors": [
       {
        "pv": "1idELMO:m1",
-       "name": "Labmotion"
+       "name": "Labmotion",
+       "log_label": "Elmo LabMotion",
+       "log_images": 67,
+       "log_first": "2024-11-06",
+       "log_last": "2026-10-16",
+       "units": "deg",
+       "step": 90.0
       },
       {
        "pv": "1idc:m25",
-       "name": "samZ"
+       "name": "samZ",
+       "log_label": "samXC",
+       "log_images": 92,
+       "log_first": "2025-01-30",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 0.75,
+       "limits": {
+        "lo": -10.04,
+        "hi": 8.9275,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m26",
-       "name": "samY"
+       "name": "samY",
+       "log_label": "samYC",
+       "log_images": 105,
+       "log_first": "2024-11-01",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -15.0,
+        "hi": 8.354,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m27",
-       "name": "samX"
+       "name": "samX",
+       "log_label": "samZC",
+       "log_images": 92,
+       "log_first": "2025-01-30",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -9.5,
+        "hi": 9.5,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m28",
-       "name": "Rx"
+       "name": "Rx",
+       "log_label": "rxc",
+       "log_images": 45,
+       "log_first": "2025-01-30",
+       "log_last": "2026-10-16",
+       "units": "deg",
+       "step": 0.1,
+       "limits": {
+        "lo": -4.0,
+        "hi": 4.8,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m29",
-       "name": "Rz"
+       "name": "Rz",
+       "log_label": "rzc",
+       "log_images": 45,
+       "log_first": "2025-01-30",
+       "log_last": "2026-10-16",
+       "units": "deg",
+       "step": 1.0,
+       "limits": {
+        "lo": -3.95,
+        "hi": 4.2,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m31",
-       "name": "LabMotion_TransX"
+       "name": "LabMotion_TransX",
+       "log_label": "rotXC",
+       "log_images": 47,
+       "log_first": "2025-01-30",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 3.0,
+       "limits": {
+        "lo": -98.0,
+        "hi": 100.1,
+        "frame": "user"
+       }
       }
      ]
     },
@@ -1533,15 +2029,42 @@
      "motors": [
       {
        "pv": "1idc:m77",
-       "name": null
+       "name": null,
+       "log_label": "tomo_z",
+       "log_images": 12,
+       "log_first": "2025-01-30",
+       "log_last": "2026-04-06",
+       "step": 5.0
       },
       {
        "pv": "1idc:m79",
-       "name": null
+       "name": null,
+       "log_label": "C79 Tomo X",
+       "log_images": 15,
+       "log_first": "2024-08-05",
+       "log_last": "2026-04-06",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -187.7,
+        "hi": 12.9,
+        "frame": "user"
+       }
       },
       {
        "pv": "1idc:m84",
-       "name": null
+       "name": null,
+       "log_label": "C84 TomoY",
+       "log_images": 15,
+       "log_first": "2024-08-05",
+       "log_last": "2026-04-06",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -16.6,
+        "hi": 3.6,
+        "frame": "user"
+       }
       }
      ]
     },
@@ -1575,11 +2098,17 @@
      "motors": [
       {
        "pv": "1idcAMCI:m9",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "d2C"
+       ]
       },
       {
        "pv": "1idcAMCI:m10",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "d2C"
+       ]
       }
      ]
     }
@@ -1595,7 +2124,10 @@
      "motors": [
       {
        "pv": "1idcAMCI:m11",
-       "name": "D2_Shield"
+       "name": "D2_Shield",
+       "shared_with": [
+        "d2C"
+       ]
       }
      ]
     }
@@ -1611,15 +2143,33 @@
      "motors": [
       {
        "pv": "1idcAMCI:m7",
-       "name": null
+       "name": null,
+       "log_label": "varexZ 1idc",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 10.0
       },
       {
        "pv": "1idcAMCI:m8",
-       "name": null
+       "name": null,
+       "log_label": "varexY 1idc",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1idc:m78",
-       "name": null
+       "name": null,
+       "log_label": "C78 Varex X",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 1.0
       }
      ]
     },
@@ -1630,27 +2180,54 @@
      "motors": [
       {
        "pv": "1idcAMCI:m7",
-       "name": null
+       "name": null,
+       "log_label": "varexZ 1idc",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 10.0
       },
       {
        "pv": "1idcAMCI:m8",
-       "name": null
+       "name": null,
+       "log_label": "varexY 1idc",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1idcAMCI:m9",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "stopC"
+       ]
       },
       {
        "pv": "1idcAMCI:m10",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "stopC"
+       ]
       },
       {
        "pv": "1idcAMCI:m11",
-       "name": null
+       "name": null,
+       "shared_with": [
+        "shieldC"
+       ]
       },
       {
        "pv": "1idc:m78",
-       "name": null
+       "name": null,
+       "log_label": "C78 Varex X",
+       "log_images": 3,
+       "log_first": "2025-01-31",
+       "log_last": "2026-10-16",
+       "units": "mm",
+       "step": 1.0
       }
      ]
     },
@@ -1753,19 +2330,23 @@
      "motors": [
       {
        "pv": "1ide1:m20",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1ide1:Kohzu_E_up)"
       },
       {
        "pv": "1ide1:m21",
-       "name": null
+       "name": null,
+       "role": "Y+ blade (slit 1ide1:Kohzu_E_up)"
       },
       {
        "pv": "1ide1:m22",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1ide1:Kohzu_E_up)"
       },
       {
        "pv": "1ide1:m23",
-       "name": null
+       "name": null,
+       "role": "X- blade (slit 1ide1:Kohzu_E_up)"
       }
      ]
     },
@@ -1817,11 +2398,33 @@
      "motors": [
       {
        "pv": "1ide1:m75",
-       "name": "FS_X"
+       "name": "FS_X",
+       "log_label": "FS2Y E",
+       "log_images": 9,
+       "log_first": "2025-04-22",
+       "log_last": "2026-07-16",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -7.46994,
+        "hi": 41.83006,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m77",
-       "name": "FS_Y"
+       "name": "FS_Y",
+       "log_label": "FS2X E",
+       "log_images": 9,
+       "log_first": "2025-04-22",
+       "log_last": "2026-07-16",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -8.03939,
+        "hi": 14.96061,
+        "frame": "user"
+       }
       }
      ]
     }
@@ -1837,23 +2440,78 @@
      "motors": [
       {
        "pv": "1ide1:m28",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "L1E Y (inv)",
+       "log_images": 24,
+       "log_first": "2022-03-29",
+       "log_last": "2026-02-17",
+       "units": "mm",
+       "step": 1.0,
+       "limits": {
+        "lo": -1.0,
+        "hi": 1.50625,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m30",
-       "name": "Rx"
+       "name": "Rx",
+       "log_label": "L1E TH",
+       "log_images": 26,
+       "log_first": "2022-03-29",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.002,
+       "limits": {
+        "lo": -1.0,
+        "hi": 0.3,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m31",
-       "name": "Rz"
+       "name": "Rz",
+       "log_label": "L1E CHI",
+       "log_images": 14,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -0.5,
+        "hi": 0.5,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m117",
-       "name": "X"
+       "name": "X",
+       "log_label": "L1E X",
+       "log_images": 12,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.5,
+       "limits": {
+        "lo": -2.0,
+        "hi": 2.5,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m119",
-       "name": "Ry"
+       "name": "Ry",
+       "log_label": "L1E Phi",
+       "log_images": 12,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.7,
+       "limits": {
+        "lo": -0.75,
+        "hi": 0.75,
+        "frame": "user"
+       }
       }
      ]
     }
@@ -1869,23 +2527,78 @@
      "motors": [
       {
        "pv": "1ide1:m29",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "L2E Y (upr)",
+       "log_images": 24,
+       "log_first": "2022-03-29",
+       "log_last": "2026-02-17",
+       "units": "mm",
+       "step": 1.0,
+       "limits": {
+        "lo": -2.0,
+        "hi": 0.86375,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m32",
-       "name": "Rx (Th)"
+       "name": "Rx (Th)",
+       "log_label": "L2E TH",
+       "log_images": 26,
+       "log_first": "2022-03-29",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.002,
+       "limits": {
+        "lo": -0.3,
+        "hi": 0.2,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m33",
-       "name": "Rz (Chi)"
+       "name": "Rz (Chi)",
+       "log_label": "L2E CHI",
+       "log_images": 13,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.01,
+       "limits": {
+        "lo": -0.6,
+        "hi": 0.5,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m118",
-       "name": "X"
+       "name": "X",
+       "log_label": "L2E X",
+       "log_images": 12,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.5,
+       "limits": {
+        "lo": -3.0,
+        "hi": 2.7,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m120",
-       "name": "Ry (Phi)"
+       "name": "Ry (Phi)",
+       "log_label": "L2E Phi",
+       "log_images": 12,
+       "log_first": "2022-06-09",
+       "log_last": "2026-02-17",
+       "units": "deg",
+       "step": 0.1,
+       "limits": {
+        "lo": -0.1,
+        "hi": 1.1,
+        "frame": "user"
+       }
       }
      ]
     }
@@ -1901,27 +2614,59 @@
      "motors": [
       {
        "pv": "1ide1:m44",
-       "name": "Rx (Th)"
+       "name": "Rx (Th)",
+       "log_label": "L3E Th",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "deg"
       },
       {
        "pv": "1ide1:m45",
-       "name": "Rz (Chi)"
+       "name": "Rz (Chi)",
+       "log_label": "L3E Chi",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "deg"
       },
       {
        "pv": "1ide1:m81",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "L3E Z",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "mm"
       },
       {
        "pv": "1ide1:m82",
-       "name": "X"
+       "name": "X",
+       "log_label": "L3E X (in)",
+       "log_images": 7,
+       "log_first": "2022-07-05",
+       "log_last": "2025-06-19",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m83",
-       "name": "Ry (Phi)"
+       "name": "Ry (Phi)",
+       "log_label": "L3E Phi",
+       "log_images": 7,
+       "log_first": "2022-07-05",
+       "log_last": "2025-06-19",
+       "units": "deg",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m89",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "L3E Y",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "mm"
       }
      ]
     }
@@ -1937,27 +2682,59 @@
      "motors": [
       {
        "pv": "1ide1:m84",
-       "name": "Rz (Chi)"
+       "name": "Rz (Chi)",
+       "log_label": "L4E Chi",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "deg"
       },
       {
        "pv": "1ide1:m85",
-       "name": "X"
+       "name": "X",
+       "log_label": "L4E X (out)",
+       "log_images": 7,
+       "log_first": "2022-07-05",
+       "log_last": "2025-06-19",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m88",
-       "name": "Ry (Phi)"
+       "name": "Ry (Phi)",
+       "log_label": "L4E Phi",
+       "log_images": 7,
+       "log_first": "2022-07-05",
+       "log_last": "2025-06-19",
+       "units": "deg",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m114",
-       "name": "Y"
+       "name": "Y",
+       "log_label": "L4E Y",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "mm"
       },
       {
        "pv": "1ide1:m115",
-       "name": "Z"
+       "name": "Z",
+       "log_label": "L4E Z",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "mm"
       },
       {
        "pv": "1ide1:m116",
-       "name": "Rx (Th)"
+       "name": "Rx (Th)",
+       "log_label": "L4E Th",
+       "log_images": 3,
+       "log_first": "2025-03-11",
+       "log_last": "2025-06-19",
+       "units": "mm"
       }
      ]
     }
@@ -2003,19 +2780,23 @@
      "motors": [
       {
        "pv": "1ide1:m24",
-       "name": null
+       "name": null,
+       "role": "X- blade (slit 1ide1:Kohzu_E_dn)"
       },
       {
        "pv": "1ide1:m25",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1ide1:Kohzu_E_dn)"
       },
       {
        "pv": "1ide1:m26",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1ide1:Kohzu_E_dn)"
       },
       {
        "pv": "1ide1:m27",
-       "name": null
+       "name": null,
+       "role": "Y+ blade (slit 1ide1:Kohzu_E_dn)"
       }
      ]
     },
@@ -2067,27 +2848,85 @@
      "motors": [
       {
        "pv": "1ide:m9",
-       "name": "Aero Rot (Ry)"
+       "name": "Aero Rot (Ry)",
+       "candidates": [
+        "aero Rot"
+       ]
       },
       {
        "pv": "1ide1:m34",
-       "name": "samX"
+       "name": "samX",
+       "log_label": "samXE",
+       "log_images": 204,
+       "log_first": "2022-03-22",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -10.647,
+        "hi": 9.353,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m35",
-       "name": "samY"
+       "name": "samY",
+       "log_label": "samYE",
+       "log_images": 202,
+       "log_first": "2022-03-22",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -9.3,
+        "hi": 20.6,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m36",
-       "name": "samZ"
+       "name": "samZ",
+       "log_label": "samZE",
+       "log_images": 194,
+       "log_first": "2022-03-22",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 0.01,
+       "limits": {
+        "lo": -9.2062,
+        "hi": 10.7938,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m86",
-       "name": "sam_Rz"
+       "name": "sam_Rz",
+       "log_label": "samChi (Rz)",
+       "log_images": 182,
+       "log_first": "2022-03-22",
+       "log_last": "2026-11-03",
+       "units": "deg",
+       "step": 0.1,
+       "limits": {
+        "lo": -8.1,
+        "hi": 8.1,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m87",
-       "name": "sam_Rx"
+       "name": "sam_Rx",
+       "log_label": "samTh (Rx)",
+       "log_images": 182,
+       "log_first": "2022-03-22",
+       "log_last": "2026-11-03",
+       "units": "deg",
+       "step": 0.1,
+       "limits": {
+        "lo": -4.6,
+        "hi": 4.6,
+        "frame": "user"
+       }
       }
      ]
     }
@@ -2103,35 +2942,78 @@
      "motors": [
       {
        "pv": "1ide1:m1",
-       "name": "Y1"
+       "name": "Y1",
+       "log_label": "MTS_Y1E (DS)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 10.0
       },
       {
        "pv": "1ide1:m2",
-       "name": "Y2"
+       "name": "Y2",
+       "log_label": "MTS_Y2E (USIB)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m3",
-       "name": "Y3"
+       "name": "Y3",
+       "log_label": "MTS_Y3E (USOB)",
+       "log_images": 3,
+       "log_first": "2022",
+       "log_last": "2022-04-08",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m4",
-       "name": "MTS_Phi"
+       "name": "MTS_Phi",
+       "log_label": "mtsPhi (prrot)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "deg",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m9",
-       "name": "MTS_X2"
+       "name": "MTS_X2",
+       "candidates": [
+        "aero Rot",
+        "mtsX2E"
+       ]
       },
       {
        "pv": "1ide1:m13",
-       "name": "MTS_X"
+       "name": "MTS_X",
+       "log_label": "MTS X (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m14",
-       "name": "MTS_Z"
+       "name": "MTS_Z",
+       "log_label": "MTS Z (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m16",
-       "name": "MTS_Y"
+       "name": "MTS_Y",
+       "candidates": [
+        "mtsYE"
+       ]
       }
      ]
     },
@@ -2142,35 +3024,78 @@
      "motors": [
       {
        "pv": "1ide1:m1",
-       "name": "Y1"
+       "name": "Y1",
+       "log_label": "MTS_Y1E (DS)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 10.0
       },
       {
        "pv": "1ide1:m2",
-       "name": "Y2"
+       "name": "Y2",
+       "log_label": "MTS_Y2E (USIB)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m3",
-       "name": "Y3"
+       "name": "Y3",
+       "log_label": "MTS_Y3E (USOB)",
+       "log_images": 3,
+       "log_first": "2022",
+       "log_last": "2022-04-08",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m4",
-       "name": "MTS_Phi"
+       "name": "MTS_Phi",
+       "log_label": "mtsPhi (prrot)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "deg",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m9",
-       "name": "MTS_X2"
+       "name": "MTS_X2",
+       "candidates": [
+        "aero Rot",
+        "mtsX2E"
+       ]
       },
       {
        "pv": "1ide1:m13",
-       "name": "MTS_X"
+       "name": "MTS_X",
+       "log_label": "MTS X (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m14",
-       "name": "MTS_Z"
+       "name": "MTS_Z",
+       "log_label": "MTS Z (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m16",
-       "name": "MTS_Y"
+       "name": "MTS_Y",
+       "candidates": [
+        "mtsYE"
+       ]
       }
      ]
     },
@@ -2181,35 +3106,78 @@
      "motors": [
       {
        "pv": "1ide1:m1",
-       "name": "Y1"
+       "name": "Y1",
+       "log_label": "MTS_Y1E (DS)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 10.0
       },
       {
        "pv": "1ide1:m2",
-       "name": "Y2"
+       "name": "Y2",
+       "log_label": "MTS_Y2E (USIB)",
+       "log_images": 14,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m3",
-       "name": "Y3"
+       "name": "Y3",
+       "log_label": "MTS_Y3E (USOB)",
+       "log_images": 3,
+       "log_first": "2022",
+       "log_last": "2022-04-08",
+       "units": "mm",
+       "step": 2.0
       },
       {
        "pv": "1ide1:m4",
-       "name": "MTS_Phi"
+       "name": "MTS_Phi",
+       "log_label": "mtsPhi (prrot)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "deg",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m9",
-       "name": "MTS_X2"
+       "name": "MTS_X2",
+       "candidates": [
+        "aero Rot",
+        "mtsX2E"
+       ]
       },
       {
        "pv": "1ide1:m13",
-       "name": "MTS_X"
+       "name": "MTS_X",
+       "log_label": "MTS X (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m14",
-       "name": "MTS_Z"
+       "name": "MTS_Z",
+       "log_label": "MTS Z (in E)",
+       "log_images": 22,
+       "log_first": "2022",
+       "log_last": "2026-10-14",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m16",
-       "name": "MTS_Y"
+       "name": "MTS_Y",
+       "candidates": [
+        "mtsYE"
+       ]
       }
      ]
     },
@@ -2232,19 +3200,56 @@
      "motors": [
       {
        "pv": "1ide1:m38",
-       "name": "E-Tomo Rz"
+       "name": "E-Tomo Rz",
+       "candidates": [
+        "Img_ChE",
+        "Img_ChiE"
+       ]
       },
       {
        "pv": "1ide1:m40",
-       "name": "E-Tomo Y"
+       "name": "E-Tomo Y",
+       "log_label": "Img_YE",
+       "log_images": 37,
+       "log_first": "2022-03-29",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 0.001,
+       "limits": {
+        "lo": -15.39105,
+        "hi": 13.90895,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m62",
-       "name": "E-Tomo Z"
+       "name": "E-Tomo Z",
+       "log_label": "Img Z",
+       "log_images": 39,
+       "log_first": "2022-03-29",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 50.0,
+       "limits": {
+        "lo": 98.0,
+        "hi": 208.0,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m63",
-       "name": "E-Tomo X"
+       "name": "E-Tomo X",
+       "log_label": "Img X",
+       "log_images": 39,
+       "log_first": "2022-03-29",
+       "log_last": "2026-11-03",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -5.373,
+        "hi": 271.5125,
+        "frame": "user"
+       }
       }
      ]
     },
@@ -2280,35 +3285,79 @@
      "motors": [
       {
        "pv": "1ide1:m5",
-       "name": null
+       "name": null,
+       "log_label": "NF TiltX (In E)",
+       "log_images": 5,
+       "log_first": "2023-02-23",
+       "log_last": "2025-03-18",
+       "units": "deg",
+       "step": 0.5
       },
       {
        "pv": "1ide1:m6",
-       "name": null
+       "name": null,
+       "candidates": [
+        "Det X (Newport)",
+        "NF TiltY (In E)"
+       ]
       },
       {
        "pv": "1ide:m6",
-       "name": null
+       "name": null,
+       "candidates": [
+        "Det X (Newport)"
+       ]
       },
       {
        "pv": "1ide:m7",
-       "name": null
+       "name": null,
+       "candidates": [
+        "Det Z (Newport)"
+       ]
       },
       {
        "pv": "1ide1:m12",
-       "name": null
+       "name": null,
+       "log_label": "NF Focus (In E)",
+       "log_images": 5,
+       "log_first": "2023-02-23",
+       "log_last": "2025-03-18",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m39",
-       "name": null
+       "name": null,
+       "log_label": "NF BBY (XA04A-R2)",
+       "log_images": 4,
+       "log_first": "2022-10-03",
+       "log_last": "2025-02-08",
+       "units": "mm",
+       "step": 0.1
       },
       {
        "pv": "1ide1:m59",
-       "name": null
+       "name": null,
+       "log_label": "NF Y",
+       "log_images": 6,
+       "log_first": "2022-10-03",
+       "log_last": "2025-06-24",
+       "units": "mm",
+       "step": 0.1,
+       "limits": {
+        "lo": -0.9555,
+        "hi": 36.6948,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m104",
-       "name": null
+       "name": null,
+       "log_label": "NF BaseX",
+       "log_images": 3,
+       "log_first": "2025-02-08",
+       "log_last": "2025-03-18",
+       "units": "mm"
       }
      ]
     }
@@ -2346,7 +3395,18 @@
      "motors": [
       {
        "pv": "1ide1:m50",
-       "name": "GE_Z in E"
+       "name": "GE_Z in E",
+       "log_label": "GE_Z in E",
+       "log_images": 3,
+       "log_first": "2025-07-23",
+       "log_last": "2026-07-17",
+       "units": "mm",
+       "step": 50.0,
+       "limits": {
+        "lo": 400.0,
+        "hi": 1255.0,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m97",
@@ -2354,7 +3414,18 @@
       },
       {
        "pv": "1ide1:m103",
-       "name": "GE_X in E"
+       "name": "GE_X in E",
+       "log_label": "GE_X in E",
+       "log_images": 11,
+       "log_first": "2022-03-22",
+       "log_last": "2026-07-17",
+       "units": "mm",
+       "step": 0.4,
+       "limits": {
+        "lo": -552.14884,
+        "hi": 288.58196,
+        "frame": "user"
+       }
       }
      ]
     },
@@ -2505,11 +3576,31 @@
      "motors": [
       {
        "pv": "1ide1:m111",
-       "name": null
+       "name": null,
+       "log_label": "sradXE",
+       "log_images": 3,
+       "log_first": "2025-04-22",
+       "log_last": "2025-12-03",
+       "step": 0.1,
+       "limits": {
+        "lo": -6.0879,
+        "hi": 108.907,
+        "frame": "user"
+       }
       },
       {
        "pv": "1ide1:m112",
-       "name": null
+       "name": null,
+       "log_label": "SAXSRadY",
+       "log_images": 3,
+       "log_first": "2025-04-22",
+       "log_last": "2025-12-03",
+       "step": 0.25,
+       "limits": {
+        "lo": -6.18659,
+        "hi": 14.61287,
+        "frame": "user"
+       }
       }
      ]
     },
@@ -2556,23 +3647,48 @@
      "motors": [
       {
        "pv": "1ide1:m51",
-       "name": null
+       "name": null,
+       "candidates": [
+        "SAX AttnX",
+        "SAX PIN X",
+        "SAXS PinX"
+       ]
       },
       {
        "pv": "1ide1:m52",
-       "name": null
+       "name": null,
+       "log_label": "SAX DetX",
+       "log_images": 13,
+       "log_first": "2022-03-23",
+       "log_last": "2026-03-12",
+       "units": "mm",
+       "step": 1.0
       },
       {
        "pv": "1ide1:m53",
-       "name": null
+       "name": null,
+       "log_label": "SAX DetY",
+       "log_images": 13,
+       "log_first": "2022-03-23",
+       "log_last": "2026-03-12",
+       "units": "mm",
+       "step": 5.0
       },
       {
        "pv": "1ide1:m54",
-       "name": null
+       "name": null,
+       "candidates": [
+        "SAX AttnY",
+        "SAXS PinY"
+       ]
       },
       {
        "pv": "1ide1:m66",
-       "name": null
+       "name": null,
+       "candidates": [
+        "SAX PIN X",
+        "SAXS Pb"
+       ]
       }
      ]
     }
@@ -2627,19 +3743,23 @@
      "motors": [
       {
        "pv": "1ida:m3",
-       "name": null
+       "name": null,
+       "role": "X- blade (slit 1ida:Slit1)"
       },
       {
        "pv": "1ida:m4",
-       "name": null
+       "name": null,
+       "role": "Y+ blade (slit 1ida:Slit1)"
       },
       {
        "pv": "1ida:m5",
-       "name": null
+       "name": null,
+       "role": "X+ blade (slit 1ida:Slit1)"
       },
       {
        "pv": "1ida:m6",
-       "name": null
+       "name": null,
+       "role": "Y- blade (slit 1ida:Slit1)"
       }
      ]
     }

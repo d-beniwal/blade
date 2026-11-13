@@ -5,6 +5,7 @@ import json
 from . import config as cfg
 from . import paths
 from . import edit_api
+from . import twin_panel
 
 _mod = None
 
@@ -95,8 +96,10 @@ def twin_payload(profile):
     bl = t["beamline"]
     els = t["path"]
     pvm = _pv_map(tid)
+    vitems = [v for v in edit_api.verify_items(tid) if v.get("status") != "verified" and (v.get("ref") or {}).get("target") == "element"]
     for e in els:
         e["pvmap"] = (pvm.get("elements") or {}).get(e["id"])      # generated from the CS-Studio displays (beamline_twins/tools/pvmap.py); None = no operator display
+        e["panel_info"] = twin_panel.build(e, e["pvmap"], [v for v in vitems if v["ref"].get("id") == e["id"]])   # uniform channels + open items for the info panel
     out["twin"] = {
         "id": tid, "name": bl["name"], "frame": bl["frame"], "hutch_order": bl["hutch_order"], "snapshot": bl.get("snapshot", {}),
         "hutches": {h: {"description": bl["hutches"].get(h, ""), "coverage": bl.get("coverage", {}).get(h, ""), "note": t["hutches"].get(h, {}).get("note", ""),

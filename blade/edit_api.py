@@ -17,7 +17,7 @@ from . import twin_api
 CONF = ("confirmed", "seen", "code", "inferred", "unseen")
 VSTATUS = ("unverified", "verified", "wrong")
 # element field -> kind of value
-ELEMENT_FIELDS = {"name": "str", "dev": "str", "pv": "str", "conf": CONF, "z_m": "num?", "z_conf": "str", "z_src": "str", "notes": "str", "controls": "json", "state": "json"}
+ELEMENT_FIELDS = {"name": "str", "long_name": "str", "dev": "str", "pv": "str", "conf": CONF, "z_m": "num?", "z_conf": "str", "z_src": "str", "notes": "str", "controls": "json", "state": "json"}
 VERIFY_FIELDS = {"status": VSTATUS, "note": "str"}
 PROFILE_PATHS = [(re.compile(r"^cameras\.[\w-]+\.(pv_prefix|note|hutch)$"), "str"), (re.compile(r"^cameras\.[\w-]+\.pixel_um$"), "num"),
                  (re.compile(r"^stations\.[\w-]+\.motors\.[\w-]+\.(pv|name|role)$"), "str")]
