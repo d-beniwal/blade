@@ -16,6 +16,7 @@ from . import config as cfg
 from . import twin_api
 from . import vbl_api
 from . import kb_api
+from .vbl import physics_doc
 
 
 
@@ -50,6 +51,15 @@ class H(BaseHTTPRequestHandler):
             return self._send((Path(__file__).parent / "vbl.html").read_text(), "text/html; charset=utf-8")
         if u.path == "/kb":
             return self._send((Path(__file__).parent / "kb.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/physics":                       # description of every physics model in the virtual beamline (values read live from sim.json)
+            return self._send((Path(__file__).parent / "physics.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/api/vbl/physics":
+            return self._send(physics_doc.payload())
+        if u.path == "/api/vbl/physics/curve":         # curve computed by calling the real simulator functions on an 'aligned' world
+            try:
+                return self._send(physics_doc.curve(q.get("name", "")))
+            except ValueError as e:
+                return self._send({"error": str(e)}, code=404)
         if u.path == "/kb-image":                      # /kb-image?sha=<id>&w=<px>: found through the KB's images table only (never a client path)
             try:
                 data, mime = kb_api.image_bytes(q.get("sha", ""), int(q.get("w", 0) or 0))
@@ -162,7 +172,11 @@ class H(BaseHTTPRequestHandler):
         self._send({"error": "not found"}, code=404)
 
 
-PAGES = {"monitor": "/", "twin": "/twin", "vbl": "/vbl", "kb": "/kb"}
+class _Server(ThreadingHTTPServer):
+    request_queue_size = 64          # the default backlog (5) resets connections when a page fires several requests at once while a handler is busy
+
+
+PAGES = {"monitor": "/", "twin": "/twin", "vbl": "/vbl", "kb": "/kb", "physics": "/physics"}
 
 
 def _is_blade_gui(port):
@@ -175,13 +189,13 @@ def _is_blade_gui(port):
 
 
 def serve(port=8765, open_page=None):
-    """Serve the GUI. open_page = None | "monitor" | "twin" | "vbl" | "kb": also open it in the default browser. If a BLADE GUI is already running on the
+    """Serve the GUI. open_page = None | "monitor" | "twin" | "vbl" | "kb" | "physics": also open it in the default browser. If a BLADE GUI is already running on the
     port, do not start a second one: just open it (or print its address) and return."""
     if open_page not in (None, *PAGES):
         raise ValueError(f"page must be one of {sorted(PAGES)}")
     url = f"http://localhost:{port}{PAGES.get(open_page, '/')}"
     try:
-        srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+        srv = _Server(("127.0.0.1", port), H)
     except OSError:
         if _is_blade_gui(port):
             print(f"BLADE GUI is already running: {url}", flush=True)
@@ -189,7 +203,7 @@ def serve(port=8765, open_page=None):
                 webbrowser.open(url)
             return
         raise SystemExit(f"port {port} is in use by something else; choose another with --port N")
-    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin, virtual beamline: /vbl, knowledge base: /kb; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
+    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin, virtual beamline: /vbl, its physics models: /physics, knowledge base: /kb; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
     if open_page:                                   # the socket is already listening, so the browser's request just queues until serving starts
         threading.Timer(0.3, webbrowser.open, (url,)).start()
     try:

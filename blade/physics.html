@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLADE virtual beamline - physics models</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
+<style>
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--mono:ui-monospace,Menlo,Consolas,monospace;--img:#000}
+:root[data-theme=dark]{color-scheme:dark;--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2}
+:root[data-theme=midnight]{color-scheme:dark;--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--accbg:#14325e;--agent:#c4a3ff}
+:root[data-theme=paper]{--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--accbg:#dfe8f2;--agent:#6b3fa0}
+:root[data-theme=contrast]{--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--accbg:#dbe5ff;--agent:#5a00a0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:12.5px/1.35 system-ui,sans-serif}a{color:var(--acc)}
+.wrap{max-width:1500px;margin:0 auto;padding:8px 10px;display:grid;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0}
+h2{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:0 0 5px;font-weight:700}
+h3{margin:0;font-size:14.5px}
+.top{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;padding:6px 10px}.top h1{font-size:15px;margin:0 4px 0 0}.sp{flex:1}
+select,input,button{font:12px system-ui;padding:3px 7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)}
+button{cursor:pointer}button:hover{border-color:var(--acc)}button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc)}
+.pill{padding:1px 8px;border-radius:99px;border:1px solid var(--line);font:11px var(--mono);white-space:nowrap}
+.sim{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.mute{color:var(--mute)}.mono{font-family:var(--mono)}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:10px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.toc{position:static!important;max-height:none!important}}
+.toc{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto;font-size:12px}
+.toc a{display:flex;justify-content:space-between;gap:6px;padding:2px 6px;border-radius:5px;text-decoration:none;color:var(--ink)}
+.toc a:hover{background:var(--accbg)}.toc a.sec{font-weight:700;margin-top:6px}.toc a.m{padding-left:14px;color:var(--mute)}.toc a.m.hit{color:var(--ink)}
+.legend{display:grid;gap:3px;font-size:11.5px;color:var(--mute)}
+.st{display:inline-block;padding:0 8px;border-radius:99px;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.04em;border:1px solid currentColor;vertical-align:middle}
+.st-fitted{color:var(--acc);background:var(--accbg)}.st-validated{color:var(--ok);background:var(--okbg)}.st-textbook{color:var(--agent)}
+.st-mixed{color:var(--warn);background:var(--warnbg)}.st-assumed{color:var(--bad)}
+.sechead{margin:14px 2px 2px;display:flex;align-items:baseline;gap:10px}.sechead b{font-size:16px}
+.model{scroll-margin-top:10px;display:grid;gap:6px}
+.model header{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+pre.eq{margin:0;padding:6px 9px;background:var(--bg);border:1px solid var(--line);border-radius:6px;font:12px/1.5 var(--mono);white-space:pre-wrap;overflow-x:auto}
+ul{margin:0;padding-left:18px}li{margin:1px 0}
+table.pr{border-collapse:collapse;width:100%;font:12px var(--mono)}table.pr th,table.pr td{padding:2px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}table.pr th{color:var(--mute);font-weight:600}
+td.v{font-weight:600;color:var(--acc)}td.u{color:var(--mute)}td.p{color:var(--mute);font-size:11px}
+.src{cursor:pointer;color:var(--acc)}.srctxt{display:none;margin:2px 0 4px;padding:4px 7px;background:var(--bg);border-radius:5px;font:11px/1.4 system-ui;color:var(--mute);white-space:normal}.srctxt.open{display:block}
+.lim{background:var(--warnbg);color:var(--ink);border-radius:6px;padding:5px 9px;font-size:12px}.lim b{color:var(--warn)}
+.refs{font:11px var(--mono);color:var(--mute)}.refs span{margin-right:10px}
+svg.cv{width:100%;max-width:760px;height:auto;aspect-ratio:600/230;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+svg.cv text{fill:var(--mute);font:10px var(--mono)}svg.cv .lg text{fill:var(--ink)}
+.chain{display:flex;flex-wrap:wrap;gap:4px 0;align-items:stretch}
+.chain a{display:block;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);text-decoration:none;color:var(--ink);font-size:11.5px;line-height:1.25}
+.chain a small{display:block;color:var(--mute);font:10.5px var(--mono)}.chain a:hover{border-color:var(--acc)}.chain i{align-self:center;color:var(--mute);padding:0 4px;font-style:normal}
+table.nm{border-collapse:collapse;width:100%}table.nm td{padding:4px 6px;border-bottom:1px solid var(--line);vertical-align:top}table.nm td:first-child{font-weight:600;width:30%}
+.empty{padding:20px;color:var(--mute)}
+</style></head><body>
+<div class="wrap">
+<div class="card top"><h1>BLADE virtual beamline <span class="mute">/ physics models</span></h1><span class="pill sim" title="Nothing here touches hardware: it describes the simulator">SIMULATION</span>
+ <span class="pill" id="count">-</span><span class="sp"></span>
+ <input id="q" type="search" placeholder="search models (e.g. undulator, penumbra, mu_t)" style="min-width:260px">
+ <label class="mute">theme <select id="theme"></select></label>
+ <a href="/">&larr; alignment monitor</a><a href="/twin">beamline twin</a><a href="/vbl">&larr; virtual beamline</a><a href="/kb">knowledge base &rarr;</a></div>
+<div class="card"><h2>What this page is</h2>
+ <div>Every model below is code that runs in the virtual beamline (<span class="mono">blade/vbl</span>, <span class="mono">blade/physics</span>). Parameter values are read <b>live from <span class="mono">sim.json</span></b> with the provenance note stored beside each value (click the <span class="src">&#9432;</span>); curves are computed by calling the real simulator functions, so this page cannot drift from the simulator.
+ Status says how much to trust each model:</div>
+ <div class="legend" style="margin-top:5px" id="legend"></div></div>
+<div class="card"><h2>Signal chain (click a stage)</h2><div class="chain" id="chain"></div></div>
+<div class="layout"><div class="card toc" id="toc"></div><div id="content"><div class="empty">loading...</div></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const THEMES=[['auto','Auto'],['light','Light'],['dark','Dark'],['midnight','Midnight'],['paper','Paper'],['contrast','High contrast']];
+function resolveTheme(c){return c==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c}
+let themeChoice='auto';try{themeChoice=localStorage.getItem('blade.theme')||'auto'}catch(e){}
+function setTheme(c){themeChoice=c;document.documentElement.setAttribute('data-theme',resolveTheme(c));try{localStorage.setItem('blade.theme',c)}catch(e){}}
+$('theme').innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');$('theme').value=themeChoice;$('theme').onchange=()=>setTheme($('theme').value);
+
+const STATUS={fitted:'constants fitted to numbers in the experiment logs',validated:'checked against logged numbers, no free fit',textbook:'standard physics or the beamline\'s own formula',mixed:'part fitted or physical, part assumed (see the entry)',assumed:'a chosen value or structure with no data behind it yet'};
+$('legend').innerHTML=Object.entries(STATUS).map(([k,v])=>`<div><span class="st st-${k}">${k}</span> ${esc(v)}</div>`).join('');
+
+function fmt(v){
+  if(v===null||v===undefined)return '<span class="mute">not in sim.json</span>';
+  if(typeof v==='number')return esc(+v.toPrecision(6));
+  if(typeof v==='string')return esc(v.length>70?v.slice(0,67)+'...':v);
+  if(Array.isArray(v)){const s='['+v.map(x=>Array.isArray(x)?'['+x.join(', ')+']':(typeof x==='number'?+x.toPrecision(5):x)).join(', ')+']';return `<span title="${esc(JSON.stringify(v))}">${esc(s.length>90?s.slice(0,87)+'...]':s)}</span>`}
+  const s=Object.entries(v).map(([k,x])=>k+': '+(typeof x==='number'?+x.toPrecision(5):JSON.stringify(x))).join(', ');
+  return `<span title="${esc(JSON.stringify(v))}">${esc(s.length>110?s.slice(0,107)+'...':s)}</span>`;
+}
+const PAL=['#2160c4','#c0352b','#168a4a','#a96a08','#6b3fa0','#0e8a8a','#d0549a'];
+function nice(lo,hi,n){const span=hi-lo||1,st=Math.pow(10,Math.floor(Math.log10(span/n))),e=span/n/st,m=e>5?10:e>2?5:e>1?2:1,step=m*st,t=[];for(let x=Math.ceil(lo/step)*step;x<=hi+1e-9*span;x+=step)t.push(+x.toPrecision(10));return t}
+function plot(svg,d){
+  const W=600,H=230,L=46,R=18,T=30,B=34,ylog=!!d.ylog;
+  const ys=d.series.flatMap(s=>s.y).filter(y=>isFinite(y)&&(!ylog||y>0)),xs=d.series.flatMap(s=>s.x);
+  let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  if(ylog){y0=Math.log10(y0);y1=Math.log10(y1)}
+  if(y1===y0){y1+=1;y0-=1}const padY=(y1-y0)*.05;y0-=padY;y1+=padY;
+  const X=x=>L+(x-x0)/(x1-x0||1)*(W-L-R),Y=y=>{const v=ylog?Math.log10(Math.max(y,1e-300)):y;return T+(1-(v-y0)/(y1-y0))*(H-T-B)};
+  let g='';
+  nice(x0,x1,6).forEach(t=>{g+=`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${H-B}" stroke="var(--line)"/><text x="${X(t)}" y="${H-B+12}" text-anchor="middle">${t}</text>`});
+  if(ylog){for(let p=Math.ceil(y0);p<=Math.floor(y1);p++){g+=`<line x1="${L}" x2="${W-R}" y1="${Y(10**p)}" y2="${Y(10**p)}" stroke="var(--line)"/><text x="${L-4}" y="${Y(10**p)+3}" text-anchor="end">1e${p}</text>`}}
+  else nice(y0,y1,5).forEach(t=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)"/><text x="${L-4}" y="${Y(t)+3}" text-anchor="end">${+t.toPrecision(4)}</text>`});
+  g+=`<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle">${esc(d.xlabel)}</text><text transform="translate(10 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${esc(d.ylabel)}</text>`;
+  d.series.forEach((s,i)=>{const c=PAL[i%PAL.length];
+    if(s.points)g+=s.x.map((x,j)=>`<circle cx="${X(x)}" cy="${Y(s.y[j])}" r="3.2" fill="${c}"/>`).join('');
+    else g+=`<polyline fill="none" stroke="${c}" stroke-width="1.6" points="${s.x.map((x,j)=>X(x).toFixed(1)+','+Y(s.y[j]).toFixed(1)).join(' ')}"/>`});
+  g+=`<g class="lg">`+d.series.map((s,i)=>`<rect x="${L+6+ (i%4)*130}" y="${T+4+Math.floor(i/4)*13}" width="9" height="9" fill="${PAL[i%PAL.length]}"/><text x="${L+19+(i%4)*130}" y="${T+12+Math.floor(i/4)*13}">${esc(s.name)}</text>`).join('')+`</g>`;
+  svg.innerHTML=g;
+}
+async function loadCurve(el){
+  if(el.dataset.done)return;el.dataset.done=1;
+  try{const r=await fetch('/api/vbl/physics/curve?name='+encodeURIComponent(el.dataset.curve));const d=await r.json();if(d.error)throw new Error(d.error);
+    el.innerHTML=`<div class="mute" style="margin:2px 0">${esc(d.title)} <span style="opacity:.8">- computed now by the simulator${d.note?'; '+esc(d.note):''}</span></div><svg class="cv" viewBox="0 0 600 230"></svg>`;plot(el.querySelector('svg'),d)}
+  catch(e){el.innerHTML=`<div class="mute">curve unavailable: ${esc(e.message)}</div>`}
+}
+let DATA=null,STATE={q:'',st:new Set()};
+function modelText(m){return [m.title,m.summary,(m.equations||[]).join(' '),(m.how||[]).join(' '),(m.limits||[]).join(' '),m.params.map(p=>p.label+' '+p.path).join(' '),(m.code||[]).join(' '),(m.evidence||[]).join(' ')].join(' ').toLowerCase()}
+function card(m){
+  const rows=m.params.map((p,i)=>`<tr><td>${esc(p.label)}</td><td class="v">${fmt(p.value)}</td><td class="u">${esc(p.unit)}</td><td class="p">${esc(p.path)} ${p.src?`<span class="src" data-t="s_${m.id}_${i}" title="provenance">&#9432;</span>`:''}</td></tr>${p.src?`<tr><td colspan="4" style="padding:0;border:0"><div class="srctxt" id="s_${m.id}_${i}">${esc(p.src)}</div></td></tr>`:''}`).join('');
+  return `<section class="card model" id="${m.id}" data-text="${esc(modelText(m))}" data-st="${m.status}">
+   <header><h3>${esc(m.title)}</h3><span class="st st-${m.status}" title="${esc(STATUS[m.status])}">${m.status}</span></header>
+   <div>${esc(m.summary)}</div>
+   ${m.equations?.length?`<pre class="eq">${esc(m.equations.join('\n'))}</pre>`:''}
+   ${m.how?.length?`<ul>${m.how.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`:''}
+   ${m.curve?`<div data-curve="${m.curve}" class="curvebox"><div class="mute">curve loads when visible...</div></div>`:''}
+   ${m.params.length?`<table class="pr"><tr><th>parameter</th><th>value now</th><th>unit</th><th>sim.json path</th></tr>${rows}</table>`:''}
+   ${m.limits?.length?`<div class="lim"><b>Limits and known gaps.</b> ${m.limits.map(esc).join(' ')}</div>`:''}
+   <div class="refs"><span><b>code</b> ${esc((m.code||[]).join(' | '))}</span></div>
+   <div class="refs"><span><b>evidence</b> ${esc((m.evidence||[]).join(' | '))}</span></div></section>`;
+}
+function render(){
+  const q=STATE.q.trim().toLowerCase().split(/\s+/).filter(Boolean);let shown=0;const per={};
+  document.querySelectorAll('section.model').forEach(el=>{
+    const ok=(!STATE.st.size||STATE.st.has(el.dataset.st))&&q.every(w=>el.dataset.text.includes(w));
+    el.style.display=ok?'':'none';if(ok){shown++;per[el.id]=1}
+  });
+  document.querySelectorAll('.sechead').forEach(h=>{const any=[...document.querySelectorAll(`section.model[data-sec="${h.dataset.sec}"]`)].some(e=>e.style.display!=='none');h.style.display=any?'':'none'});
+  document.querySelectorAll('#toc a.m').forEach(a=>a.style.display=per[a.dataset.id]?'':'none');
+  $('count').textContent=`${shown} of ${DATA.models.length} models`;
+}
+async function init(){
+  DATA=await (await fetch('/api/vbl/physics')).json();
+  const counts={};DATA.models.forEach(m=>counts[m.status]=(counts[m.status]||0)+1);
+  $('count').textContent=`${DATA.models.length} models`;
+  const chips=Object.keys(STATUS).map(k=>`<button data-st="${k}" class="chip"><span class="st st-${k}" style="border:0;background:none;padding:0">${k}</span> ${counts[k]||0}</button>`).join(' ');
+  let toc=`<h2>Filter by status</h2><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">${chips}</div><h2>Contents</h2>`;
+  let html='';
+  DATA.sections.forEach(s=>{
+    toc+=`<a class="sec" href="#sec_${s.id}">${esc(s.title)}</a>`;
+    html+=`<div class="sechead" data-sec="${s.id}" id="sec_${s.id}"><b>${esc(s.title)}</b><span class="mute">${esc(s.text)}</span></div>`;
+    DATA.models.filter(m=>m.section===s.id).forEach(m=>{toc+=`<a class="m" data-id="${m.id}" href="#${m.id}">${esc(m.title)}</a>`;html+=card(m).replace('<section class="card model"',`<section data-sec="${s.id}" class="card model"`)});
+  });
+  toc+=`<a class="sec" href="#notmod">Not modelled yet</a>`;
+  html+=`<div class="sechead" id="notmod"><b>Not modelled yet</b><span class="mute">Known physics the simulator does not include, and what would build it (full list: beamline_twins/1-ID/physics/11_model_inventory_and_gaps.md)</span></div>
+   <div class="card"><table class="nm">${DATA.not_modelled.map(n=>`<tr><td>${esc(n.what)}</td><td>${esc(n.why)} <span class="mute mono">${esc(n.doc)}</span></td></tr>`).join('')}</table></div>
+   <div class="card"><h2>Tests that exercise these models</h2><div class="refs">${DATA.tests.map(t=>`<span>${esc(t)}</span>`).join('')}</div></div>`;
+  $('toc').innerHTML=toc;$('content').innerHTML=html;
+  const chain=[['source','Source','0 m',['und_energy','und_flux']],['angle','WB slits','z_m.wbSlits',['angle','steer']],['hem','HEM mono','z_m.hem',['hem','th2']],['foil','B: ICs, foil, attenuator','z_m.foilB',['foil','atten','ic']],
+   ['lens','Lenses','E 67.7-68.5 m',['lens','ray']],['shutter','Slits and fast shutters','',['edges','shutter']],['axis','Sample + pin','z_m.samE',['axis','pin']],['cam_geom','Tomo camera','z_m.tomoE',['cam_geom','img_form','texture']]];
+  const zOf=k=>{const z=DATA.z_m||{};const key=k.split('.')[1];return key&&z[key]!==undefined?z[key]+' m':k};
+  $('chain').innerHTML=chain.map(([id,t,z,_],i)=>`<a href="#${id==='source'?'und_energy':id}">${esc(t)}<small>${esc(z.startsWith('z_m.')?zOf(z):z)}</small></a>${i<chain.length-1?'<i>&rarr;</i>':''}`).join('');
+  document.querySelectorAll('.src').forEach(el=>el.onclick=()=>$(el.dataset.t).classList.toggle('open'));
+  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const k=b.dataset.st;STATE.st.has(k)?STATE.st.delete(k):STATE.st.add(k);b.classList.toggle('on');render()});
+  $('q').oninput=()=>{STATE.q=$('q').value;render()};
+  const boxes=[...document.querySelectorAll('.curvebox')];
+  let curveQ=Promise.resolve();const enqueue=el=>{curveQ=curveQ.then(()=>loadCurve(el))};          // one curve at a time: each is computed by the simulator
+  if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){enqueue(e.target);io.unobserve(e.target)}}),{rootMargin:'250px'});boxes.forEach(b=>io.observe(b))}else boxes.forEach(enqueue);
+  if(location.hash){const el=document.getElementById(location.hash.slice(1));if(el)setTimeout(()=>el.scrollIntoView(),50)}
+}
+init().catch(e=>{$('content').innerHTML=`<div class="empty">could not load the model catalogue: ${esc(e.message)}</div>`});
+</script></body></html>

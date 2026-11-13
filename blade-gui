@@ -3,6 +3,7 @@
 #   blade-gui              start the GUI and open the run monitor in your browser (if one is already running, just opens it)
 #   blade-gui twin         ... open the beamline twin viewer instead
 #   blade-gui vbl          ... open the VIRTUAL BEAMLINE (simulated 1-ID control room: tomo camera, slits, energy/flux, pin)
+#   blade-gui physics      ... open the PHYSICS MODELS page of the virtual beamline (equations, live parameters, curves)
 #   blade-gui kb           ... open the KNOWLEDGE BASE viewer (procedures, labelled log images, log text; needs the local kb_1ID data)
 #   blade-gui --port 8800  other port (any `blade gui` option works)
 # Python: $BLADE_PYTHON, else the conda env `blade`, else python3 (the GUI itself is stdlib-only).
@@ -28,6 +29,6 @@ fi
 
 ARGS=()
 for a in "$@"; do
-  if [ "$a" = "twin" ] || [ "$a" = "monitor" ] || [ "$a" = "vbl" ] || [ "$a" = "kb" ]; then ARGS+=(--page "$a"); else ARGS+=("$a"); fi
+  if [ "$a" = "twin" ] || [ "$a" = "monitor" ] || [ "$a" = "vbl" ] || [ "$a" = "kb" ] || [ "$a" = "physics" ]; then ARGS+=(--page "$a"); else ARGS+=("$a"); fi
 done
 exec "$PY" -I "$ROOT/launch.py" gui --open "${ARGS[@]}"
