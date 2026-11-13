@@ -14,8 +14,8 @@
     "retiga2": {
       "hutch": "B",
       "pixel_um": 1.0,
-      "pv_prefix": null,
-      "note": "CS-Studio IOC list: the B tomo camera row (Tomo_in_B) has prefix QIMAGE2: (Windows QImage IOC); not adopted here until the image-PV name and the retiga2 identity are confirmed"
+      "pv_prefix": "QIMAGE2:",
+      "note": "UNVERIFIED prefix (user 2026-11-13): from the CS-Studio IOC list (row Tomo_in_B, Windows QImage IOC); camera identity and image PV still to confirm - see beamline_twins/1-ID/verify.json"
     },
     "pg5": {
       "hutch": "C",

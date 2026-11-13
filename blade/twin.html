@@ -64,6 +64,22 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
 .track .mk{position:absolute;top:3px;width:3px;height:20px;background:var(--acc);border-radius:2px}.track .zero{position:absolute;top:7px;width:1px;height:12px;background:var(--mute)}
 .track .lo,.track .hi,.track .rb{position:absolute;top:-2px;font:10.5px var(--mono);color:var(--mute)}.track .lo{left:0}.track .hi{right:0}.track .rb{color:var(--acc)}
 .stackbox{border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:0 8px}
+.ef{border-bottom:1px dotted transparent;cursor:context-menu}.ef:hover{border-bottom-color:var(--acc);background:var(--accbg)}
+#ctxm{position:fixed;z-index:80;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 24px #0004;padding:4px;min-width:150px;display:none}
+#ctxm button{display:block;width:100%;text-align:left;font:13px system-ui;padding:6px 12px;border:0;background:none;color:var(--ink);border-radius:5px;cursor:pointer}#ctxm button:hover{background:var(--accbg)}
+#edm{position:fixed;inset:0;z-index:90;background:#0007;display:none;align-items:center;justify-content:center;padding:16px}
+#edm .box{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px 18px;width:min(640px,100%);max-height:90vh;overflow:auto;box-shadow:0 10px 40px #0007}
+#edm h3{margin:0 0 4px;font-size:16px}#edm .where{font:12px var(--mono);color:var(--mute);margin-bottom:10px;word-break:break-all}
+#edm textarea,#edm select,#edm input{width:100%;font:13px var(--mono);padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}#edm textarea{min-height:110px;resize:vertical}
+#edm .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}#edm button{font:13px system-ui;padding:6px 14px;border-radius:7px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}
+#edm button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}#edm button.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
+#edm .err{color:var(--bad);font-size:13px;margin-top:8px;white-space:pre-wrap}#edm .diff{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#edm .diff pre{margin:0;padding:8px;border-radius:6px;font:12px var(--mono);white-space:pre-wrap;word-break:break-word;max-height:240px;overflow:auto}
+#edm .old{background:var(--warnbg)}#edm .new{background:var(--okbg)}#edm .hint{font-size:12px;color:var(--mute);margin-top:6px}
+#toast{position:fixed;right:16px;bottom:16px;z-index:95;background:var(--ok);color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;display:none}
+.vb{display:inline-block;padding:1px 8px;border-radius:99px;font:11.5px var(--mono);border:1px solid var(--line)}.vb.unverified{background:var(--warnbg);color:var(--warn);border-color:transparent}.vb.verified{background:var(--okbg);color:var(--ok);border-color:transparent}.vb.wrong{background:var(--bad);color:#fff;border-color:transparent}
+table.vt td,table.vt th{text-align:left;vertical-align:top;font:12.5px system-ui}table.vt td.mono{font:12px var(--mono)}
+.vneed{border:1px solid var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px;margin-top:10px;font-size:12.5px}
 </style></head><body><div class="wrap">
 
 <div class="card top">
@@ -76,6 +92,8 @@ tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
 
 <div id="body"></div>
 </div>
+<div id="ctxm"></div><div id="toast"></div>
+<div id="edm"><div class="box" id="edbox"></div></div>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -102,6 +120,62 @@ const CONFTXT={confirmed:'confirmed by user/hardware',seen:'seen in a photo or o
 const HASH0=location.hash.slice(1);
 let first=true,P=null,sel=null,view='path',spacing=(()=>{try{return localStorage.getItem('blade.twin.spacing')||'panel'}catch(e){return 'panel'}})(),F={conf:new Set(),kind:'',group:'',q:''},EL={};
 
+/* ---------- guarded editing: right-click a field > Edit > review > confirm ---------- */
+const efs=(spec,html,title)=>`<span class="ef" data-ed="${esc(JSON.stringify(spec))}" title="${esc(title||'right-click to edit')}">${html}</span>`;
+function tstr(v,kind){if(v==null)return '';if(kind==='json'||(typeof v==='object'))return JSON.stringify(v,null,1);return String(v)}
+function ctxClose(){$('ctxm').style.display='none'}
+document.addEventListener('contextmenu',ev=>{
+ const n=ev.target.closest&&ev.target.closest('.ef');if(!n)return;
+ ev.preventDefault();const spec=JSON.parse(n.dataset.ed),m=$('ctxm');
+ m.innerHTML=`<button id="cm-edit">Edit…</button><button id="cm-copy">Copy value</button>`;
+ m.style.left=Math.min(ev.clientX,innerWidth-170)+'px';m.style.top=Math.min(ev.clientY,innerHeight-90)+'px';m.style.display='block';
+ $('cm-edit').onclick=()=>{ctxClose();edOpen(spec)};
+ $('cm-copy').onclick=()=>{ctxClose();try{navigator.clipboard.writeText(tstr(spec.old,spec.kind))}catch(e){}};
+});
+document.addEventListener('click',ctxClose);document.addEventListener('scroll',ctxClose,true);
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){ctxClose();edClose()}});
+function edClose(){$('edm').style.display='none'}
+function edOpen(spec,draft){
+ const kind=spec.kind,old=tstr(spec.old,kind),val=draft!=null?draft:old;
+ const inp=Array.isArray(kind)?`<select id="edv">${kind.map(k=>`<option ${k===val?'selected':''}>${esc(k)}</option>`).join('')}</select>`
+  :(kind==='json'||kind==='str'&&(old.length>60||val.length>60||(spec.field==='notes')))?`<textarea id="edv" spellcheck="false">${esc(val)}</textarea>`:`<input id="edv" value="${esc(val)}" spellcheck="false">`;
+ const hint=kind==='json'?'JSON (empty removes the field).':kind==='num'||kind==='num?'?'A number'+(kind==='num?'?' (empty = unset).':'.'):Array.isArray(kind)?'One of the listed values.':'Plain text.';
+ $('edbox').innerHTML=`<h3>Edit ${esc(spec.label)}</h3><div class="where">${esc(spec.where)}</div>${inp}<div class="hint">${hint} Nothing is saved until you confirm on the next step.</div><div class="err" id="ederr"></div>
+  <div class="row"><button id="edc">Cancel</button><button class="pri" id="edr">Review change…</button></div>`;
+ $('edm').style.display='flex';$('edv').focus();
+ $('edc').onclick=edClose;
+ $('edr').onclick=()=>{const nv=$('edv').value;if(nv===old){$('ederr').textContent='No change.';return}edReview(spec,nv,old)};
+}
+function edReview(spec,nv,old){
+ $('edbox').innerHTML=`<h3>Confirm this change?</h3><div class="where">${esc(spec.where)}</div>
+  <div class="diff"><div><div class="hint">current</div><pre class="old">${esc(old===''?'(empty)':old)}</pre></div><div><div class="hint">new</div><pre class="new">${esc(nv===''?'(empty)':nv)}</pre></div></div>
+  <div class="hint">This rewrites the tracked file shown above (git will list it as a change) and is recorded in the audit log.</div><div class="err" id="ederr"></div>
+  <div class="row"><button id="edb">Back</button><button id="edx">Cancel</button><button class="danger" id="edy">Yes, apply this change</button></div>`;
+ $('edb').onclick=()=>edOpen(spec,nv);$('edx').onclick=edClose;
+ $('edy').onclick=async()=>{
+  $('edy').disabled=true;
+  const body={target:spec.target,twin:P.twin&&P.twin.id,profile:P.profile.name,id:spec.id,field:spec.field,path:spec.path,old:spec.old,new:nv,confirm:true};
+  try{const r=await fetch('/api/edit',{method:'POST',headers:{'X-Blade-Edit':'1','Content-Type':'application/json'},body:JSON.stringify(body)});const j2=await r.json();
+   if(!r.ok||j2.error){$('ederr').textContent=j2.error||'failed';$('edy').disabled=false;return}
+   edClose();toast('Saved: '+j2.where);const keep=sel,v=view;await load(P.profile.name);if(keep&&EL[keep]){sel=keep}view=v;head();draw();hash()
+  }catch(e){$('ederr').textContent=String(e);$('edy').disabled=false}
+ };
+}
+function toast(t){const n=$('toast');n.textContent=t;n.style.display='block';setTimeout(()=>n.style.display='none',3500)}
+const eEl=(e,field,kind,label,html)=>efs({target:'element',id:e.id,field,kind,old:e[field]===undefined?null:e[field],label,where:`${e.hutch}.json · ${e.id}.${field}`},html);
+const eProf=(path,kind,old,label,html)=>efs({target:'profile',path,kind,old:old===undefined?null:old,label,where:`profiles/${P.profile.name}/default_config.json · ${path}`},html);
+const eVer=(v,field,kind,html)=>efs({target:'verify',id:v.id,field,kind,old:v[field]===undefined?(field==='note'?'':null):v[field],label:'to-verify item '+v.id+' '+field,where:`verify.json · ${v.id}.${field}`},html);
+const VSTAT=['unverified','verified','wrong'],CONFS=['confirmed','seen','code','inferred','unseen'];
+function verifyFor(e){const t=P.twin;return(t.verify||[]).filter(v=>v.ref&&v.ref.target==='element'&&v.ref.id===e.id&&v.status!=='verified')}
+function verifyView(){
+ const t=P.twin,V=t.verify||[],open=V.filter(v=>v.status==='unverified');
+ if(!V.length)return `<div class="card empty"><b>Nothing on the to-verify list.</b></div>`;
+ return `<div class="card"><h2>To verify — ${open.length} open of ${V.length}</h2><div class="note" style="margin-top:0">Values in use that are not confirmed yet. Right-click a status or note → Edit to record the outcome (an item can only be set to <b>verified</b> after the evidence is written in its note). Source: <span class="mono">beamline_twins/${esc(t.id)}/verify.json</span></div>
+  <div class="scroll"><table class="vt" style="margin-top:8px"><thead><tr><th>status</th><th>what</th><th>value in use</th><th>why unsure</th><th>how to confirm</th><th>evidence / note</th><th></th></tr></thead><tbody>`+
+  V.map(v=>`<tr><td>${eVer(v,'status',VSTAT,`<span class="vb ${esc(v.status)}">${esc(v.status)}</span>`)}${v.status_changed?`<div class="mute" style="font-size:11px">${esc(v.status_changed)}</div>`:''}</td>
+   <td><b>${esc(v.subject)}</b><div class="mono mute">${esc(v.id)}</div></td><td class="mono">${esc(v.value)}</td><td>${esc(v.why)}</td><td>${esc(v.how)}</td>
+   <td>${eVer(v,'note','str',v.note?esc(v.note):'<span class="mute">(none — right-click to add)</span>')}</td>
+   <td>${v.ref&&v.ref.target==='element'&&EL[v.ref.id]?`<button class="chip" data-vref="${esc(v.ref.id)}">show element</button>`:v.ref&&v.ref.target==='profile'?`<span class="mono mute">profile ${esc(v.ref.path)}</span>`:`<span class="mono mute">${esc((v.ref||{}).path||'')}</span>`}</td></tr>`).join('')+`</tbody></table></div></div>`}
 async function init(){
  const th=$('theme');th.innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');th.value=themeChoice;th.onchange=()=>setTheme(th.value);
  const L=await j('/api/profiles');const s=$('prof');
@@ -118,7 +192,7 @@ async function load(name){
  if(P.twin)P.twin.elements.forEach(e=>EL[e.id]=e);
  F={conf:new Set(),kind:'',group:'',q:''};
  const h=new URLSearchParams(first?HASH0:'');first=false;
- if(['path','slits','stage'].includes(h.get('view')))view=h.get('view');
+ if(['path','slits','stage','verify'].includes(h.get('view')))view=h.get('view');
  if(h.get('sel')&&EL[h.get('sel')])sel=h.get('sel');
  head();draw();hash();
 }
@@ -134,7 +208,7 @@ function draw(){
   <div style="margin-top:14px;text-align:left;max-width:640px;margin-inline:auto">${profileCard()}</div></div>`;return}
  b.innerHTML=`<div style="display:grid;gap:12px">
   <div class="card" style="display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center">
-   <div class="tabs" id="tabs">${[['path','Beam path'],['slits','Slit apertures'],['stage','Sample stage']].map(([k,l])=>`<button data-v="${k}" class="${view===k?'on':''}">${l}</button>`).join('')}</div>
+   <div class="tabs" id="tabs">${[['path','Beam path'],['slits','Slit apertures'],['stage','Sample stage'],['verify','To verify'+((t.verify||[]).filter(v=>v.status==='unverified').length?` (${(t.verify||[]).filter(v=>v.status==='unverified').length})`:'')]].map(([k,l])=>`<button data-v="${k}" class="${view===k?'on':''}">${l}</button>`).join('')}</div>
    <span class="sp"></span><span id="filters"></span>
    ${view==='path'?`<label class="mute" style="font-size:12px" title="Spacing is schematic in both modes. 'as on the panel' uses each element's x position on the CS-Studio screenshot (minimum gap kept), 'equal' gives every element one slot."><select id="sp"><option value="panel" ${spacing==='panel'?'selected':''}>spacing: as on the operator panel</option><option value="equal" ${spacing==='equal'?'selected':''}>spacing: equal slots</option></select></label>`:''}</div>
   <div class="main"><div id="view"></div><div class="side card" id="side"></div></div></div>`;
@@ -156,8 +230,9 @@ function match(e){
  if(F.conf.size&&!F.conf.has(e.conf))return false;if(F.kind&&e.kind!==F.kind)return false;if(F.group&&grp(e.kind)!==F.group)return false;
  if(F.q){const s=[e.id,e.name,e.pv,e.dev,e.notes].join(' ').toLowerCase();if(!s.includes(F.q.toLowerCase()))return false}return true;
 }
-function paint(){const v=$('view');v.innerHTML=view==='path'?pathView():view==='slits'?slitsView():stageView();bind()}
+function paint(){const v=$('view');v.innerHTML=view==='path'?pathView():view==='slits'?slitsView():view==='verify'?verifyView():stageView();bind()}
 function bind(){
+ document.querySelectorAll('[data-vref]').forEach(n=>n.onclick=()=>{sel=n.dataset.vref;view='path';hash();draw()});
  document.querySelectorAll('[data-id]').forEach(n=>n.onclick=()=>{sel=n.dataset.id;hash();side();paint()});
  document.querySelectorAll('[data-grp]').forEach(n=>n.onclick=()=>{F.group=F.group===n.dataset.grp?'':n.dataset.grp;paint()});
 }
@@ -260,34 +335,35 @@ function stageView(){
 /* ---------- side panel ---------- */
 function profileCard(){
  const p=P.profile,cams=Object.entries(p.cameras||{}),st=Object.entries(p.stations||{});
- return `<h2>Profile ${esc(p.name)}</h2><dl class="kv"><dt>beamline</dt><dd>${esc(p.beamline)}</dd><dt>backends</dt><dd>${esc((p.backends||[]).join(', '))}</dd>
-  <dt>cameras</dt><dd>${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (hutch ${esc(v.hutch)}, ${v.pixel_um} µm/px)`).join('<br>'):'–'}</dd>
-  <dt>stations</dt><dd>${st.length?st.map(([k,v])=>`<b>${esc(k)}</b>: ${Object.values(v.motors).map(m=>`<span class="mono">${esc(m.name)}</span>`).join(', ')}`).join('<br>'):'–'}</dd></dl>`;
+ const camT=cams.length?`<table><thead><tr><th class="l">camera</th><th class="l">hutch</th><th class="l">PV prefix</th><th>µm/px</th></tr></thead><tbody>`+cams.map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${esc(v.hutch)}</td><td class="l">${eProf(`cameras.${k}.pv_prefix`,'str',v.pv_prefix,`camera ${k} PV prefix`,v.pv_prefix?esc(v.pv_prefix):'<span class="mute">(none)</span>')}</td><td>${eProf(`cameras.${k}.pixel_um`,'num',v.pixel_um,`camera ${k} pixel size (µm/px)`,esc(v.pixel_um))}</td></tr>`).join('')+`</tbody></table>`:'–';
+ const stT=st.length?st.map(([k,v])=>`<b>${esc(k)}</b><table><tbody>`+Object.entries(v.motors).map(([r,m])=>`<tr><td class="l">${esc(r)}</td><td class="l">${eProf(`stations.${k}.motors.${r}.pv`,'str',m.pv,`station ${k} motor ${r} PV`,esc(m.pv))}</td><td class="l">${eProf(`stations.${k}.motors.${r}.name`,'str',m.name,`station ${k} motor ${r} name`,esc(m.name))}</td></tr>`).join('')+`</tbody></table>`).join(''):'–';
+ return `<h2>Profile ${esc(p.name)}</h2><dl class="kv"><dt>beamline</dt><dd>${esc(p.beamline)}</dd><dt>backends</dt><dd>${esc((p.backends||[]).join(', '))}</dd></dl>
+  <div style="margin-top:6px">${camT}</div><div style="margin-top:8px">${stT}</div><div class="note">Right-click a value to edit it (you confirm before anything is saved).</div>`;
 }
 function side(){
  const el=$('side');if(!el)return;const t=P.twin,e=sel&&EL[sel];
  if(!e){el.innerHTML=profileCard()+`<div class="note">Click an element for its details, controls and source photos.</div>`+twinCard();return}
  const bt=(t.blade_targets||{})[e.id],kv=[],add=(k,v)=>{if(v!=null&&v!=='')kv.push(`<dt>${k}</dt><dd>${v}</dd>`)};
  add('kind',`<span class="sw" style="--k:var(--k-${grp(e.kind)})"></span>`+esc(e.kind)+(e.tomo?' · <b style="color:var(--agent)">tomo detector</b>':''));
- add('confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)} <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
+ add('confidence',eEl(e,'conf',CONFS,'confidence',`<span class="dot" style="background:${CONFCOL[e.conf]}"></span>${esc(e.conf)}`)+` <span class="mute">— ${esc(CONFTXT[e.conf])}</span>`);
  add('hutch',esc(e.hutch)+` · #${e.index+1} along the beam`);
  add('panel group',e.group&&esc(((t.hutches[e.hutch].groups||[]).find(q=>q.id===e.group)||{}).name||e.group));
  if(e.placement&&e.placement!=='in_line')add('placement',esc(e.placement)+(e.near?' (drawn at '+esc(e.near)+')':''));
- add('device',e.dev&&`<span class="mono">${esc(e.dev)}</span>`);add('PV',e.pv&&`<span class="mono">${esc(e.pv)}</span>`);
- add('z',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b> from the source <span class="mute">— ${esc(e.z_conf)}</span><div class="note" style="margin-top:2px">${esc(e.z_src)}</div>`);
+ const EM='<span class="mute">(empty)</span>';kv.push(`<dt>device</dt><dd>${eEl(e,'dev','str','device name',e.dev?`<span class="mono">${esc(e.dev)}</span>`:EM)}</dd>`);kv.push(`<dt>PV</dt><dd>${eEl(e,'pv','str','PV',e.pv?`<span class="mono">${esc(e.pv)}</span>`:EM)}</dd>`);
+ add('z',eEl(e,'z_m','num?','distance z (m)',e.z_m==null?'<span class="mute">unknown (not set)</span>':`<b>${esc(e.z_m)} m</b>`)+(e.z_m==null?'':` <span class="mute">— ${eEl(e,'z_conf','str','z confidence',esc(e.z_conf))}</span><div class="note" style="margin-top:2px">${eEl(e,'z_src','str','z source',esc(e.z_src))}</div>`));
  let ctl='';
- if(e.controls){ctl=`<h2 style="margin-top:12px">Controls</h2><table><tbody>`+Object.entries(e.controls).map(([k,v])=>{
+ if(e.controls){ctl=`<h2 style="margin-top:12px">${eEl(e,'controls','json','controls (JSON)','Controls')} <span class="mute" style="text-transform:none;letter-spacing:0">(right-click: edit)</span></h2><table><tbody>`+Object.entries(e.controls).map(([k,v])=>{
    if(v&&typeof v==='object'&&!Array.isArray(v)){const f=Object.entries(v).map(([a,b])=>`${esc(a)} ${esc(Array.isArray(b)?b.join('…'):typeof b==='object'?JSON.stringify(b):b)}`).join(' · ');return `<tr><td class="l">${esc(k)}</td><td class="l">${f}</td></tr>`}
    return `<tr><td class="l">${esc(k)}</td><td class="l">${esc(v)}</td></tr>`}).join('')+`</tbody></table>`}
- let state='';if(e.state){state=`<h2 style="margin-top:12px">Snapshot${e.state.when?' · '+esc(e.state.when):''}</h2><table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(v)}</td></tr>`).join('')+`</tbody></table>`}
+ let state='';if(e.state){state=`<h2 style="margin-top:12px">${eEl(e,'state','json','snapshot (JSON)','Snapshot')}${e.state.when?' · '+esc(e.state.when):''}</h2><table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(v)}</td></tr>`).join('')+`</tbody></table>`}
  let blade='';
  if(bt)blade+=`<div style="margin-top:10px"><span class="badge bt">BLADE alignment target</span><div class="note mono">${bt.map(esc).join('<br>')}</div></div>`;
  if(e.tomo){const cams=Object.entries(P.profile.cameras||{}).filter(([k,v])=>v.hutch===e.hutch);
   blade+=`<div class="note" style="margin-top:8px">Profile cameras in hutch ${esc(e.hutch)}: ${cams.length?cams.map(([k,v])=>`<span class="mono">${esc(k)}</span> (${v.pixel_um} µm/px)`).join(', '):'none'}. Which camera sits on this detector is <b>not established</b> in the twin.</div>`}
  const ph=(e.src||[]).map(id=>t.photos.find(p=>p.id===id)).filter(Boolean);
  const thumbs=ph.length?`<h2 style="margin-top:12px">Source photos</h2><div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`:'';
- el.innerHTML=`<h2>Element</h2><div style="font-size:17px;font-weight:700">${esc(e.name)}</div><div class="mono mute">${esc(e.id)}</div><dl class="kv" style="margin-top:8px">${kv.join('')}</dl>
-  ${e.notes?`<div class="note" style="color:var(--ink)">${esc(e.notes)}</div>`:''}${blade}${ctl}${state}${thumbs}
+ el.innerHTML=`<h2>Element</h2><div style="font-size:17px;font-weight:700">${eEl(e,'name','str','name',esc(e.name))}</div><div class="mono mute">${esc(e.id)}</div><dl class="kv" style="margin-top:8px">${kv.join('')}</dl>
+  ${verifyFor(e).map(v=>`<div class="vneed"><b>To verify:</b> ${esc(v.subject)} — <span class="mono">${esc(v.value)}</span><div class="mute">${esc(v.why)}</div></div>`).join('')}<div class="note" style="color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes — right-click to add)</span>')}</div>${blade}${ctl}${state}${thumbs}
   <div style="margin-top:12px"><button class="chip" id="clr">← profile &amp; twin info</button></div>`;
  $('clr').onclick=()=>{sel=null;hash();side();paint()};
 }

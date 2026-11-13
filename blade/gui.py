@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from .paths import RUNS_DIR
 from . import config as cfg
-from . import twin_api
+from . import twin_api, edit_api
 from . import vbl_api
 from . import kb_api, nav
 from .vbl import physics_doc
@@ -150,6 +150,12 @@ class H(BaseHTTPRequestHandler):
         try:
             n = int(self.headers.get("Content-Length") or 0)
             body = json.loads(self.rfile.read(n) or b"{}")
+            if u.path == "/api/edit":                   # guarded device-info editor (blade/edit_api.py); local-only, needs the confirmed flag
+                try:
+                    edit_api.check_request(self.headers)
+                    return self._send(edit_api.apply_edit(body))
+                except edit_api.EditError as e:
+                    return self._send({"error": str(e)}, code=400)
             if u.path == "/api/vbl/set":
                 return self._send(vbl_api.apply_set(body))
             if u.path == "/api/vbl/reset":

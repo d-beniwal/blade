@@ -4,6 +4,7 @@ import importlib.util
 import json
 from . import config as cfg
 from . import paths
+from . import edit_api
 
 _mod = None
 
@@ -93,7 +94,7 @@ def twin_payload(profile):
         "elements": els, "assemblies": t["assemblies"],
         **{k: bl[k] for k in ("detector_iocs", "ioc_panels", "header_pvs", "beam_types", "ic_readout") if k in bl},
         "overview": bl.get("operator_screens", {}).get("overview_cs01"),
-        "photos": [{**p, "local": (tm.photos_dir(tid) / p["file"]).is_file()} for p in t["photos"].values()],
+        "verify": edit_api.verify_items(tid), "photos": [{**p, "local": (tm.photos_dir(tid) / p["file"]).is_file()} for p in t["photos"].values()],
         "conf_order": list(tm.CONF), "conf_counts": {c: sum(1 for e in els if e["conf"] == c) for c in tm.CONF},
         "blade_targets": _blade_targets(prof, els), "check": {"errors": errs, "warnings": warns},
         "any_distance": any(isinstance(e.get("z_m"), (int, float)) for e in els),

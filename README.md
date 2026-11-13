@@ -69,6 +69,7 @@ python -I tests/test_detection.py            # detection logic on simulated fram
 python -I tests/test_identity.py             # pin vs holder/other objects (needs real frames in the knowledge tree, data/)
 python -I tests/test_partial.py              # partly visible pin (needs the same)
 python -I tests/test_cs_registry.py          # twin + profile vs the CS-Studio display registry
+python -I tests/test_edit_api.py             # the guarded GUI editor + the to-verify list
 blade align new-run --profile demo           # the generic simulator-only profile
 ```
 

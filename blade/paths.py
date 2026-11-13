@@ -33,6 +33,7 @@ KINDS = {
     "data":        dict(dir="data",        env=("BLADE_DATA",),           doc="raw beamline data: scans, frames, pictures, screenshots"),
     "twin_photos": dict(dir="twin_photos", env=("BLADE_TWIN_PHOTOS",),    doc="reference photos / CS-Studio screenshots cited by the twin's photos.json"),
     "runs":        dict(dir="runs",        env=("BLADE_RUNS",),           doc="alignment run folders, live frames, virtual-beamline sessions"),
+    "edits":       dict(dir="edits",       env=("BLADE_EDITS",),          doc="audit log (edits.jsonl) of every change made through the GUI editor"),
     "scratch":     dict(dir="scratch",     env=("BLADE_SCRATCH",),        doc="exploratory work and caches"),
     # not produced by BLADE: an existing checkout/download that is only READ
     "cs_displays": dict(dir="cs_displays", env=("BLADE_CS_DISPLAYS",),    doc="the beamline's CS-Studio/Phoebus display files (.bob) = ground truth for device and PV names"),
