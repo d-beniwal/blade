@@ -1,5 +1,7 @@
-"""Local web GUI (stdlib only): follows runs/<id>/events.jsonl live (/) and shows the beamline twin of any profile (/twin). Read-only - it never moves anything.
-Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (twin viewer: http://localhost:8765/twin)"""
+"""Local web GUI (stdlib + numpy): follows runs/<id>/events.jsonl live (/), shows the beamline twin of any profile (/twin), the virtual beamline (/vbl)
+and the local knowledge base (/kb: procedures, log images, log text; read-only).
+Everything here is read-only for real hardware - it never moves anything; /vbl only changes the SIMULATED session (runs/vbl/).
+Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (twin viewer: /twin, virtual beamline: /vbl, knowledge base: /kb)"""
 import json
 import mimetypes
 import sys
@@ -12,6 +14,8 @@ from urllib.parse import parse_qs, urlparse
 from .paths import RUNS_DIR
 from . import config as cfg
 from . import twin_api
+from . import vbl_api
+from . import kb_api
 
 
 
@@ -42,6 +46,28 @@ class H(BaseHTTPRequestHandler):
             return self._send((Path(__file__).parent / "gui.html").read_text(), "text/html; charset=utf-8")
         if u.path == "/twin":
             return self._send((Path(__file__).parent / "twin.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/vbl":
+            return self._send((Path(__file__).parent / "vbl.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/kb":
+            return self._send((Path(__file__).parent / "kb.html").read_text(), "text/html; charset=utf-8")
+        if u.path == "/kb-image":                      # /kb-image?sha=<id>&w=<px>: found through the KB's images table only (never a client path)
+            try:
+                data, mime = kb_api.image_bytes(q.get("sha", ""), int(q.get("w", 0) or 0))
+                return self._send(data, mime)
+            except FileNotFoundError as e:
+                return self._send({"error": str(e), "available": False}, code=404)
+            except Exception as e:
+                return self._send({"error": str(e)}, code=400)
+        if u.path.startswith("/api/kb/"):
+            return self._kb(u.path[len("/api/kb/"):], q)
+        if u.path == "/api/vbl/state":
+            return self._send(vbl_api.state_payload(reveal=q.get("reveal") == "1"))
+        if u.path == "/api/vbl/frame":
+            try:
+                png = vbl_api.frame_png(q.get("camera", "gh1"), int(q.get("bin", 2)), float(q["exposure"]) if q.get("exposure") else None, q.get("auto", "1") == "1")
+                return self._send(png, "image/png")
+            except Exception as e:
+                return self._send({"error": str(e)}, code=400)
         if u.path == "/api/profiles":
             return self._send(twin_api.profile_list())
         if u.path == "/api/twin":                      # pure read of profile + twin files; does not change the globally loaded profile
@@ -88,7 +114,53 @@ class H(BaseHTTPRequestHandler):
         self._send({"error": "not found"}, code=404)
 
 
-PAGES = {"monitor": "/", "twin": "/twin"}
+    def _kb(self, name, q):
+        """Read-only knowledge-base queries (see blade/kb_api.py); errors come back as {"error": ...} with a 4xx code."""
+        try:
+            if name == "status":
+                return self._send(kb_api.status())
+            a = lambda k, d="": q.get(k, d)
+            routes = {
+                "facets": lambda: kb_api.facets(),
+                "procs": lambda: kb_api.proc_list(),
+                "proc": lambda: kb_api.proc_get(a("id")),
+                "procsearch": lambda: kb_api.proc_search(a("q")),
+                "numbers": lambda: kb_api.numbers(a("q")),
+                "images": lambda: kb_api.image_search(a("q"), a("cls"), a("subject"), a("camera"), a("hutch"), a("source"), a("device"), int(a("offset", 0)), int(a("limit", 60))),
+                "imginfo": lambda: kb_api.image_info(a("sha")),
+                "text": lambda: kb_api.text_search(a("q"), a("year"), a("kind"), int(a("offset", 0)), int(a("limit", 60))),
+                "docs": lambda: kb_api.doc_list(a("q"), a("year"), a("kind")),
+                "outline": lambda: kb_api.doc_outline(a("doc")),
+                "cite": lambda: kb_api.cite_window(a("c"), int(a("ctx", 8))),
+                "window": lambda: kb_api.doc_window(a("doc"), int(a("a", 1)), int(a("b", 1)), int(a("ctx", 0))),
+            }
+            if name not in routes:
+                return self._send({"error": f"unknown knowledge-base query {name!r}"}, code=404)
+            return self._send(routes[name]())
+        except FileNotFoundError as e:
+            return self._send({"error": str(e), "available": False}, code=404)
+        except Exception as e:
+            return self._send({"error": f"{type(e).__name__}: {e}"}, code=400)
+
+    def do_POST(self):
+        u = urlparse(self.path)
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            body = json.loads(self.rfile.read(n) or b"{}")
+            if u.path == "/api/vbl/set":
+                return self._send(vbl_api.apply_set(body))
+            if u.path == "/api/vbl/reset":
+                return self._send(vbl_api.reset(body))
+            if u.path == "/api/vbl/profile":
+                return self._send(vbl_api.profile(body))
+            if u.path == "/api/vbl/tool":
+                return self._send(vbl_api.run_tool(body))
+        except Exception as e:
+            return self._send({"error": f"{type(e).__name__}: {e}"}, code=400)
+        self._send({"error": "not found"}, code=404)
+
+
+PAGES = {"monitor": "/", "twin": "/twin", "vbl": "/vbl", "kb": "/kb"}
 
 
 def _is_blade_gui(port):
@@ -101,7 +173,7 @@ def _is_blade_gui(port):
 
 
 def serve(port=8765, open_page=None):
-    """Serve the GUI. open_page = None | "monitor" | "twin": also open it in the default browser. If a BLADE GUI is already running on the
+    """Serve the GUI. open_page = None | "monitor" | "twin" | "vbl" | "kb": also open it in the default browser. If a BLADE GUI is already running on the
     port, do not start a second one: just open it (or print its address) and return."""
     if open_page not in (None, *PAGES):
         raise ValueError(f"page must be one of {sorted(PAGES)}")
@@ -115,7 +187,7 @@ def serve(port=8765, open_page=None):
                 webbrowser.open(url)
             return
         raise SystemExit(f"port {port} is in use by something else; choose another with --port N")
-    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
+    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin, virtual beamline: /vbl, knowledge base: /kb; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
     if open_page:                                   # the socket is already listening, so the browser's request just queues until serving starts
         threading.Timer(0.3, webbrowser.open, (url,)).start()
     try:

@@ -12,6 +12,7 @@ Built 2026-11-11 from (a) the 1-ID startup/commissioning logs 2022-2026 (121 log
 | `06_detectors_and_cameras.md` | tomo-camera pixel size/FOV, powder rings, calibration geometry, exposure |
 | `07_typical_parameters.md` | GENERATED statistics over all logs: edges, detectors, slit sizes, gaps, mu*t, ... |
 | `08_open_questions.md` | what the logs do not settle, what needs a survey or the beamline staff |
+| `09_alignment_procedure.md` | how the beamline is aligned before an experiment (ordered checklist), how flux and energy are tuned, what the tomo camera shows at each step |
 | `relations.json` | 29 cause->effect relations with sensitivities, evidence, function pointers |
 
 ## The 15 findings that matter most (all traced to logs; model-validated ones marked V)

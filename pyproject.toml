@@ -24,4 +24,4 @@ blade-gui = "blade.cli:gui_main"   # start the GUI and open it in the browser
 include = ["blade*"]
 
 [tool.setuptools.package-data]
-blade = ["gui.html", "twin.html"]
+blade = ["gui.html", "twin.html", "vbl.html"]

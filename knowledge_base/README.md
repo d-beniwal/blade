@@ -74,3 +74,15 @@ Gaps the logs leave open are in each record's `open_questions` (e.g. no numeric 
 ### Reconciliation with the virtual beamline (2026-11-12, partial)
 Findings in `beamline_twins/1-ID/physics/10_procedure_reconciliation.md`; prepared sim.json changes in `beamline_twins/1-ID/sim_proposed_2026-11-12.json` (NOT adopted); physics-vs-logs test `tests/test_vbl_vs_logs.py`.
 Headline: the undulator gap model reproduces 13 logged peak gaps (rms 16 um); the sim chose the wrong harmonic at 61/81/91 keV (fixed in the proposal: 13/13); Hf step b was 1.35 vs logged 1.15.
+
+## Viewer in the BLADE GUI (`/kb`)
+
+`./blade-gui kb` (or `blade gui --open --page kb`, then http://localhost:8765/kb) searches and browses everything above, read-only. Code: `blade/kb_api.py` (queries; opens
+`kb.sqlite` read-only, serves images only through the `images` table), `blade/kb.html` (page), routes in `blade/gui.py`; test `tests/test_kb_gui.py` (synthetic KB, no private data).
+- **Procedures:** list + full record (steps with log/inferred badge, tool, signal, done-when, logged values, variants, pitfalls, open questions, simulator relevance); search over steps/numbers/tools; "numbers only" search.
+- **Images:** grid of thumbnails filtered by class / subject / camera / hutch / label source / device name / caption text; the modal shows the full image, the best label per key and the whole label history, and every log citation with its caption context.
+- **Log text:** all words must appear on a line (substring match, so "hot spot" also finds "hotspot"); filter by year and kind (startup / user / tables).
+- **Documents:** per-document outline.
+- Every citation (`doc:L12`) anywhere opens a source drawer with the surrounding log lines, their headings and the images embedded there ("more above / below").
+- Links are shareable: `/kb#tab=images&cls=tomo_view&subject=pin`, `#tab=logs&lq=hot%20spot`, `#tab=procs&id=energy_calibration&cite=<doc>:L97-99`, `#img=<sha>`.
+- Data location: `$KB_ROOT` or `<workspace>/kb_1ID`; the GUI only listens on 127.0.0.1. If the folder is missing the page says how to build it.

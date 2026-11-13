@@ -1,0 +1,510 @@
+{
+ "schema": 1,
+ "id": "1-ID",
+ "note": "Parameters of the VIRTUAL BEAMLINE (blade.vbl) built on this twin. Everything here that is not in hutches/*.json is an ASSUMPTION needed to make the simulation run: distances other than the 12 known ones, hidden 'truth' ranges, camera sensors. Each block says where a number comes from (log = read in the experiment logs, code = mpe_bluesky, twin = this twin's JSON, assumed = chosen here, to be replaced by a survey/drawing). Nothing here is a hardware setting; the simulator never talks to hardware.",
+ "z_m": {
+  "_note": "metres from the source. known: twin (z_conf code). assumed: interpolated between the known anchors in panel order; replace with surveyed values when available.",
+  "wbSlits": 27.0,
+  "shutter_a": 28.5,
+  "hem": 31.0,
+  "icB1": 33.0,
+  "icB2": 34.0,
+  "icB3": 35.5,
+  "icB5": 36.8,
+  "foilB": 37.3,
+  "attenB": 37.6,
+  "icB8": 38.2,
+  "stackB1": 38.8,
+  "stackB2": 38.9,
+  "fsB": 39.6,
+  "slitB": 41.0,
+  "icB6": 42.0,
+  "tomoB": 43.0,
+  "icB7": 44.0,
+  "icC1": 55.5,
+  "icC2": 56.2,
+  "slitCus": 57.0,
+  "icC3": 58.5,
+  "lens1C": 59.2,
+  "lens2C": 59.3,
+  "lens3C": 59.6,
+  "lens4C": 59.7,
+  "attenC": 60.2,
+  "slitCds": 60.8,
+  "icC4": 61.6,
+  "samC": 62.4,
+  "tomoC": 63.2,
+  "icE12": 65.5,
+  "slitEus": 66.3,
+  "icE3": 67.0,
+  "fsE": 67.4,
+  "lens1E": 67.7,
+  "lens2E": 67.9,
+  "lens3E": 68.1,
+  "lens4E": 68.5,
+  "slitEds": 69.8,
+  "icE4": 70.6,
+  "samE": 71.5,
+  "tomoE": 71.65,
+  "tomoEds": 72.8,
+  "icE5": 73.5,
+  "icE6": 74.5
+ },
+ "z_known": [
+  "lens1C",
+  "lens2C",
+  "lens3C",
+  "lens4C",
+  "stackB1",
+  "stackB2",
+  "lens1E",
+  "lens2E",
+  "lens3E",
+  "lens4E",
+  "samE"
+ ],
+ "source": {
+  "size_um_fwhm": {
+   "h": 30.0,
+   "v": 20.0
+  },
+  "size_src": "log: focused beam 30 (h) / 17-23 (v) um FWHM in brightness / regular mode (2026 Feb); used here as the effective source size that sets the geometric penumbra of every slit edge",
+  "beam_sigma_at_wb_mm": 0.14,
+  "beam_sigma_src": "log: WB 0.3 -> 0.5 mm raised IC_B1 x1.72 (area x2.78): a Gaussian beam of sigma 0.14 mm at the WB slits reproduces it (blade.vbl tests)",
+  "ring_current_mA": 200.0,
+  "steering_urad_to_mm_at_E": "u = xp * z; 1 urad = 0.07 mm at 71.6 m"
+ },
+ "undulator": {
+  "period_mm": 21.9,
+  "period_src": "blade.physics.undulator.fit_period_mm on 5 logged (gap, n, E) points; re-validated 2026-11-12 on 13 logged peak gaps (2024-2026, procedure KB): refit 21.899 mm, gap residual rms 0.016 mm, max 0.033 mm (tests/test_vbl_vs_logs.py)",
+  "amplitude_src": "LEGACY constants (assumed; they preferred low n and contradicted the logs at 61, 81, 91 keV). Not used while flux_model is present; renamed from harmonic_amplitude.",
+  "rel_fwhm_per_harmonic": 0.0014,
+  "rel_fwhm_src": "log: flux peak ~0.07-0.1 mm wide in gap at n=7 with dE/dgap 8.3 keV/mm -> ~1 % of E (energy spread of the e-beam x harmonic number)",
+  "gap_limits_mm": [
+   8.8,
+   40.0
+  ],
+  "gap_limit_src": "log: minimum gap 8.6 (2022-24) -> 8.75 (Jan 2025) -> 8.80 after a vacuum trip below 8.8 (2025); Yb K at 8.825 mm, 96 keV at 8.815 mm (2025-26)",
+  "hysteresis_mm": 0.012,
+  "hysteresis_src": "log: scans from a closing direction do not overlay those from open; 'open to ~9.5 mm first' (M24:L56-69); size assumed",
+  "gap_wander_mm": 0.004,
+  "gap_wander_src": "log: peak gap wanders ~0.004 mm between scans/days",
+  "steering_per_gap_urad_per_mm": 3.0,
+  "steering_src": "log: best WB-slit centre moves with the ID setting (L23:L218-278); size assumed",
+  "flux_model": {
+   "harmonics": [
+    3,
+    5,
+    7,
+    9,
+    11,
+    13
+   ],
+   "exponent": 0.55,
+   "src": "blade.physics.undulator.harmonic_amplitude: Kim flux factor Q_n(K) of the harmonic at its own gap, ^0.55. Log: operators use the highest harmonic whose gap is >= the gap limit (n=5 at 42-55 keV, 7 at 61-72, 9 at 81-91, 11 at 96-100): 12/12 reproduced; 7th harmonic ~3x the 5th at ~61 keV (B1 360-390 vs 122 kHz, Nov 2024): model 3.07. The exponent is calibrated on that one ratio."
+  },
+  "harmonic_amplitude_legacy": {
+   "3": 1.0,
+   "5": 0.95,
+   "7": 0.8,
+   "9": 0.62,
+   "11": 0.45
+  }
+ },
+ "hem": {
+  "th1_offset_deg": 0.4863,
+  "th2_offset_deg": 0.1562,
+  "offset_src": "log: Th1 offset 0.4863 (Feb 2026), Th2 offset 0.1562 (2026)",
+  "th2_rocking_fwhm_deg": 0.002,
+  "th2_src": "assumed 2 mdeg: no Th2 rocking curve exists in the logs; each 0.0002 deg tweak step is a visible flux change and the edge width corresponds to ~1.3 mdeg",
+  "energy_shift_ev_per_mdeg": "computed: blade.physics.core.energy_shift_from_angle_keV (-45 eV/mdeg at 71.7 keV)",
+  "thermal": {
+   "tau_s": 420.0,
+   "th2_shift_deg_per_kW": 0.004,
+   "power_kW_per_mm2": 6.0,
+   "src": "log: first crystal heats +3 K at 0.4x0.4 mm and +10 K at 0.8x0.7 mm; flux recovers after thermalisation and a Th2 tweak (T26:L318-424). Coefficients assumed"
+  },
+  "energy_range_keV": [
+   40.0,
+   95.0
+  ],
+  "edge_width_src": "log fits: wid(E) = E*23e-6/tan(theta_B) keV (Tb 0.032, Yb 0.048, Re 0.060, Au 0.073 keV); used as the erf width of the foil edge: sigma_E = wid/sqrt(2)",
+  "th2_energy_coupling": 0.3,
+  "th2_coupling_src": "log: a Th2 tweak moved mu_t 1.299 -> 1.334 at Re (user log, Mar 2025); size assumed",
+  "tweak_step_deg": {
+   "th1": 0.0001,
+   "th2": 0.0002
+  },
+  "edge_wid_rad": 2.3e-05
+ },
+ "ic": {
+  "ref_kHz_at_icB1": 176.0,
+  "ref_src": "log: IC_B1 = 174-178.5 kHz at 200 mA, 50 nA/V, WB 0.3x0.3 mm, Au/Re edge",
+  "dark_kHz": 1.0,
+  "dark_src": "log: 0.8-2.1 kHz",
+  "max_kHz": 1000.0,
+  "max_src": "log: scaler clips near 1e6 counts/s",
+  "icB1_gain_note": "the IC reading is flux x gain; gains are 1 here for all ICs (the real preamp settings are not recorded)",
+  "ids": [
+   "icB1",
+   "icB2",
+   "icB3",
+   "icB5",
+   "icB8",
+   "icB6",
+   "icB7",
+   "icC1",
+   "icC2",
+   "icC3",
+   "icC4",
+   "icE12",
+   "icE3",
+   "icE4",
+   "icE5",
+   "icE6"
+  ],
+  "dark_kHz_by_ic": {
+   "icE12": 0.835,
+   "icE3": 0.474,
+   "icE4": 0.35,
+   "icE6": 1.92
+  },
+  "dark_by_ic_src": "log (PSS closed, 2025-26): IC1-E 835, IC3-E 474, IC4-E ~340-360, IC6-E ~1900-1950 counts/s; B and C ICs use dark_kHz (0.8-2.1 kHz)"
+ },
+ "slits": {
+  "_note": "Kohzu 4-blade slits as soft axes hsize/vsize/hcenter/vcenter (mm). zero = hidden offset between the slit coordinate and the lab beam axis (what 'aligning the slit' removes). Limits and resolution assumed.",
+  "wbSlits": {
+   "hutch": "A",
+   "size_max": 3.0,
+   "size_default": [
+    0.3,
+    0.3
+   ],
+   "center_default": [
+    0.0,
+    -0.07
+   ],
+   "center_src": "log: [0.0,-0.07] Feb 2026"
+  },
+  "slitB": {
+   "hutch": "B",
+   "size_max": 5.0,
+   "size_default": [
+    2.0,
+    2.0
+   ],
+   "center_default": [
+    0.087,
+    -0.115
+   ],
+   "center_src": "twin snapshot 2026-10-20"
+  },
+  "slitCus": {
+   "hutch": "C",
+   "size_max": 5.0,
+   "size_default": [
+    0.7,
+    0.7
+   ],
+   "center_default": [
+    0.089,
+    0.035
+   ],
+   "center_src": "twin snapshot"
+  },
+  "slitCds": {
+   "hutch": "C",
+   "size_max": 5.0,
+   "size_default": [
+    0.8,
+    0.8
+   ],
+   "center_default": [
+    0.141,
+    -0.233
+   ],
+   "center_src": "twin snapshot"
+  },
+  "slitEus": {
+   "hutch": "E",
+   "size_max": 5.0,
+   "size_default": [
+    0.59,
+    0.54
+   ],
+   "center_default": [
+    0.142,
+    -0.563
+   ],
+   "center_src": "twin snapshot"
+  },
+  "slitEds": {
+   "hutch": "E",
+   "size_max": 5.0,
+   "size_default": [
+    0.88,
+    0.7
+   ],
+   "center_default": [
+    0.0,
+    0.0
+   ],
+   "center_src": "twin snapshot (centres hidden in the photo)"
+  },
+  "truth_zero_spread_mm": {
+   "wbSlits": 0.04,
+   "default": 0.25
+  },
+  "zero_src": "log: hotspot vs WB-slit image centre differs by 10-20 um (steering/WB nudges of 10-20 um); the Kohzu slit zeros are re-set to the hotspot every energy change and sit up to 0.9 mm from the beam (offsets of 0.03-0.9 mm in the final slit tables): spreads assumed accordingly",
+  "hsign": 1.0,
+  "hsign_note": "slit centre sign convention is an OPEN question in the twin; +hcenter moves the opening toward +u (image right) here"
+ },
+ "lenses": {
+  "_note": "Saw-tooth stacks of hutch E (physics: blade.physics.lens.LENSES_1ID). axis: th/phi decides vertical/horizontal focusing (blade.physics.lens.focus_motor_target). 'in' means the lens x motor is at 0, 'out' at x_out mm.",
+  "aperture_mm": 1.5,
+  "aperture_src": "assumed (clear aperture of the stacks)",
+  "x_out_mm": 25.0,
+  "truth_tilt_error_deg": 0.004,
+  "truth_src": "log: measured optima differ from the predicted tilts by 0.002-0.010 deg"
+ },
+ "foils": {
+  "elements": [
+   "Re",
+   "Au",
+   "Yb",
+   "Tb",
+   "Ho",
+   "Ta",
+   "Hf",
+   "Pr",
+   "Sm",
+   "Ir"
+  ],
+  "ut_default": 1.37,
+  "ut_src": "log: ut 1.35-1.45, median 1.37",
+  "attenB_cu_mm": [
+   0.0,
+   0.25,
+   1.016,
+   2.032,
+   3.048
+  ],
+  "attenB_src": "log: position 2 = 1.016 mm Cu; others assumed",
+  "attenC_cu_mm": [
+   0.0,
+   2.32,
+   4.64,
+   6.96,
+   9.28,
+   11.6,
+   13.92,
+   16.45
+  ],
+  "attenC_src": "log: attenC macro help: 0.232 cm Cu per step, 1.645 cm at position 7 (the last step is taken as logged, the rest linear); was assumed [0,0.5,1,2]. attenB positions 5-8 are still missing (pos 8 = 6.20 mm Cu is logged)",
+  "b": {
+   "Re": 1.42,
+   "Au": 1.37,
+   "Yb": 1.4,
+   "Tb": 0.775,
+   "Ho": 1.2,
+   "Ta": 1.3,
+   "Hf": 1.15,
+   "Pr": 1.0,
+   "Sm": 0.913,
+   "Ir": 1.591
+  },
+  "b_src": "log (procedure KB, E_scan fits): Re 1.40-1.45 (n=12 logs), Au 1.356-1.399 (n=6), Yb 1.38-1.40, Tb 0.768-0.777 (n=5), Hf 1.14-1.16 (n=3; was 1.35 assumed), Pr 1.0, Sm 0.913, Ir 1.591 (one fit each); Ho and Ta still assumed"
+ },
+ "cameras": {
+  "_note": "Tomo cameras. pixel_um comes from the profile (profiles/s1id). Sensor sizes: gh1 1490x1940 (test data), pg1 1920x1200 and pg5 1920x1200 (ImageJ titles in the logs), retiga2 assumed. bg/full/texture/dust/halo calibrated on the log screenshots (dark floor 0.5-1.5 kcounts, mottle +-15-30 %, fixed-pattern dust, 1-5 % scatter halo).",
+  "gh1": {
+   "hutch": "E",
+   "rows": 1490,
+   "cols": 1940,
+   "stage": "tomoE",
+   "z_key": "tomoE",
+   "stage_xy_pv": [
+    "1ide1:m63",
+    "1ide1:m40"
+   ],
+   "gain": 1.0,
+   "bg": 5400,
+   "full": 28000,
+   "psf_px": 1.8,
+   "texture": 0.15,
+   "core": 0.5,
+   "dust": 0.05,
+   "note": "FLIR Grasshopper3, 5X, high-res table",
+   "halo": 0.02
+  },
+  "pg1": {
+   "hutch": "E",
+   "rows": 1200,
+   "cols": 1920,
+   "stage": "tomoEds",
+   "z_key": "tomoEds",
+   "stage_xy_pv": [
+    "1ide1:m111",
+    "1ide1:m112"
+   ],
+   "gain": 1.0,
+   "bg": 1000,
+   "full": 22000,
+   "psf_px": 2.0,
+   "texture": 0.15,
+   "core": 1.0,
+   "dust": 0.09,
+   "note": "Point Grey 1920x1200 (the ImageJ view in the logs is often an 1184x1200 ROI); 5.86 um sensor pixels",
+   "halo": 0.02
+  },
+  "pg5": {
+   "hutch": "C",
+   "rows": 1200,
+   "cols": 1920,
+   "stage": "tomoC",
+   "z_key": "tomoC",
+   "stage_xy_pv": [
+    "1idc:m79",
+    "1idc:m84"
+   ],
+   "gain": 1.0,
+   "bg": 1000,
+   "full": 60000,
+   "psf_px": 2.2,
+   "texture": 0.25,
+   "core": 1.0,
+   "dust": 0.05,
+   "note": "1idSP5 in the log images (profile: hutch C); structured speckled beam",
+   "halo": 0.03
+  },
+  "retiga2": {
+   "hutch": "B",
+   "rows": 1200,
+   "cols": 1600,
+   "stage": "tomoB",
+   "z_key": "tomoB",
+   "stage_xy_pv": [
+    "1idb:m52",
+    "1idb:m40"
+   ],
+   "gain": 1.0,
+   "bg": 1000,
+   "full": 24000,
+   "psf_px": 1.8,
+   "texture": 0.12,
+   "core": 0.8,
+   "dust": 0.05,
+   "note": "assumed sensor",
+   "halo": 0.02
+  }
+ },
+ "tomo_stages": {
+  "_note": "x = horizontal translation, y = vertical (mm). Operators zero x,y on the hotspot, so the beam is near x = 0 (+-1 mm, moves with steering/energy); limits and out positions from the logs. Sign (+x moves the field of view toward +u) is assumed.",
+  "tomoC": {
+   "x_limits_mm": [
+    -224.985,
+    31.0
+   ],
+   "y_limits_mm": [
+    -25.87,
+    5.33
+   ],
+   "out_x_mm": -225.0,
+   "src": "log: tomoC x 1idc:m79 Lo -224.985 Hi 31.0, in = 0, out ~ -225..-250; y 1idc:m84"
+  },
+  "tomoE": {
+   "x_limits_mm": [
+    -1.0,
+    283.8
+   ],
+   "y_limits_mm": [
+    -21.3,
+    8.0
+   ],
+   "out_x_mm": 150.0,
+   "src": "log: tomoEus x 1ide1:m63 range -1..283.8, in = 0, out ~150 (Img X 150 = out); y m40 -21.3..8.0"
+  },
+  "tomoEds": {
+   "x_limits_mm": [
+    -0.7,
+    208.2
+   ],
+   "y_limits_mm": [
+    -16.0,
+    65.7
+   ],
+   "out_x_mm": 150.0,
+   "src": "log: tomoEds x 1ide1:m111 -0.7..208.2, y m112 -16..65.7"
+  },
+  "tomoB": {
+   "x_limits_mm": [
+    -300.0,
+    30.0
+   ],
+   "y_limits_mm": [
+    -10.0,
+    10.0
+   ],
+   "out_x_mm": -250.0,
+   "src": "assumed (B-TOM limits not in the logs)"
+  },
+  "xsign": 1.0,
+  "ysign": 1.0
+ },
+ "stage_E": {
+  "_note": "Hutch E rotation stage. Signs are the hardware-confirmed ones of the profile (2026-10-28). Pin = BLADE alignment pin (dark truncated cone).",
+  "col_per_x": -1.0,
+  "k_z": 1.0,
+  "col_per_base": -1.0,
+  "row_per_y": -1.0,
+  "rot_sign": 1.0,
+  "pin": {
+   "top_width_um": 104.5,
+   "half_angle_deg": 15.0,
+   "top_width_src": "151.5 px x 0.69 um in the 1490x1940 test frames",
+   "transmission": 0.08,
+   "length_mm": 12.0,
+   "length_src": "assumed (lever arm of the tilt/wedge)",
+   "transmission_src": "test frames gave 0.045 at the top; the log screenshots show 8-20 % interior transmission with the thicker lower part darker; 0.06 at the top flat is used and the interior darkens as T^((width/top width)^0.35)"
+  },
+  "truth": {
+   "c_axis_off_beam_mm": -0.106,
+   "a_mm": -0.091,
+   "b_mm": -0.007,
+   "tilt_rx_deg": 0.015,
+   "tilt_rz_deg": 0.0,
+   "pin_top_v_mm": 0.18,
+   "src": "test-data values: axis column 818 px vs beam centre 972 px, a=-132 px, b=-10 px (0.69 um/px)"
+  },
+  "pin_z_ref_mm": 0.9588,
+  "x_ref_mm": -0.2343,
+  "y_ref_mm": 13.8471,
+  "aerox_ref_mm": 0.0,
+  "ref_src": "operator-panel snapshot 2026-10-20 (assemblies/samE.json)"
+ },
+ "truth_scales": {
+  "steer_err_urad": 3.5,
+  "gap_err_mm": 0.02,
+  "th1_err_mdeg": 1.2,
+  "th2_err_deg": 0.0012,
+  "camera_zero_mm": 0.8,
+  "focus_err_mm": 0.15,
+  "src": "spreads for the random 'startup' scenario. Updated 2026-11-12 from the procedure KB: gap_err 0.02 mm (predicted vs logged peak gap rms 0.016 mm, run-to-run wander ~0.01); th1_err 1.2 mdeg (mono readback sits 6-115 eV below the tabulated edge after calibration = 0.1-2.8 mdeg: Re 6-46 eV, Tb 52-66 eV, Au 0-115 eV); steer_err 3.5 urad (steering requests logged 2.5, 3+2, 5+2+0.5, 4 urad); camera_zero, focus_err, th2_err still assumed",
+  "fs_zero_mm": 0.4
+ },
+ "fast_shutters": {
+  "fsB": {
+   "hsize": 3.0,
+   "vsize": 1.7
+  },
+  "fsE": {
+   "hsize": 3.0,
+   "vsize": 1.7
+  },
+  "src": "log: FS is 3.0 mm wide in X and 1.7 mm in Y; its centre is found from the blade edges on the tomo (user log, Feb 2026)",
+  "centre_default": [
+   0.2,
+   0.28
+  ]
+ }
+}

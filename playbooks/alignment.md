@@ -3,6 +3,8 @@
 Commands are `blade align <cmd>` (installed with `pip install -e .`); from a plain checkout use `python -I launch.py align <cmd>` instead — identical. Everything beamline-specific
 (cameras and pixel sizes, motor PVs and names, signs, limits, tolerances) comes from the **profile** chosen at `new-run --profile <name>` (default `s1id`; `blade profiles` lists them; see `profiles/README.md`). Motors are addressed by role: `x`, `y`, `z` (pin), `base` (moves the rotation axis), `omega`.
 
+**Backends:** `sim` (stand-alone simulator, default), `vbl` (the virtual beamline: the same alignment on the full twin-based instrument model, sharing its session with the `vbl_*` tools and the `/vbl` GUI page; see `playbooks/virtual_beamline.md`) and `epics` (real beamline, only when the user says so).
+
 Goal: put the **pin on the rotation axis** (a, b → 0) and the **rotation axis on the beam centre** (c → beam centre).
 Assumes the beam is already on the tomo detector (no slits / edge / flux, no wedge). Everything the user must see goes through the
 CLI, which logs to `runs/<id>/events.jsonl`; the GUI (`blade gui`, http://localhost:8765) follows it live.

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLADE knowledge base</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
+<style>
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--agentbg:#f0e9f8;--mono:ui-monospace,Menlo,Consolas,monospace;--beam:#d6342a;
+ --c0:#2160c4;--c1:#168a4a;--c2:#a96a08;--c3:#6b3fa0;--c4:#c0352b;--c5:#0e8a8a;
+ --k-source:#d6336c;--k-shutter:#e03131;--k-slit:#0c8599;--k-ic:#2f9e44;--k-optic:#1c7ed6;--k-mono:#ae3ec9;--k-atten:#e08600;--k-stage:#5c7080;--k-detector:#f76707;--k-stop:#343a40;--k-unknown:#8a94a3}
+:root[data-theme=dark],:root[data-theme=midnight]{color-scheme:dark;
+ --c0:#6ea4ff;--c1:#4cc380;--c2:#e3a549;--c3:#b994f2;--c4:#ff7064;--c5:#4fd1d1;
+ --k-source:#f06595;--k-shutter:#ff6b6b;--k-slit:#22b8cf;--k-ic:#51cf66;--k-optic:#4dabf7;--k-mono:#da77f2;--k-atten:#fcc419;--k-stage:#9db0c2;--k-detector:#ff922b;--k-stop:#e5eaf1;--k-unknown:#8d99aa}
+:root[data-theme=dark]{--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2;--agentbg:#2a2038;--beam:#ff6a5e}
+:root[data-theme=midnight]{--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--accbg:#14325e;--agent:#c4a3ff;--agentbg:#2b2250;--beam:#ff7466}
+:root[data-theme=paper]{--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--accbg:#dfe8f2;--agent:#6b3fa0;--agentbg:#ece3f3;--beam:#b8322a}
+:root[data-theme=contrast]{--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--accbg:#dbe5ff;--agent:#5a00a0;--agentbg:#eadcff;--beam:#cc0000;
+ --c0:#0033cc;--c1:#006400;--c2:#7a4b00;--c3:#5a00a0;--c4:#b00000;--c5:#005f73;
+ --k-source:#b0004a;--k-shutter:#b00000;--k-slit:#005f73;--k-ic:#0b6b1d;--k-optic:#0043a8;--k-mono:#7a0099;--k-atten:#8a5200;--k-stage:#333;--k-detector:#b34700;--k-stop:#000;--k-unknown:#555}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,sans-serif}
+a{color:var(--acc)}
+.wrap{max-width:1500px;margin:0 auto;padding:12px 16px;display:grid;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:0 0 8px;font-weight:700}
+.top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}.top h1{font-size:17px;margin:0 6px 0 0}.sp{flex:1}
+select,input{font:13px system-ui;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+select#prof{font-weight:600;border-color:var(--acc)}
+.pill{padding:2px 10px;border-radius:99px;border:1px solid var(--line);font:12px var(--mono);white-space:nowrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{font:13px system-ui;padding:4px 14px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer}
+.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chip{font:12px system-ui;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}.chip.off{opacity:.35}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+@media(max-width:1100px){.main{grid-template-columns:1fr}}
+.side{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}
+.scroll{overflow-x:auto}
+svg text{fill:var(--mute);font:11px var(--mono)}svg text.nm{fill:var(--ink);font:11px system-ui}
+.kg-source{--k:var(--k-source)}.kg-shutter{--k:var(--k-shutter)}.kg-slit{--k:var(--k-slit)}.kg-ic{--k:var(--k-ic)}.kg-optic{--k:var(--k-optic)}.kg-mono{--k:var(--k-mono)}
+.kg-atten{--k:var(--k-atten)}.kg-stage{--k:var(--k-stage)}.kg-detector{--k:var(--k-detector)}.kg-stop{--k:var(--k-stop)}.kg-unknown{--k:var(--k-unknown)}
+.g *{fill:color-mix(in srgb,var(--k) 20%,var(--panel));stroke:var(--k);stroke-width:1.8;stroke-linejoin:round}
+.g.cf-code *{stroke-dasharray:7 2.5}.g.cf-inferred *{stroke-dasharray:4 3}.g.cf-unseen *{stroke-dasharray:1.5 3}
+.g .fillink{fill:var(--k)}.g .tomo{fill:var(--agent);stroke:none}.g .cdot{fill:var(--cdot);stroke:var(--panel);stroke-width:1.2;stroke-dasharray:none}
+.g.sel *{stroke-width:2.6}.g.sel .halo{stroke:var(--acc);stroke-width:3;fill:var(--accbg);stroke-dasharray:none}
+.g.bt .halo{stroke:var(--agent);stroke-width:2.5;fill:var(--agentbg);stroke-dasharray:none}
+.g.dim{opacity:.13}.item{cursor:pointer}.item:hover .halo{fill:var(--accbg)}
+.halo{fill:transparent;stroke:none}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid var(--k);background:color-mix(in srgb,var(--k) 25%,var(--panel));vertical-align:-1px;margin-right:6px}
+.kchip{font:12.5px system-ui;padding:3px 10px 3px 8px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.kchip:hover{border-color:var(--k)}.kchip.on{background:color-mix(in srgb,var(--k) 22%,var(--panel));border-color:var(--k)}.kchip.off{opacity:.4}
+.legend{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.beamline{stroke:var(--beam);stroke-width:2.2;stroke-dasharray:7 5;fill:none}
+.conn{stroke:var(--mute);stroke-width:1;stroke-dasharray:3 3;fill:none}
+.hh{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:4px}.hh b{font-size:15px}.hh span{color:var(--mute);font-size:12.5px}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font:11.5px var(--mono);border:1px solid var(--line)}
+.badge.bt{background:var(--agentbg);color:var(--agent);border-color:transparent}
+table{border-collapse:collapse;width:100%;font:12.5px var(--mono)}th,td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}td.l,th.l{text-align:left}
+tr.clk{cursor:pointer}tr.clk:hover td{background:var(--accbg)}
+.kv{display:grid;grid-template-columns:90px 1fr;gap:2px 8px;font-size:13px}.kv dt{color:var(--mute)}.kv dd{margin:0;word-break:break-word}
+.mono{font-family:var(--mono);font-size:12.5px}.mute{color:var(--mute)}.note{font-size:12.5px;color:var(--mute);margin-top:6px}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.thumbs a{display:block}.thumbs img{height:72px;border-radius:5px;border:1px solid var(--line);display:block}
+.thumbs .nophoto{font:11px var(--mono);padding:4px 8px;border:1px dashed var(--line);border-radius:5px;color:var(--mute)}
+.empty{padding:30px 10px;text-align:center;color:var(--mute)}.empty b{color:var(--ink)}
+.rng{display:grid;grid-template-columns:250px 1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.rng:hover{background:var(--accbg)}.rng .t b{font-size:13px}.rng .t div{font-size:11.5px;color:var(--mute)}
+.track{position:relative;height:26px}.track .bar{position:absolute;left:0;right:0;top:11px;height:4px;background:var(--line);border-radius:2px}
+.track .mk{position:absolute;top:3px;width:3px;height:20px;background:var(--acc);border-radius:2px}.track .zero{position:absolute;top:7px;width:1px;height:12px;background:var(--mute)}
+.track .lo,.track .hi,.track .rb{position:absolute;top:-2px;font:10.5px var(--mono);color:var(--mute)}.track .lo{left:0}.track .hi{right:0}.track .rb{color:var(--acc)}
+.stackbox{border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:0 8px}
+
+.split{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px;align-items:start;margin-top:12px}@media(max-width:900px){.split{grid-template-columns:1fr}}
+#content>.card+.card,#content>.card+.split{margin-top:12px}#pdetail>.card{margin-bottom:12px}
+.pitem{padding:6px 8px;border-radius:7px;cursor:pointer;border:1px solid transparent}.pitem:hover{background:var(--accbg)}.pitem.on{background:var(--accbg);border-color:var(--acc)}
+.snip{font-size:12.5px;color:var(--mute);margin-top:3px}mark{background:color-mix(in srgb,var(--warn) 35%,transparent);color:inherit;border-radius:2px;padding:0 1px}
+a.cite{font:11.5px var(--mono);padding:0 6px;border-radius:5px;border:1px solid var(--line);text-decoration:none;white-space:nowrap;display:inline-block}a.cite:hover{background:var(--accbg);border-color:var(--acc)}
+.steps{margin:0;padding-left:22px;display:grid;gap:10px}.step{padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.kvs{display:flex;flex-wrap:wrap;gap:2px 14px;font-size:12.5px;color:var(--ink);margin-top:3px}.kvs i{color:var(--mute);font-style:normal;margin-right:3px}
+.vals{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:5px}.val{font:12px var(--mono);padding:1px 7px;border-radius:6px;background:color-mix(in srgb,var(--acc) 9%,var(--panel));border:1px solid var(--line)}
+.ev-log{background:var(--okbg);color:var(--ok);border-color:transparent}.ev-inf{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.pl{margin:0;padding-left:20px;display:grid;gap:4px}code{font:12px var(--mono);background:color-mix(in srgb,var(--mute) 14%,transparent);padding:0 4px;border-radius:4px}
+.figs{display:flex;flex-wrap:wrap;gap:10px}.fig{margin:0;width:260px}.fig img{width:100%;border-radius:6px;border:1px solid var(--line)}.fig figcaption{font-size:12px;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}.tile{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.tile:hover{border-color:var(--acc)}.tile img{width:100%;height:132px;object-fit:contain;background:#000;display:block}.tb{display:flex;flex-wrap:wrap;gap:3px;padding:4px 5px 0}.tb .badge{font-size:10.5px;padding:0 6px}.badge.sub{background:var(--accbg);border-color:transparent}
+.cap{font-size:11.5px;color:var(--mute);padding:2px 6px 6px;height:34px;overflow:hidden}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;max-width:1400px;width:100%}.mgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;margin-top:6px}@media(max-width:1000px){.mgrid{grid-template-columns:1fr}}
+img.big{width:100%;border-radius:8px;border:1px solid var(--line);background:#000}.cr{margin-bottom:8px}.ctx{font-size:12.5px;margin:2px 0 0 4px;border-left:3px solid var(--line);padding-left:8px}
+.hpath{font:600 11.5px system-ui;color:var(--acc);margin:8px 0 2px}.src .ln{display:grid;grid-template-columns:38px 1fr;gap:6px;font-size:12.5px;padding:1px 4px;border-radius:4px;word-break:break-word}.src .ln.mk{background:var(--warnbg)}
+.lnn{font:11px var(--mono);color:var(--mute);text-align:right}.inls{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}img.inl{height:64px;border-radius:4px;border:1px solid var(--line);background:#000}
+.hit{padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.sec{font-size:13px;padding:1px 0}#main.kb{grid-template-columns:minmax(0,1fr) 440px}#main.kb.nodr{grid-template-columns:minmax(0,1fr)}@media(max-width:1100px){#main.kb{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+<div class="card top">
+ <h1>BLADE <span style="font-weight:400;opacity:.7">· knowledge base</span></h1>
+ <span class="pill" id="st1"></span><span class="pill" id="st2"></span><span class="pill" id="st3"></span><span class="pill" id="st4"></span>
+ <span class="sp"></span>
+ <a href="/">← alignment monitor</a> <a href="/twin">beamline twin</a> <a href="/vbl">virtual beamline</a>
+ <label class="mute" title="colour theme (remembered in this browser)">theme <select id="theme"></select></label>
+</div>
+<div id="unavail" class="card" style="display:none"></div>
+<div class="card" id="tabsCard"><div class="tabs" id="tabs"></div></div>
+<div class="main kb nodr" id="main">
+ <div id="content" style="min-width:0"></div>
+ <div id="drawer" class="card side" style="display:none"></div>
+</div>
+</div>
+<div id="modal" class="modal" style="display:none"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const j=async u=>{const r=await fetch(u);const d=await r.json();if(d&&d.error){const e=new Error(d.error);e.data=d;throw e}return d};
+const qs=o=>Object.entries(o).filter(([k,v])=>v!==''&&v!=null).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+const THEMES=[['auto','Auto (system)'],['light','Light'],['dark','Dark'],['midnight','Midnight'],['paper','Paper'],['contrast','High contrast']];
+let themeChoice='auto';try{themeChoice=localStorage.getItem('blade.theme')||'auto'}catch(e){}
+if(!THEMES.some(t=>t[0]===themeChoice))themeChoice='auto';
+const resolveTheme=c=>c==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c;
+function setTheme(c,save=true){themeChoice=c;document.documentElement.setAttribute('data-theme',resolveTheme(c));if(save){try{localStorage.setItem('blade.theme',c)}catch(e){}}}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(themeChoice==='auto')setTheme('auto',false)})}catch(e){}
+setTheme(themeChoice,false);
+
+const TABS=[['procs','Procedures'],['images','Images'],['logs','Log text'],['docs','Documents']];
+let ST=null,TAB='procs',PL=[],CURP=null,FAC=null,DR=null,IM={q:'',cls:'',subject:'',camera:'',hutch:'',source:'',device:'',offset:0,total:0},LG={q:'',year:'',kind:'',offset:0,total:0};
+const docShort=d=>String(d).replace(/_?(explog|ExpLog|EXPLOG)$/,'').slice(0,40);
+function hash(o){const p=new URLSearchParams(location.hash.slice(1));for(const k in o){if(o[k])p.set(k,o[k]);else p.delete(k)}history.replaceState(null,'','#'+p.toString())}
+function citeChips(cs){return (cs||[]).map(c=>`<a href="#" class="cite" data-c="${esc(c)}" title="${esc(c)}">${esc(docShort(c.split(':L')[0]))}:L${esc(c.split(':L')[1]||'')}</a>`).join(' ')}
+const hl=(t,terms)=>{let h=esc(t);(terms||[]).forEach(w=>{if(!w)return;const r=new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');h=h.replace(r,'<mark>$1</mark>')});return h};
+const thumb=(sha,w=240)=>`/kb-image?sha=${sha}&w=${w}`;
+const debounce=(f,ms=250)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
+
+async function init(){
+ const th=$('theme');th.innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');th.value=themeChoice;th.onchange=()=>setTheme(th.value);
+ ST=await j('/api/kb/status');
+ if(!ST.available){$('unavail').style.display='';$('unavail').innerHTML=`<div class="empty"><b>Knowledge base not found</b><br>${esc(ST.root)}<br><span class="mute">${esc(ST.hint)}</span></div>`;$('tabsCard').style.display='none';$('main').style.display='none';return}
+ $('st1').textContent=ST.docs+' log documents';$('st2').textContent=ST.images+' images';$('st3').textContent=ST.procedures+' procedures';$('st4').textContent=ST.lines+' log lines';
+ [FAC,PL]=await Promise.all([j('/api/kb/facets'),j('/api/kb/procs').then(r=>r.procedures)]);
+ const p=new URLSearchParams(location.hash.slice(1));
+ TAB=TABS.some(t=>t[0]===p.get('tab'))?p.get('tab'):'procs';
+ if(p.get('id'))CURP=p.get('id');
+ $('tabs').innerHTML=TABS.map(([k,l])=>`<button data-tab="${k}">${l}</button>`).join('');
+ $('tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)setTab(b.dataset.tab)};
+ document.addEventListener('click',onClick);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+ for(const k of ['cls','subject','camera','hutch','device','source'])if(p.get(k))IM[k]=p.get(k);
+ if(p.get('q'))IM.q=p.get('q');if(p.get('lq'))LG.q=p.get('lq');if(p.get('year'))LG.year=p.get('year');if(p.get('kind'))LG.kind=p.get('kind');
+ setTab(TAB);
+ if(p.get('cite'))openCite(p.get('cite'));if(p.get('img'))openImage(p.get('img'));
+}
+function setTab(t){TAB=t;hash({tab:t});[...$('tabs').children].forEach(b=>b.classList.toggle('on',b.dataset.tab===t));({procs:viewProcs,images:viewImages,logs:viewLogs,docs:viewDocs})[t]()}
+
+/* ------------------------------------------------------------------ global click handling */
+function onClick(e){
+ const c=e.target.closest('.cite');if(c){e.preventDefault();openCite(c.dataset.c);return}
+ const im=e.target.closest('[data-img]');if(im){e.preventDefault();openImage(im.dataset.img);return}
+ const pr=e.target.closest('[data-proc]');if(pr){e.preventDefault();if(TAB!=='procs')setTab('procs');selectProc(pr.dataset.proc);return}
+ if(e.target.id==='modal')closeModal();
+}
+
+/* ------------------------------------------------------------------ source drawer (a log passage around a citation) */
+async function openCite(c,ctx=8){
+ const d=$('drawer');d.style.display='';$('main').classList.remove('nodr');d.innerHTML='<div class="mute">loading '+esc(c)+' …</div>';
+ try{const w=await j('/api/kb/cite?'+qs({c,ctx}));DR={c,ctx,w};drawEnd()}catch(e){d.innerHTML=`<div class="empty"><b>${esc(e.message)}</b></div>`}
+}
+function drawEnd(){
+ const {c,ctx,w}=DR,d=$('drawer');let last='';
+ const rows=w.lines.map(l=>{const h=[l.h1,l.h2,l.h3].filter(Boolean).join(' › ');let head='';if(h!==last){head=`<div class="hpath">${esc(h||'(no heading)')}</div>`;last=h}
+  const inm=l.ln>=w.mark[0]&&l.ln<=w.mark[1];
+  const imgs=l.imgs.map(i=>`<a href="#" data-img="${i.sha}" title="${esc([i.class,i.subject,i.device].filter(Boolean).join(' / '))}"><img class="inl" loading="lazy" src="${thumb(i.sha,200)}"></a>`).join('');
+  return head+`<div class="ln ${inm?'mk':''}"><span class="lnn">${l.ln}</span><span>${esc(l.text)||'<span class="mute">·</span>'}${imgs?'<div class="inls">'+imgs+'</div>':''}</span></div>`}).join('');
+ d.innerHTML=`<div style="display:flex;gap:8px;align-items:baseline"><h2 style="margin:0;flex:1">Source</h2><button class="chip" id="dclose">close</button></div>
+  <div class="hh"><b class="mono" style="font-size:13px">${esc(c)}</b></div><div class="mute" style="font-size:12px;margin-bottom:6px">${esc(w.doc.title||'')} · ${esc(w.doc.kind)} · ${esc(w.doc.date_first||'')}${w.doc.date_last&&w.doc.date_last!==w.doc.date_first?' → '+esc(w.doc.date_last):''}</div>
+  <div style="display:flex;gap:6px;margin-bottom:6px"><button class="chip" id="dup">▲ more above</button><button class="chip" id="ddn">▼ more below</button><button class="chip" id="ddoc">outline</button></div>
+  <div class="src">${rows}</div>`;
+ $('dclose').onclick=()=>{d.style.display='none';$('main').classList.add('nodr')};
+ $('dup').onclick=$('ddn').onclick=()=>openCite(c,ctx+15);
+ $('ddoc').onclick=()=>{TAB='docs';setTab('docs');openOutline(w.doc.doc_id)};
+}
+
+/* ------------------------------------------------------------------ image modal */
+function closeModal(){$('modal').style.display='none';$('modal').innerHTML=''}
+async function openImage(sha){
+ const m=$('modal');m.style.display='flex';m.innerHTML='<div class="mbox"><div class="mute">loading …</div></div>';
+ try{
+  const I=await j('/api/kb/imginfo?sha='+sha);const im=I.image,b=I.best;
+  const bests=Object.entries(b).map(([k,v])=>`<span class="badge" title="${esc(k)} from ${esc(v.source)}">${esc(k)}: <b>${esc(v.value)}</b> <span class="mute">${esc(v.source)}</span></span>`).join(' ');
+  const hist=I.labels.map(l=>`<tr><td class="l">${esc(l.key)}</td><td class="l">${esc(l.value)}</td><td class="l">${esc(l.source)}</td><td>${l.confidence==null?'':Number(l.confidence).toFixed(2)}</td><td class="l mute">${esc(l.note||'')}</td></tr>`).join('');
+  const refs=I.citations.map(r=>`<div class="cr"><a href="#" class="cite" data-c="${esc(r.doc_id)}:L${r.ln}">${esc(docShort(r.doc_id))}:L${r.ln}</a> <span class="mute">${esc(r.date||'')} ${esc([r.h1,r.h2,r.h3].filter(Boolean).join(' › '))}</span>
+    <div class="ctx">${r.before?'<div class="mute">… '+esc(r.before)+'</div>':''}${r.same_line?'<div><b>'+esc(r.same_line)+'</b></div>':''}${r.after?'<div class="mute">'+esc(r.after)+' …</div>':''}</div></div>`).join('');
+  m.innerHTML=`<div class="mbox"><div style="display:flex;justify-content:flex-end"><button class="chip" onclick="closeModal()">close (Esc)</button></div>
+   <div class="mgrid"><div><a href="/kb-image?sha=${sha}" target="_blank"><img class="big" src="${thumb(sha,1400)}"></a>
+     <div class="mono mute" style="margin-top:4px">${im.width}×${im.height} ${esc(im.ext)} · ${(im.bytes/1024).toFixed(0)} kB · ${esc(im.sha256.slice(0,16))}</div></div>
+    <div><div class="legend" style="margin-bottom:8px">${bests}</div>
+     <h2>Citations (${I.citations.length})</h2>${refs||'<div class="mute">none</div>'}
+     <h2 style="margin-top:12px">Label history</h2><table><tr><th class="l">key</th><th class="l">value</th><th class="l">source</th><th>conf</th><th class="l">note</th></tr>${hist}</table></div></div></div>`;
+ }catch(e){m.innerHTML=`<div class="mbox"><div class="empty"><b>${esc(e.message)}</b></div><button class="chip" onclick="closeModal()">close</button></div>`}
+}
+
+/* ------------------------------------------------------------------ procedures */
+function viewProcs(){
+ $('content').innerHTML=`<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="pq" placeholder="search steps, numbers, tools, pitfalls …  e.g. undscangap, hotspot pixel, Th2 tweak" style="flex:1;min-width:260px"><button class="chip" id="pnum">search numbers only</button></div>
+  <div class="note">All words must occur (the last one may be a prefix). Citations (<span class="cite" style="cursor:default">doc:L12</span>) open the log passage.</div></div>
+  <div class="split"><div class="card" id="plist" style="max-height:78vh;overflow:auto"></div><div id="pdetail" style="min-width:0"></div></div>`;
+ const run=debounce(async()=>{const q=$('pq').value.trim();if(!q){renderPList();return}
+  try{const r=await j('/api/kb/procsearch?'+qs({q}));$('plist').innerHTML=`<h2>${r.results.length} procedures match</h2>`+(r.results.map(x=>`<div class="pitem ${x.id===CURP?'on':''}" data-proc="${esc(x.id)}"><b>${esc(x.name)}</b> <span class="mute">${x.n} hit${x.n>1?'s':''}</span>${x.hits.slice(0,3).map(h=>`<div class="snip"><span class="badge">${esc(h.kind)}</span> ${h.snippet}</div>`).join('')}</div>`).join('')||'<div class="empty">no match</div>')}catch(e){$('plist').innerHTML=esc(e.message)}},250);
+ $('pq').oninput=run;
+ $('pnum').onclick=async()=>{const q=$('pq').value.trim();if(!q)return;const r=await j('/api/kb/numbers?'+qs({q}));
+  $('pdetail').innerHTML=`<div class="card"><h2>${r.numbers.length} logged numbers matching “${esc(q)}”</h2><div class="scroll"><table><tr><th class="l">procedure</th><th class="l">step</th><th class="l">quantity</th><th class="l">value</th><th class="l">context</th><th class="l">era</th><th class="l">source</th></tr>${r.numbers.map(n=>`<tr><td class="l"><a href="#" data-proc="${esc(n.proc_id)}">${esc(n.proc_id)}</a></td><td class="l">${n.step_n||''}</td><td class="l">${esc(n.quantity)}</td><td class="l"><b>${esc(n.value)}</b> ${esc(n.unit||'')}</td><td class="l mute">${esc(n.context||'')}</td><td class="l">${esc(n.era||'')}</td><td class="l">${citeChips((n.cites||'').split(', ').filter(Boolean).slice(0,2))}</td></tr>`).join('')}</table></div></div>`};
+ renderPList();if(CURP)selectProc(CURP);else if(PL.length)$('pdetail').innerHTML='<div class="card empty"><b>Pick a procedure</b><br>or search above</div>';
+}
+function renderPList(){$('plist').innerHTML='<h2>Procedures</h2>'+PL.map(p=>`<div class="pitem ${p.id===CURP?'on':''}" data-proc="${esc(p.id)}"><b>${esc(p.name)}</b><div class="mute" style="font-size:12px">${p.n_steps} steps · ${p.n_cites} citations</div></div>`).join('')}
+async function selectProc(id){
+ CURP=id;hash({tab:'procs',id});document.querySelectorAll('.pitem').forEach(e=>e.classList.toggle('on',e.dataset.proc===id));
+ const d=$('pdetail');if(!d)return;d.innerHTML='<div class="card mute">loading …</div>';
+ try{const r=await j('/api/kb/proc?id='+encodeURIComponent(id));d.innerHTML=procHTML(r);const nf=$('nfilter');if(nf)nf.oninput=()=>{const v=nf.value.toLowerCase();document.querySelectorAll('#ntab tr.nr').forEach(tr=>tr.style.display=tr.textContent.toLowerCase().includes(v)?'':'none')}}
+ catch(e){d.innerHTML=`<div class="card empty"><b>${esc(e.message)}</b></div>`}
+}
+const EVB=e=>e==='log'?'<span class="badge ev-log" title="stated in the logs">log</span>':'<span class="badge ev-inf" title="synthesised from the logs, not stated verbatim">inferred</span>';
+function procHTML(r){
+ const list=(a,key='text')=>(a||[]).length?`<ul class="pl">${a.map(x=>`<li>${x.label?'<b>'+esc(x.label)+':</b> ':''}${x.name?'<b>'+esc(x.name)+'</b>'+(x.kind?' <span class="badge">'+esc(x.kind)+'</span>':'')+': ':''}${esc(x[key]||x.shows||'')} ${citeChips(x.cites)}</li>`).join('')}</ul>`:'<div class="mute">—</div>';
+ const steps=r.steps.map(s=>`<li class="step"><div><b>${esc(s.action)}</b> ${EVB(s.evidence)} ${citeChips(s.cites)}</div>
+  <div class="kvs">${s.where?`<span><i>where</i> ${esc(s.where)}</span>`:''}${s.tool?`<span><i>tool</i> <code>${esc(s.tool)}</code></span>`:''}${s.signal?`<span><i>watch</i> ${esc(s.signal)}</span>`:''}${s.done_when?`<span><i>done when</i> ${esc(s.done_when)}</span>`:''}</div>
+  ${(s.values||[]).length?`<div class="vals">${s.values.map(v=>`<span class="val" title="${esc(v.context||'')} ${esc(v.era||'')}"><b>${esc(v.quantity)}</b> = ${esc(v.value)} ${esc(v.unit||'')} ${citeChips((v.cites||[]).slice(0,2))}</span>`).join('')}</div>`:''}</li>`).join('');
+ const nums=(r.typical_numbers||[]);
+ const imgs=(r.images||[]).map(i=>`<figure class="fig"><a href="#" data-img="${esc(i.sha10)}"><img loading="lazy" src="${thumb(i.sha10,260)}"></a><figcaption><b>step ${esc(i.step)}</b> ${esc(i.shows||'')}</figcaption></figure>`).join('');
+ return `<div class="card"><div class="hh"><b style="font-size:17px">${esc(r.name)}</b><span class="mono">${esc(r.id)}</span></div>
+  <p style="margin:4px 0">${esc(r.goal)}</p><div class="kvs"><span><i>when</i> ${esc(r.when_performed||'—')}</span><span><i>scope</i> ${esc((r.scope||[]).join(', ')||'—')}</span><span><i>sources</i> ${esc((r.sources&&r.sources.docs||[]).length)} logs, ${esc(r.sources&&r.sources.eras||'')}</span></div></div>
+  <div class="card"><h2>Steps</h2><ol class="steps">${steps}</ol></div>
+  ${(r.prerequisites||[]).length?`<div class="card"><h2>Prerequisites</h2>${list(r.prerequisites)}</div>`:''}
+  ${(r.tools||[]).length?`<div class="card"><h2>Tools</h2>${list(r.tools)}</div>`:''}
+  ${nums.length?`<div class="card"><h2>Typical numbers (${nums.length})</h2><input id="nfilter" placeholder="filter …" style="margin-bottom:6px"><div class="scroll"><table id="ntab"><tr><th class="l">quantity</th><th class="l">value</th><th class="l">context</th><th class="l">era</th><th class="l">source</th></tr>${nums.map(n=>`<tr class="nr"><td class="l">${esc(n.quantity)}</td><td class="l"><b>${esc(n.value)}</b> ${esc(n.unit||'')}</td><td class="l mute">${esc(n.context||'')}</td><td class="l">${esc(n.era||'')}</td><td class="l">${citeChips((n.cites||[]).slice(0,2))}</td></tr>`).join('')}</table></div></div>`:''}
+  ${(r.variants||[]).length?`<div class="card"><h2>Variants</h2>${list(r.variants)}</div>`:''}
+  ${(r.pitfalls||[]).length?`<div class="card"><h2>Pitfalls</h2>${list(r.pitfalls)}</div>`:''}
+  ${(r.success_criteria||[]).length?`<div class="card"><h2>Success criteria</h2>${list(r.success_criteria)}</div>`:''}
+  ${(r.open_questions||[]).length?`<div class="card"><h2>Not in the logs (open)</h2>${list(r.open_questions)}</div>`:''}
+  ${(r.vbl_relevance||[]).length?`<div class="card"><h2>Virtual-beamline relevance</h2><ul class="pl">${r.vbl_relevance.map(v=>`<li><b>${esc(v.item)}</b> → <code>${esc(v.informs||'')}</code><div class="mute">${esc(v.how||'')}</div></li>`).join('')}</ul></div>`:''}
+  ${imgs?`<div class="card"><h2>Images</h2><div class="figs">${imgs}</div></div>`:''}
+  ${(r.related||[]).length?`<div class="card"><h2>Related</h2>${r.related.map(x=>`<a href="#" class="chip" data-proc="${esc(x)}">${esc(x)}</a>`).join(' ')}</div>`:''}`;
+}
+
+/* ------------------------------------------------------------------ images */
+function sel(id,label,opts){return `<label class="mute" style="font-size:12px">${label} <select id="${id}"><option value="">any</option>${opts.map(([v,n])=>`<option value="${esc(v)}">${esc(v)} (${n})</option>`).join('')}</select></label>`}
+function viewImages(){
+ $('content').innerHTML=`<div class="card"><div style="display:flex;gap:8px 12px;flex-wrap:wrap;align-items:end"><input id="iq" placeholder="search captions, headings, device names …" style="flex:1;min-width:240px">
+  ${sel('icls','class',FAC.class)}${sel('isub','subject',FAC.subject)}${sel('icam','camera',FAC.camera)}${sel('ihut','hutch',FAC.hutch)}${sel('isrc','label source',FAC.source)}<input id="idev" placeholder="device (e.g. Kohzu)" style="width:150px"></div>
+  <div class="note" id="icount"></div></div><div class="card"><div class="grid" id="igrid"></div><div style="text-align:center;margin-top:10px"><button class="chip" id="imore" style="display:none">load more</button></div></div>`;
+ const map={iq:'q',icls:'cls',isub:'subject',icam:'camera',ihut:'hutch',isrc:'source',idev:'device'};
+ for(const id in map){$(id).value=IM[map[id]];$(id).oninput=$(id).onchange=debounce(()=>{IM[map[id]]=$(id).value.trim();IM.offset=0;loadImages(true)},id==='iq'||id==='idev'?300:0)}
+ $('imore').onclick=()=>loadImages(false);loadImages(true);
+}
+async function loadImages(reset){
+ if(reset){IM.offset=0;$('igrid').innerHTML=''}
+ try{const r=await j('/api/kb/images?'+qs({...IM,limit:60,offset:IM.offset}));IM.total=r.total;hash({q:IM.q,cls:IM.cls,subject:IM.subject,camera:IM.camera,hutch:IM.hutch,device:IM.device,source:IM.source});
+  $('igrid').insertAdjacentHTML('beforeend',r.images.map(i=>`<a href="#" class="tile" data-img="${i.sha}" title="${esc(i.cite)}"><img loading="lazy" src="${thumb(i.sha,240)}"><div class="tb"><span class="badge">${esc(i.class||'?')}</span>${i.subject?`<span class="badge sub">${esc(i.subject)}</span>`:''}${i.camera?`<span class="badge">${esc(i.camera)}</span>`:''}${i.hutch?`<span class="badge">${esc(i.hutch)}</span>`:''}</div><div class="cap">${esc(i.device||i.cap||'')}</div></a>`).join(''));
+  IM.offset+=r.images.length;$('icount').textContent=`${r.total} image${r.total===1?'':'s'}${r.total>IM.offset?` · showing ${IM.offset}`:''} · class source: rule < vision < human (the best label per key is shown)`;
+  $('imore').style.display=IM.offset<r.total?'':'none';if(!r.total)$('igrid').innerHTML='<div class="empty">no images match</div>'}
+ catch(e){$('igrid').innerHTML=`<div class="empty"><b>${esc(e.message)}</b></div>`}
+}
+
+/* ------------------------------------------------------------------ log text */
+function viewLogs(){
+ $('content').innerHTML=`<div class="card"><div style="display:flex;gap:8px 12px;flex-wrap:wrap;align-items:end"><input id="lq" placeholder="words that must all appear on a log line, e.g. hot spot WB slits" style="flex:1;min-width:260px">
+  <label class="mute" style="font-size:12px">year <select id="lyr"><option value="">any</option>${ST.years.map(y=>`<option>${y}</option>`).join('')}</select></label>
+  <label class="mute" style="font-size:12px">kind <select id="lkd"><option value="">any</option>${ST.kinds.map(y=>`<option>${y}</option>`).join('')}</select></label></div>
+  <div class="note" id="lcount">startup = start-of-beamtime / commissioning logs (best for procedures), user = experiment logs, tables = spreadsheets. Click a line to read the passage around it.</div></div>
+  <div class="card"><div id="lres"></div><div style="text-align:center;margin-top:10px"><button class="chip" id="lmore" style="display:none">load more</button></div></div>`;
+ $('lq').value=LG.q;$('lyr').value=LG.year;$('lkd').value=LG.kind;
+ const go=debounce(()=>{LG.q=$('lq').value.trim();LG.year=$('lyr').value;LG.kind=$('lkd').value;loadLogs(true)},300);
+ $('lq').oninput=go;$('lyr').onchange=$('lkd').onchange=go;$('lmore').onclick=()=>loadLogs(false);if(LG.q)loadLogs(true);
+}
+async function loadLogs(reset){
+ if(reset){LG.offset=0;$('lres').innerHTML=''}
+ if(!LG.q){$('lcount').textContent='type a few words';return}
+ try{const r=await j('/api/kb/text?'+qs({q:LG.q,year:LG.year,kind:LG.kind,limit:60,offset:LG.offset}));LG.total=r.total;hash({lq:LG.q,year:LG.year,kind:LG.kind});
+  $('lres').insertAdjacentHTML('beforeend',r.hits.map(h=>`<div class="hit"><a href="#" class="cite" data-c="${esc(h.doc_id)}:L${h.ln}">${esc(docShort(h.doc_id))}:L${h.ln}</a> <span class="badge">${esc(h.kind)}</span> <span class="mute">${esc(h.date||'')} ${esc([h.h1,h.h2,h.h3].filter(Boolean).join(' › '))}</span><div>${hl(h.text,r.terms)}</div></div>`).join(''));
+  LG.offset+=r.hits.length;$('lcount').textContent=`${r.total} matching lines${r.total>LG.offset?' · showing '+LG.offset:''}`;$('lmore').style.display=LG.offset<r.total?'':'none';if(!r.total)$('lres').innerHTML='<div class="empty">no lines match</div>'}
+ catch(e){$('lres').innerHTML=`<div class="empty"><b>${esc(e.message)}</b></div>`}
+}
+
+/* ------------------------------------------------------------------ documents */
+let DQ={q:'',year:'',kind:''};
+function viewDocs(){
+ $('content').innerHTML=`<div class="card"><div style="display:flex;gap:8px 12px;flex-wrap:wrap;align-items:end"><input id="dq" placeholder="filter by document id or title" style="flex:1;min-width:220px">
+  <label class="mute" style="font-size:12px">year <select id="dyr"><option value="">any</option>${ST.years.map(y=>`<option>${y}</option>`).join('')}</select></label>
+  <label class="mute" style="font-size:12px">kind <select id="dkd"><option value="">any</option>${ST.kinds.map(y=>`<option>${y}</option>`).join('')}</select></label></div></div>
+  <div class="split"><div class="card" id="dlist" style="max-height:78vh;overflow:auto"></div><div class="card" id="dout" style="max-height:78vh;overflow:auto"><div class="empty">pick a document</div></div></div>`;
+ $('dq').value=DQ.q;$('dyr').value=DQ.year;$('dkd').value=DQ.kind;
+ const go=debounce(async()=>{DQ={q:$('dq').value.trim(),year:$('dyr').value,kind:$('dkd').value};const r=await j('/api/kb/docs?'+qs(DQ));
+  $('dlist').innerHTML=`<h2>${r.docs.length} documents</h2>`+r.docs.map(d=>`<div class="pitem" data-doc="${esc(d.doc_id)}"><b>${esc(docShort(d.doc_id))}</b> <span class="badge">${esc(d.kind)}</span><div class="mute" style="font-size:12px">${esc(d.date_first||d.year)} · ${d.n_lines} lines · ${d.n_images} images</div></div>`).join('');
+  $('dlist').onclick=e=>{const x=e.target.closest('[data-doc]');if(x)openOutline(x.dataset.doc)}},250);
+ $('dq').oninput=go;$('dyr').onchange=$('dkd').onchange=go;go();
+}
+async function openOutline(doc){
+ TAB==='docs'||setTab('docs');await new Promise(r=>setTimeout(r,30));const o=$('dout');if(!o)return;
+ try{const r=await j('/api/kb/outline?doc='+encodeURIComponent(doc));let h1='';
+  o.innerHTML=`<h2>${esc(r.doc.doc_id)}</h2><div class="mute" style="font-size:12px;margin-bottom:8px">${esc(r.doc.title||'')} · ${esc(r.doc.kind)} · ${r.doc.n_lines} lines</div>`+r.sections.map(s=>{const head=s.h1!==h1?(h1=s.h1,`<div class="hpath" style="margin-top:8px">${esc(s.h1||'(top)')}</div>`):'';
+   return head+`<div class="sec"><a href="#" class="cite" data-c="${esc(doc)}:L${s.ln}-${s.ln+Math.min(s.n,40)-1}">L${s.ln}</a> ${esc([s.h2,s.h3].filter(Boolean).join(' › ')||'—')} <span class="mute">(${s.n} lines)</span></div>`}).join('')}
+ catch(e){o.innerHTML=`<div class="empty"><b>${esc(e.message)}</b></div>`}
+}
+init();
+</script>
+
+</body></html>

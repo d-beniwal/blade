@@ -23,6 +23,7 @@ beamline_twins/
     beamline.json               frame conventions, hutch order, snapshot header, panel/tab coverage
     hutches/{SRC,A,B,C,E}.json  ordered elements per hutch
     assemblies/samE.json        hutch E sample stack
+    sim.json                    parameters of the VIRTUAL BEAMLINE (blade.vbl): assumed distances, source/mono/undulator/camera numbers, each tagged log / code / assumed
     sources/photos.json         photo index (photos/ itself is git-ignored)
     layout.md                   GENERATED human view (strips, tables, slits, detectors)
     README.md                   status, coverage, open questions
@@ -30,6 +31,9 @@ beamline_twins/
     logs_index/                 LOCAL, git-ignored: extracted text + SQLite/FTS index of the experiment logs, catalog.md, reading notes
 ```
 Log tools (stdlib only): `tools/logextract.py` (docx/xlsx/ods -> text), `tools/logindex.py` (build/search/topic/params/show/outline/images), `tools/logstats.py` (aggregates -> `physics/07_typical_parameters.md`). The executable physics lives in `blade/physics/` (needs `xraydb`, extra `physics`).
+
+## Simulator (`blade/vbl`, `sim.json`)
+The twin is also the base of a simulator, the **virtual beamline**: `1-ID/sim.json` holds what a simulation needs beyond the twin (distances that are not yet surveyed are *assumed* and marked so, ranges of the hidden truth, camera sensors), `blade/vbl/` turns settings into beam position, size, flux, IC counts and tomo-camera frames. `./blade-gui vbl` opens it; `playbooks/virtual_beamline.md` and the `vbl_*` MCP tools drive it. A new beamline = a new `sim.json`.
 
 ## Element fields
 

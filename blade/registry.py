@@ -13,7 +13,7 @@ import threading
 from dataclasses import dataclass
 from typing import Callable
 
-MODULES = ["core", "alignment"]     # blade.<name>.tools (core: blade/core_tools.py) - add a new capability module here
+MODULES = ["core", "alignment", "vbl"]     # blade.<name>.tools (core: blade/core_tools.py) - add a new capability module here
 
 TOOLS = {}          # name -> Tool
 PLAYBOOKS = {}      # module -> Path of its playbook (markdown)

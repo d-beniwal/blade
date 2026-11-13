@@ -37,6 +37,37 @@ def gap_for_energy_mm(energy_keV, n, period_mm, ring_GeV=RING_GEV, coef=HALBACH_
     return 0.5 * (lo + hi)
 
 
+def bessel_j(m, x, terms=60):
+    """Bessel function of the first kind, INTEGER order m >= 0, by its power series (stdlib only; accurate for |x| < ~8, enough for undulator Y <= 5)."""
+    h = 0.5 * x
+    term = h ** m / math.factorial(m)
+    tot = term
+    for k in range(1, terms):
+        term *= -h * h / (k * (k + m))
+        tot += term
+        if abs(term) < 1e-18:
+            break
+    return tot
+
+
+def harmonic_flux_factor(n, k):
+    """Relative flux of the n-th (odd) harmonic accepted by a slit that takes the whole central cone (Kim's Q_n(K) = (1+K^2/2) F_n(K) / n,
+    F_n = [nK/(1+K^2/2)]^2 [J_(n-1)/2(Y) - J_(n+1)/2(Y)]^2, Y = nK^2/(4+2K^2)). Even n return 0 (no on-axis emission)."""
+    if n % 2 == 0:
+        return 0.0
+    y = n * k * k / (4.0 + 2.0 * k * k)
+    f = (n * k / (1.0 + k * k / 2.0)) ** 2 * (bessel_j((n - 1) // 2, y) - bessel_j((n + 1) // 2, y)) ** 2
+    return (1.0 + k * k / 2.0) * f / n
+
+
+def harmonic_amplitude(n, gap_mm, period_mm, exponent=0.55, coef=HALBACH_HYBRID_NDFEB, norm=0.02):
+    """Relative peak flux of harmonic n at this gap: (Q_n(K(gap))/norm)^exponent. The exponent (<1) compresses the textbook ratio between harmonics to
+    the logged one (7th harmonic ~3x the 5th at ~61 keV: B1 360-390 vs 122 kHz); with it, at every logged energy the harmonic with the largest amplitude
+    among those whose gap is >= the gap limit is the one the operators used."""
+    q = harmonic_flux_factor(n, k_from_gap(gap_mm, period_mm, coef))
+    return (max(q, 0.0) / norm) ** exponent
+
+
 def fit_period_mm(points, ring_GeV=RING_GEV, coef=HALBACH_HYBRID_NDFEB, lo=14.0, hi=40.0):
     """Least-squares period [mm] from [(gap_mm, n, energy_keV), ...] by a coarse-to-fine scan (stdlib only). Returns (period_mm, rms_relative_error)."""
     def cost(p):

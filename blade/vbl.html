@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLADE virtual beamline</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
+<style>
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--mono:ui-monospace,Menlo,Consolas,monospace;--img:#000}
+:root[data-theme=dark]{color-scheme:dark;--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2}
+:root[data-theme=midnight]{color-scheme:dark;--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--accbg:#14325e;--agent:#c4a3ff}
+:root[data-theme=paper]{--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--accbg:#dfe8f2;--agent:#6b3fa0}
+:root[data-theme=contrast]{--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--accbg:#dbe5ff;--agent:#5a00a0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:12.5px/1.35 system-ui,sans-serif}a{color:var(--acc)}
+.wrap{max-width:1760px;margin:0 auto;padding:8px 10px;display:grid;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+h2{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:0 0 5px;font-weight:700}
+.top{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;padding:6px 9px}.top h1{font-size:15px;margin:0 4px 0 0}.sp{flex:1}
+select,input,button{font:12px system-ui;padding:2px 6px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)}
+button{cursor:pointer}button:hover{border-color:var(--acc)}button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc)}
+.pill{padding:1px 8px;border-radius:99px;border:1px solid var(--line);font:11px var(--mono);white-space:nowrap}
+.sim{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px;align-items:start}
+@media(max-width:1100px){.main{grid-template-columns:1fr}}
+.col{display:grid;gap:8px;min-width:0}
+.imgbox{position:relative;background:var(--img);border-radius:5px;overflow:hidden;line-height:0}
+.imgbox img{width:100%;height:auto;display:block;image-rendering:auto}
+.imgbox canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.imgbox.draw{cursor:crosshair}.imgbox.draw canvas{pointer-events:auto}
+.imgbox .ov{position:absolute;left:5px;top:3px;font:10.5px var(--mono);color:#fff;text-shadow:0 0 3px #000;line-height:1.3;white-space:pre;pointer-events:none}
+.row{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;margin:4px 0}
+.mute{color:var(--mute)}.mono{font-family:var(--mono);font-size:12px}
+table{border-collapse:collapse;width:100%;font:12px var(--mono)}th,td{padding:1px 4px;text-align:right;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600}td.l,th.l{text-align:left}
+/* compact control grid: label | [coarse- fine-] value [fine+ coarse+] */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:2px 10px}
+.cell{display:grid;grid-template-columns:84px 1fr;align-items:center;min-height:22px}
+.cell>label{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cell>label small{color:var(--mute);margin-left:3px;font-size:10px}
+.cell .c{display:flex;gap:1px;align-items:center;justify-content:flex-end}
+.cell input,.cell select{width:76px;text-align:right;font-family:var(--mono);padding:1px 4px}
+.mb{width:19px;padding:0;height:20px;line-height:1;font-size:11px;color:var(--mute)}.mb.co{font-weight:700}
+.tg{min-width:104px;height:20px;padding:0 8px;font:11.5px var(--mono);border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+.tg.is1{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.tg.is0{background:var(--panel)}
+.tgs{display:flex;flex-wrap:wrap;gap:3px 10px;margin-bottom:4px}.tgs .cell{grid-template-columns:auto auto;gap:6px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input.err{border-color:var(--bad)}
+.sl{width:auto}.sl input{width:58px;padding:1px 3px;text-align:right;font-family:var(--mono)}
+pre{margin:0;font:11px/1.3 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+.btns{display:flex;flex-wrap:wrap;gap:4px}.btns button{padding:2px 7px}
+svg.plot{width:100%;height:150px;background:var(--panel);border:1px solid var(--line);border-radius:5px}
+svg.plot text{fill:var(--mute);font:10px var(--mono)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.note{font-size:11.5px;color:var(--mute);margin-top:3px}
+.log{font:11px var(--mono);color:var(--mute);max-height:100px;overflow:auto}
+#tip{position:fixed;z-index:50;max-width:310px;background:var(--ink);color:var(--bg);font:12px/1.35 system-ui;padding:6px 9px;border-radius:6px;box-shadow:0 3px 12px #0005;pointer-events:none;display:none}
+.fitres{font:11.5px/1.4 var(--mono);margin-top:4px}.fitres b{color:var(--acc)}
+</style></head><body>
+<div class="wrap">
+<div class="card top"><h1>BLADE virtual beamline</h1><span class="pill sim" title="Nothing here touches hardware: this is the beamline twin's simulator">SIMULATION</span>
+ <span class="pill" id="scn">–</span><span class="pill" id="tim">t = –</span><span class="sp"></span>
+ <label class="mute">scenario <select id="scenario"></select></label><label class="mute">seed <input id="seed" type="number" value="0" style="width:64px"></label><button id="reset" class="pri">reset session</button>
+ <label class="mute"><input type="checkbox" id="reveal"> show answers (truth)</label>
+ <label class="mute">theme <select id="theme"></select></label><a href="/">← alignment monitor</a><a href="/twin">← beamline twin</a><a href="/kb">knowledge base →</a></div>
+
+<div class="card"><h2>Operator actions (scans &amp; procedures) <span class="mute" style="text-transform:none;letter-spacing:0">- hover a button for what it does</span></h2>
+  <div class="row"><label class="mute" data-tip="Absorption edge used by 'E scan' and 'calibrate energy': picks the foil that goes into the beam and the energy range that is scanned.">edge (foil) <select id="edge"></select></label></div>
+  <div class="btns" id="acts"></div>
+  <svg class="plot" id="plot" viewBox="0 0 600 170" preserveAspectRatio="none" style="margin-top:5px;display:none"></svg><pre id="actout" style="margin-top:4px;max-height:140px"></pre></div>
+<div class="main">
+ <div class="col">
+  <div class="card"><h2>Tomo camera</h2>
+   <div class="row"><select id="cam"></select><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
+    <label class="mute"><input type="checkbox" id="live" checked> live</label><label class="mute"><input type="checkbox" id="auto" checked> auto contrast</label>
+    <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><span class="mono mute" id="camst"></span></div>
+   <div class="row"><b class="mute">line profile</b>
+    <button id="drawbtn" data-tip="Switch on, then drag on the image to draw a line. The intensity along it is plotted below (real counts, averaged across the width).">✎ draw line</button>
+    <button id="lh" data-tip="Horizontal line through the middle of the frame (or the hotspot, after Analyse frame).">― horizontal</button>
+    <button id="lv" data-tip="Vertical line through the middle of the frame (or the hotspot, after Analyse frame).">| vertical</button>
+    <label class="mute">width <input id="pw" type="number" value="9" min="1" max="99" style="width:44px"> px</label>
+    <label class="mute">fit <select id="pfit"><option value="none">none</option><option value="gauss">Gaussian (peak)</option><option value="scurve">S-curve (edge)</option><option value="auto">auto (best of both)</option></select></label>
+    <button id="pgo" class="pri">profile</button><label class="mute" data-tip="Recompute the profile on every live frame (slower)."><input type="checkbox" id="plive"> follow live</label></div>
+   <div class="imgbox" id="imgbox"><img id="frame" alt="camera frame"><canvas id="ovc"></canvas><div class="ov" id="ov"></div></div>
+   <div class="note" id="camnote"></div><pre id="anaout" style="margin-top:4px;display:none"></pre></div>
+  <div class="card" id="profcard" style="display:none"><h2>Line profile <span class="mute" id="proftitle"></span></h2>
+   <svg class="plot" id="pplot" viewBox="0 0 600 170" preserveAspectRatio="none" style="height:190px"></svg>
+   <div class="fitres" id="fitres"></div><div class="row"><button id="pcsv">save CSV</button><span class="note">Gaussian: peak centre / FWHM (a focused spot, the hotspot). S-curve (erf): edge centre / 10-90 % width (a slit edge, the footprint border). A falling edge fits too.</span></div></div>
+  <div class="card"><h2>Ion chambers &amp; foil</h2><div id="ics"></div></div>
+ </div>
+ <div class="col">
+  <div class="card"><h2>Energy, flux &amp; steering</h2><div class="tgs" id="g_tg"></div><div class="cg" id="g_flux"></div></div>
+  <div class="card"><h2>Slits (size / centre, mm)</h2><div style="overflow-x:auto"><table class="sl" id="slits"></table></div></div>
+  <div class="card"><h2>Tomo stage &amp; camera</h2><div class="cg" id="g_cam"></div></div>
+  <div class="card"><h2>Sample stage (hutch E)</h2><div class="cg" id="g_sam"></div></div>
+  <div class="card"><h2>Lenses (hutch E; x ≈ 25 = parked out)</h2><div class="cg" id="g_lens"></div></div>
+  <div class="card" id="truthcard" style="display:none"><h2>Answers (hidden truth vs settings)</h2><pre id="truth"></pre></div>
+  <div class="card"><h2>Session log</h2><div class="log" id="log"></div></div>
+ </div>
+</div></div><div id="tip"></div>
+<script>
+const $=id=>document.getElementById(id);
+const THEMES=[['auto','Auto'],['light','Light'],['dark','Dark'],['midnight','Midnight'],['paper','Paper'],['contrast','High contrast']];
+function resolveTheme(c){return c==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):c}
+let themeChoice='auto';try{themeChoice=localStorage.getItem('blade.theme')||'auto'}catch(e){}
+function setTheme(c){themeChoice=c;document.documentElement.setAttribute('data-theme',resolveTheme(c));try{localStorage.setItem('blade.theme',c)}catch(e){}}
+$('theme').innerHTML=THEMES.map(([k,l])=>`<option value="${k}">${l}</option>`).join('');$('theme').value=themeChoice;$('theme').onchange=()=>setTheme($('theme').value);
+
+let S=null,building=true;const setters={};
+async function api(path,body){const r=await fetch(path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});const j=await r.json();if(j.error)throw new Error(j.error);return j}
+const FLUX=['und.gap','hem.energy','hem.th1_offset','hem.th2_offset','steer.xp','steer.yp','ring.current','foilB.pos','attenB.pos','attenC.pos'];
+const TOGGLES=['shutter_a','fsB','fsE'];
+const SAM=['samE.x','samE.y','samE.z','samE.ry','samE.aerox','samE.rx','samE.rz'];
+const SLITS=['wbSlits','slitB','slitCus','slitCds','slitEus','slitEds','fsB','fsE'];
+const LENSES=['lens1E','lens2E','lens3E','lens4E'];
+const TIPS={'shutter_a':'A-hutch shutter: 1 = open (beam passes), 0 = closed.','fsB':'B-hutch fast shutter: 1 = open, 0 = closed.','fsE':'E-hutch fast shutter: 1 = open, 0 = closed.'};
+// [fine, coarse] step per control (same unit as the control). Buttons: « coarse-  ‹ fine-  [value]  fine+ ›  coarse+ »
+const STEPS=[[/^und\.gap$/,[0.002,0.05]],[/^hem\.energy$/,[0.001,0.1]],[/th1_offset$/,[0.0001,0.002]],[/th2_offset$/,[0.0002,0.002]],[/^ring\.current$/,[1,10]],[/^steer\./,[0.1,2]],
+ [/^attenB|^attenC/,[1,1]],[/^tomo\w+\.[xy]$/,[0.01,0.5]],[/^samE\.(x|y|z|aerox)$/,[0.01,1]],[/^samE\.ry$/,[0.5,10]],[/^samE\.r[xz]$/,[0.01,0.5]],
+ [/^lens\w+\.x$/,[0.05,5]],[/^lens\w+\.y$/,[0.05,1]],[/^lens\w+\.(th|phi)$/,[0.001,0.02]],[/^(wbSlits|slitB|slitCus|slitCds|slitEus|slitEds)\.(hsize|vsize|hcenter|vcenter)$/,[0.01,0.1]],[/\.focus$/,[0.01,0.2]],[/\.exposure$/,[0.01,0.5]]];
+function stepsOf(name){for(const [re,v] of STEPS)if(re.test(name))return v;return null}
+function inputStep(name){const st=stepsOf(name);return st?st[0]:(/size|center/.test(name)?0.001:0.01)}
+const r6=v=>+v.toFixed(6);
+async function setCtl(name,value){const r=await api('/api/vbl/set',{name,value});if(S&&S.snapshot&&typeof r.readback==='number')S.snapshot.controls[name]=r.readback;await refresh(true);return r}
+async function nudge(name,delta,el){try{const sp=S.specs[name]||{};let v=(S.snapshot.controls[name]||0)+delta;if(sp.lo!=null)v=Math.max(sp.lo,v);if(sp.hi!=null)v=Math.min(sp.hi,v);v=r6(v);el.classList.remove('err');await setCtl(name,v)}catch(e){el.classList.add('err');el.title=e.message}}
+function specTitle(name){const sp=S.specs[name];return sp?sp.doc+(sp.lo!=null?`  [${sp.lo}, ${sp.hi}] ${sp.unit}`:''):''}
+function mkInput(name){
+ const sp=S.specs[name];let el;
+ if(name==='foilB.pos'){el=document.createElement('select');el.innerHTML=S.foils.map(f=>`<option>${f}</option>`).join('')}
+ else{el=document.createElement('input');el.type='number';el.step=inputStep(name)}
+ el.title=specTitle(name);
+ el.onchange=async()=>{try{el.classList.remove('err');await setCtl(name,name==='foilB.pos'?el.value:parseFloat(el.value))}catch(e){el.classList.add('err');el.title=e.message}};
+ setters[name]=v=>{if(document.activeElement===el)return;el.value=typeof v==='number'?r6(v):(v===undefined?'':v)};
+ return el}
+function mkMotor(name){ // [« ‹] input [› »]
+ const wrap=document.createElement('span');wrap.className='c';const el=mkInput(name),st=stepsOf(name),u=(S.specs[name]||{}).unit||'';
+ const btn=(txt,d,fine)=>{const b=document.createElement('button');b.className='mb'+(fine?'':' co');b.textContent=txt;b.dataset.tip=`${d<0?'−':'+'}${Math.abs(d)} ${u} (${fine?'fine':'coarse'} step)`;b.onclick=()=>nudge(name,d,el);return b};
+ if(st&&st[0]!==st[1])wrap.append(btn('«',-st[1],false));
+ if(st)wrap.append(btn('‹',-st[0],true));
+ wrap.append(el);
+ if(st)wrap.append(btn('›',st[0],true));
+ if(st&&st[0]!==st[1])wrap.append(btn('»',st[1],false));
+ return wrap}
+function mkToggle(name,label){ // 0/1 control as an on/off button that shows its value
+ const b=document.createElement('button');b.className='tg';
+ setters[name]=v=>{const on=+v>=0.5;b.className='tg is'+(on?1:0);b.textContent=`${on?1:0} · ${on?'open':'closed'}`;b.dataset.tip=`${TIPS[name]||specTitle(name)} Click to ${on?'close':'open'}.`};
+ b.onclick=async()=>{try{await setCtl(name,(S.snapshot.controls[name]>=0.5)?0:1)}catch(e){b.title=e.message}};
+ const cell=document.createElement('div');cell.className='cell';const l=document.createElement('label');l.textContent=label||name;cell.append(l,b);return cell}
+function addCtl(box,name,label){const cell=document.createElement('div');cell.className='cell';const l=document.createElement('label');const u=(S.specs[name]||{}).unit||'';l.innerHTML=`${label||name}<small>${u}</small>`;l.title=specTitle(name);
+ const sp=S.specs[name]||{};cell.append(l,(sp.lo===0&&sp.hi===1)?mkToggle(name).lastChild:mkMotor(name));box.append(cell)}
+function build(){
+ for(const k of Object.keys(setters))delete setters[k];
+ const tg=$('g_tg');tg.innerHTML='';TOGGLES.forEach(n=>tg.append(mkToggle(n,{shutter_a:'A shutter',fsB:'B fast shutter',fsE:'E fast shutter'}[n])));
+ for(const [id,names] of [['g_flux',FLUX],['g_sam',SAM]]){$(id).innerHTML='';names.forEach(n=>addCtl($(id),n))}
+ const sl=$('slits');sl.innerHTML='<tr><th class="l">slit</th><th>hsize</th><th>vsize</th><th>hcentre</th><th>vcentre</th></tr>';
+ for(const s of SLITS){const tr=document.createElement('tr');tr.innerHTML=`<td class="l">${s}<small class="mute"> ${S.z_m[s]}m</small></td>`;
+  for(const k of ['hsize','vsize','hcenter','vcenter']){const td=document.createElement('td');td.append(mkMotor(`${s}.${k}`));tr.append(td)}sl.append(tr)}
+ $('g_lens').innerHTML='';for(const s of LENSES)for(const k of ['x','y','th','phi'])addCtl($('g_lens'),`${s}.${k}`,`${s.replace('lens','L')} ${k}`);
+ {const ed=$('edge'),cur=ed.value;ed.innerHTML=S.foils.filter(f=>f!=='out').map(f=>`<option>${f}</option>`).join('');ed.value=cur||'Re';ed.onchange=async()=>{try{const r=await api('/api/vbl/tool',{name:'vbl_select_edge',args:{element:ed.value}});show(r,'select edge '+ed.value+' → hem.energy');await refresh(true)}catch(e){$('actout').textContent=e.message}}}
+ buildCam();building=false}
+function buildCam(){const cam=$('cam').value,c=S.cameras[cam],st=c.stage;const b=$('g_cam');b.innerHTML='';
+ [[`${st}.x`,'stage x'],[`${st}.y`,'stage y'],[`${cam}.focus`,'focus'],[`${cam}.exposure`,'exposure']].forEach(([n,l])=>addCtl(b,n,l));fill()}
+function fill(){if(!S)return;const c=S.snapshot.controls;for(const [n,f] of Object.entries(setters)){if(n in c)f(c[n])}}
+function renderState(){
+ $('scn').textContent=`${S.scenario} · seed ${S.seed}`;$('tim').textContent=`t = ${Math.round(S.snapshot.time_s)} s`;
+ const ic=S.snapshot.ic_kHz;const ks=Object.keys(ic);let h='<table><tr>'+'<th class="l">IC</th><th>kHz</th>'.repeat(3)+'</tr>';
+ for(let i=0;i<ks.length;i+=3){h+='<tr>';for(let j=0;j<3;j++){const k=ks[i+j];h+=k?`<td class="l">${k}</td><td>${ic[k]}</td>`:'<td></td><td></td>'}h+='</tr>'}
+ h+=`</table><div class="row mono"><span>mu_t = <b>${S.snapshot.mu_t===null?'– (foil out)':S.snapshot.mu_t.toFixed(3)}</b></span><span class="mute">Th1 ${S.snapshot.th1_deg.toFixed(4)}°  Z2 ${S.snapshot.z2_mm.toFixed(1)} mm</span></div>`;$('ics').innerHTML=h;
+ $('log').innerHTML=S.log.slice().reverse().map(x=>x.replace(/</g,'&lt;')).join('<br>');
+ if(S.truth){$('truthcard').style.display='';$('truth').textContent=JSON.stringify(S.truth,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)}else $('truthcard').style.display='none';
+ fill()}
+async function refresh(force){try{S=await api('/api/vbl/state'+($('reveal').checked?'?reveal=1':''));if(!S.session){await api('/api/vbl/reset',{scenario:'startup',seed:0});S=await api('/api/vbl/state')}
+  if(building){$('scenario').innerHTML=S.scenarios.map(s=>`<option>${s}</option>`).join('');$('scenario').value=S.scenario;$('seed').value=S.seed;$('cam').innerHTML=Object.keys(S.cameras).map(c=>`<option value="${c}">${c} (hutch ${S.cameras[c].hutch})</option>`).join('');$('cam').value='gh1';build()}
+  renderState();if(force)loadFrame()}catch(e){$('camst').textContent=e.message}}
+let busy=false;
+function loadFrame(){if(busy||!S)return;busy=true;const cam=$('cam').value,t=Date.now();const im=$('frame');
+ im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();if(LINE&&$('plive').checked&&$('live').checked)runProfile()};
+ im.onerror=()=>{busy=false;$('camst').textContent='render failed'};
+ im.src=`/api/vbl/frame?camera=${cam}&bin=${$('bin').value}&auto=${$('auto').checked?1:0}&_=${t}`}
+$('cam').onchange=()=>{buildCam();loadFrame()};$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
+$('reveal').onchange=()=>refresh(false);
+$('reset').onclick=async()=>{await api('/api/vbl/reset',{scenario:$('scenario').value,seed:parseInt($('seed').value||0)});await refresh(true)};
+let HOT=null;
+$('ana').onclick=async()=>{const r=await api('/api/vbl/tool',{name:'vbl_get_frame',args:{camera:$('cam').value,bin:2,save:false}});const a=r.analysis;
+ if(a.beam){const c=S.cameras[$('cam').value];HOT={x:a.hotspot_px.x/c.cols,y:a.hotspot_px.y/c.rows}}else HOT=null;drawOverlay();
+ $('anaout').style.display='';$('anaout').textContent=JSON.stringify(a,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)};
+
+/* ---------------------------------------------------------------- tooltips (one floating box; works inside scrolling tables and on tiny buttons) */
+const tip=$('tip');let tipT=null;
+document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');clearTimeout(tipT);if(!t){tip.style.display='none';return}
+ tipT=setTimeout(()=>{tip.textContent=t.dataset.tip;tip.style.display='block';const r=t.getBoundingClientRect();const w=tip.offsetWidth,h=tip.offsetHeight;
+  let x=Math.min(Math.max(4,r.left),innerWidth-w-6),y=r.bottom+6;if(y+h>innerHeight-4)y=Math.max(4,r.top-h-6);tip.style.left=x+'px';tip.style.top=y+'px'},250)});
+document.addEventListener('mousedown',()=>{clearTimeout(tipT);tip.style.display='none'});
+
+/* ---------------------------------------------------------------- operator actions with explanations */
+const cam=()=>$('cam').value;
+const ACTS=[
+ ['gap scan','vbl_gap_scan',()=>({centre:S.snapshot.controls['und.gap'],half_range:0.2,n:40}),'Scans the undulator gap from high to low (±0.2 mm around the current value) while reading ion chamber icB1, fits the flux peak and moves the gap to it. Run after any energy change. The gap has hysteresis, so it is approached from the open side as in the logbooks.'],
+ ['nominal gap','vbl_nominal_gap',()=>({apply:true}),'Calculates the gap for the best undulator harmonic at the current mono energy (from the inferred period) and sets und.gap to it. This is the operators\' starting guess before a gap scan.'],
+ ['Th2 scan','vbl_th2_scan',()=>({}),'Steps the mono second-crystal angle (Th2 offset) ±0.004° around the current value against icB1 and moves to the rocking-curve peak. Use it after changing energy or heat load to recover the flux.'],
+ ['E scan','vbl_edge_scan',()=>({element:$('edge').value}),'Puts the Re foil in and steps the mono energy across the Re K edge (71.676 keV), recording μ·t. Fits an erf step and reports the energy at which μ·t equals the step height (the true edge). Settings are restored afterwards.'],
+ ['calibrate energy','vbl_calibrate_energy',()=>({element:$('edge').value}),'E scan, then moves the Th1 offset until μ·t at the displayed energy equals the edge value (1 mdeg of Th1 = −45 eV at 71.7 keV), then re-checks. After this the energy readout is true.'],
+ ['auto exposure','vbl_auto_exposure',()=>({camera:cam()}),'Sets the camera exposure so the brightest part of the beam reaches about 35 % of full scale: longer to find a dim beam, shorter if the core saturates.'],
+ ['find beam on camera','vbl_find_beam_on_camera',()=>({camera:cam()}),'Rasters the tomo stage about x = 0 with long exposures until the beam is seen, then centres the beam footprint in the frame and sets the exposure.'],
+ ['centre camera','vbl_centre_camera',()=>({camera:cam()}),'Moves the tomo stage so the beam footprint (the slit-defined box) is in the middle of the frame; repeats until the offset is under 3 px. This is how the stage is zeroed on the beam.'],
+ ['steering check','vbl_steering_check',()=>({camera:cam()}),'Measures the offset between the hotspot and the centre of the slit-defined footprint (px and mm) and the steering change in µrad that would remove it. Reports only, moves nothing: apply part of it to steer.xp / steer.yp and re-measure.'],
+ ['align slit Eus','vbl_align_slit',()=>({slit:'slitEus',camera:cam()}),'Kohzu slit alignment as in the logs: closes the slit in steps (down to 0.1 mm) and at each size moves its centre so the slit image sits on the hotspot. Only the centre moves; the slit is reopened at the end.'],
+ ['align slit Eds','vbl_align_slit',()=>({slit:'slitEds',camera:cam()}),'Same as above for the downstream E slit.'],
+ ['focus camera','vbl_focus_camera',()=>({camera:cam()}),'Scans the camera objective focus motor and maximises the edge sharpness (mean gradient) of the beam footprint.'],
+ ['describe view (edges)','vbl_describe_view',()=>({camera:cam()}),'Not a measurement: explains which aperture defines each side of the footprint, its edge blur in pixels and the beam size/position. A slit near the camera gives a crisp edge, a far-upstream one (WB) a blurry edge.'],
+ ['full startup sequence','vbl_startup_sequence',()=>({}),'Runs the whole start-of-beamtime logbook sequence: gap, Th2, energy calibration, camera into the beam, steering, E-slit alignment. Takes a while and changes many controls.']];
+for(const [label,name,args,tp] of ACTS){const b=document.createElement('button');b.textContent=label;b.dataset.tip=tp;b.onclick=async()=>{b.disabled=true;$('actout').textContent='▶ '+label+' … running';try{const r=await api('/api/vbl/tool',{name,args:args()});show(r,label+' ('+name+')');await refresh(true)}catch(e){$('actout').textContent=e.message}b.disabled=false};$('acts').append(b)}
+
+/* ---------------------------------------------------------------- generic XY plot */
+function plotXY(svg,{x,y,fit,centre,xlabel,ylabel}){
+ svg.innerHTML='';const X=x,Y=y.map(v=>v===null?NaN:v);const fin=Y.filter(isFinite);if(!X.length||!fin.length)return;
+ const x0=Math.min(...X),x1=Math.max(...X);let y0=Math.min(...fin),y1=Math.max(...fin);if(y1===y0){y1=y0+1}const m=0.05*(y1-y0);y0-=m;y1+=m;
+ const px=v=>46+(v-x0)/(x1-x0||1)*544,py=v=>152-(v-y0)/(y1-y0||1)*138;let h='';
+ for(let i=0;i<=4;i++){const yy=y0+(y1-y0)*i/4;h+=`<line x1="46" x2="590" y1="${py(yy)}" y2="${py(yy)}" stroke="var(--line)" stroke-width=".6"/><text x="42" y="${py(yy)+3}" text-anchor="end">${yy.toPrecision(3)}</text>`}
+ for(let i=0;i<=4;i++){const xx=x0+(x1-x0)*i/4;h+=`<text x="${px(xx)}" y="166" text-anchor="${i===4?'end':(i===0?'start':'middle')}">${xx.toPrecision(4)}</text>`}
+ h+=`<polyline fill="none" stroke="var(--acc)" stroke-width="1.3" points="${X.map((v,i)=>isFinite(Y[i])?px(v).toFixed(1)+','+py(Y[i]).toFixed(1):'').join(' ')}"/>`;
+ if(fit)h+=`<polyline fill="none" stroke="var(--bad)" stroke-width="1.6" stroke-dasharray="5 3" points="${X.map((v,i)=>px(v).toFixed(1)+','+py(fit[i]).toFixed(1)).join(' ')}"/>`;
+ if(centre!=null&&centre>=x0&&centre<=x1)h+=`<line x1="${px(centre)}" x2="${px(centre)}" y1="10" y2="152" stroke="var(--ok)" stroke-width="1" stroke-dasharray="2 2"/>`;
+ h+=`<text x="590" y="11" text-anchor="end">${xlabel||''}${ylabel?'  ·  '+ylabel:''}</text>`;svg.innerHTML=h}
+function fmtV(v){if(v===null||v===undefined)return '–';if(typeof v==='number')return String(+v.toPrecision(5));if(typeof v==='string')return v;
+ if(Array.isArray(v))return v.length>8||typeof v[0]==='object'?`[${v.length} values]`:'['+v.map(fmtV).join(', ')+']';
+ return '{'+Object.entries(v).map(([k,x])=>k+': '+fmtV(x)).join(', ')+'}'}
+function show(r,label){
+ const pre=$('actout'),pl=$('plot');
+ pre.textContent=`▶ ${label||'result'}\n`+(r&&typeof r==='object'&&!Array.isArray(r)?Object.entries(r).map(([k,v])=>`${k}=${fmtV(v)}`).join('   '):fmtV(r));
+ const xk=['gap','th2_offset','energy_keV','focus_mm','x'].find(k=>Array.isArray(r[k])),yk=['counts_kHz','mu_t','y','sharpness'].find(k=>Array.isArray(r[k]));
+ if(!xk||!yk){pl.innerHTML='';pl.style.display='none';return}pl.style.display='';plotXY(pl,{x:r[xk],y:r[yk],xlabel:xk,ylabel:yk})}
+
+/* ---------------------------------------------------------------- line profile on the camera image */
+let LINE=null,PROF=null,drawing=false,drawMode=false;
+const cv=$('ovc'),box=$('imgbox');
+function sizeCanvas(){const im=$('frame');const w=im.clientWidth,h=im.clientHeight;if(!w)return;const d=devicePixelRatio||1;cv.width=Math.round(w*d);cv.height=Math.round(h*d);drawOverlay()}
+new ResizeObserver(sizeCanvas).observe(box);
+function drawOverlay(){const w=cv.width,h=cv.height,g=cv.getContext('2d');g.clearRect(0,0,w,h);const d=devicePixelRatio||1;
+ if(HOT){g.strokeStyle='#ffd23f';g.lineWidth=1.2*d;const x=HOT.x*w,y=HOT.y*h;g.beginPath();g.arc(x,y,7*d,0,6.3);g.moveTo(x-12*d,y);g.lineTo(x+12*d,y);g.moveTo(x,y-12*d);g.lineTo(x,y+12*d);g.stroke()}
+ if(!LINE)return;const x0=LINE.x0*w,y0=LINE.y0*h,x1=LINE.x1*w,y1=LINE.y1*h;
+ g.lineWidth=2*d;g.strokeStyle='#ff3b30';g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();
+ g.fillStyle='#ff3b30';for(const [x,y] of [[x0,y0],[x1,y1]]){g.beginPath();g.arc(x,y,3.5*d,0,6.3);g.fill()}
+ g.font=`${11*d}px sans-serif`;g.fillStyle='#ffd0cc';g.fillText('start',x0+6*d,y0-6*d);
+ const f=PROF&&PROF.fit;if(f&&f.centre_frac){const cx=f.centre_frac[0]*w,cy=f.centre_frac[1]*h;g.strokeStyle='#34c759';g.lineWidth=2*d;g.beginPath();g.moveTo(cx-9*d,cy-9*d);g.lineTo(cx+9*d,cy+9*d);g.moveTo(cx-9*d,cy+9*d);g.lineTo(cx+9*d,cy-9*d);g.stroke()}}
+function evFrac(e){const r=cv.getBoundingClientRect();return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}}
+cv.addEventListener('pointerdown',e=>{if(!drawMode)return;const p=evFrac(e);LINE={x0:p.x,y0:p.y,x1:p.x,y1:p.y};drawing=true;PROF=null;cv.setPointerCapture(e.pointerId);drawOverlay()});
+cv.addEventListener('pointermove',e=>{if(!drawing)return;const p=evFrac(e);LINE.x1=p.x;LINE.y1=p.y;drawOverlay()});
+cv.addEventListener('pointerup',e=>{if(!drawing)return;drawing=false;const p=evFrac(e);LINE.x1=p.x;LINE.y1=p.y;drawOverlay();runProfile()});
+$('drawbtn').onclick=()=>{drawMode=!drawMode;$('drawbtn').classList.toggle('on',drawMode);box.classList.toggle('draw',drawMode);$('drawbtn').textContent=drawMode?'✎ draw line: ON':'✎ draw line';
+ if(!drawMode){drawing=false;LINE=null;PROF=null;$('profcard').style.display='none';drawOverlay()}};
+function preset(kind){const c=HOT||{x:0.5,y:0.5};LINE=kind==='h'?{x0:0,y0:c.y,x1:1,y1:c.y}:{x0:c.x,y0:0,x1:c.x,y1:1};PROF=null;drawOverlay();runProfile()}
+$('lh').onclick=()=>preset('h');$('lv').onclick=()=>preset('v');$('pgo').onclick=()=>{if(!LINE)preset('h');else runProfile()};$('pfit').onchange=()=>{if(LINE)runProfile()};$('pw').onchange=()=>{if(LINE)runProfile()};
+let pbusy=false;
+async function runProfile(){if(!LINE||pbusy)return;pbusy=true;try{
+ PROF=await api('/api/vbl/profile',{camera:cam(),bin:parseInt($('bin').value),...LINE,width:parseInt($('pw').value||5),fit:$('pfit').value});renderProfile()}catch(e){$('profcard').style.display='';$('fitres').innerHTML=`<span class="bad">${e.message}</span>`}pbusy=false}
+function renderProfile(){const P=PROF,f=P.fit;$('profcard').style.display='';
+ $('proftitle').textContent=`${P.camera} · ${P.length_um.toFixed(0)} µm (${(P.length_um/P.pixel_um).toFixed(0)} px) from (${P.p0_px.map(v=>v.toFixed(0))}) to (${P.p1_px.map(v=>v.toFixed(0))}) · width ${P.width_px} px`;
+ const ok=f&&!f.error;plotXY($('pplot'),{x:P.dist_um,y:P.counts,fit:ok?f.curve:null,centre:ok?f.params.centre:null,xlabel:'distance along line (µm)',ylabel:'counts'});
+ let t='';if(f&&f.error)t=`<span class="bad">${f.error}</span>`;
+ else if(f){const q=f.params,e=f.errors,n=(v,d=2)=>(v===null||v===undefined)?'–':(+v).toFixed(d);const ps=f.kind==='gauss';
+  t=`<b>${ps?'Gaussian peak':'S-curve (erf edge)'}</b>  R² = ${n(f.r2,4)}<br>centre = <b>${n(q.centre,1)}</b> ± ${n(e.centre,1)} µm along the line = image px (${f.centre_px.map(v=>v.toFixed(0))})<br>`+
+   (ps?`FWHM = <b>${n(f.fwhm,1)}</b> µm (${n(f.fwhm/P.pixel_um,1)} px) · amplitude ${n(q.amplitude,0)} · offset ${n(q.offset,0)}`:
+   `10–90 % width = <b>${n(f.width_10_90,1)}</b> µm (${n(f.width_10_90/P.pixel_um,1)} px) · σ ${n(q.sigma,1)} µm · ${q.step<0?'falling':'rising'} edge, step ${n(q.step,0)} on a base of ${n(q.base,0)}`)}
+ $('fitres').innerHTML=t;drawOverlay()}
+$('pcsv').onclick=()=>{if(!PROF)return;const f=PROF.fit&&!PROF.fit.error?PROF.fit.curve:null;let c='dist_um,counts'+(f?',fit':'')+'\n';PROF.dist_um.forEach((d,i)=>{c+=`${d},${PROF.counts[i]}${f?','+f[i]:''}\n`});
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download=`profile_${PROF.camera}.csv`;a.click()};
+refresh(true);setInterval(()=>{if(!document.hidden){refresh(false);if($('live').checked)loadFrame()}},1500);
+</script></body></html>

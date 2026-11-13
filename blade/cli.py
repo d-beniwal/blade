@@ -1,5 +1,5 @@
 """BLADE command line.   blade align <cmd> ...   alignment module (see playbooks/alignment.md; every command prints JSON)
-                       blade gui [--port N] [--open [--page monitor|twin]]   web GUI: live run monitor + beamline twin viewer (/twin); read-only
+                       blade gui [--port N] [--open [--page monitor|twin|vbl|kb]]   web GUI: run monitor, beamline twin (/twin), virtual beamline (/vbl, simulated), knowledge base (/kb)
                        blade mcp [--http]        MCP server exposing every BLADE capability to agents (stdio; --http = streamable-http)
                        blade profiles            list beamline profiles (profiles/<name>/default_config.json)"""
 import sys

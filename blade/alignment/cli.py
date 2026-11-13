@@ -1,6 +1,6 @@
 """BLADE alignment module - command-line tools for the agent (`blade align <cmd>`). Every command prints one JSON object (stdout) and appends events the GUI shows live.
 The agent decides what to run next; nothing here decides or loops on its own, except the explicit `sweep`/`calibrate` helpers.
-Backends: sim (default) or epics (real beamline, when the user says so; see backends.get_backend)."""
+Backends: sim (default), vbl (virtual beamline, simulation) or epics (real beamline, when the user says so; see backends.get_backend)."""
 import argparse
 import json
 import sys
