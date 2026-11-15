@@ -12,6 +12,7 @@ Needs the `blade` conda env (Pillow, numpy). Data root (outside the repo): the "
     kb.py labelfile FILE.tsv [--source vision]   # bulk: sha<TAB>key<TAB>value[<TAB>conf[<TAB>note]] per line
     kb.py addimage FILE... key=value ... [--note TEXT]   # standalone reference image (no log citation), human labels
     kb.py near <sha-prefix> [--max-dist 8]       # near-duplicate images (dhash Hamming distance)
+    kb.py curate rename subject pin tomopin | delete-value KEY VALUE | set|add SHA KEY VALUE | remove SHA KEY [VALUE] | list | replay   # permanent label edits (curation.jsonl)
     kb.py export --out FILE.jsonl [--class ...]  # one JSON object per image (labels + citations) for training / other tools
 
 Citations are '<doc_id>:L<line>' - the same ids as beamline_twins/tools/logindex.py, so `logindex.py show <doc> --lines` reads the surrounding text.
@@ -31,7 +32,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 sys.path.insert(0, str(REPO))
-from blade import paths  # noqa: E402   (knowledge locations are configuration, see blade/paths.py)
+from blade import kb_curate, paths  # noqa: E402   (knowledge locations are configuration, see blade/paths.py)
 KB_ROOT = paths.knowledge_dir("kb")
 LOGS_SRC = paths.knowledge_dir("logs_src")
 LOGS_DB = paths.knowledge_dir("logs_index") / "logs.sqlite"
@@ -91,7 +92,7 @@ def props(data):
 CAMERA = re.compile(r"\b(pg1|pg5|gh1|pg-?[0-9]|retiga2?|lambda|eiger|pilatus|dexela|ge[1-5]?)\b", re.I)
 HUTCH = re.compile(r"\b([ABCE])[\s-]?hutch\b|\b1-?ID-?([ABCE])\b|\bhutch\s*([ABCE])\b", re.I)
 SUBJECT = [                                                                       # first match wins; ordered most specific first
-    ("pin", re.compile(r"(?<!diode )\b(alignment pin|w pin|tungsten pin|needle|pin)\b(?! diode)", re.I)),   # "pin diode" is a detector, not the alignment pin
+    ("tomopin", re.compile(r"(?<!diode )\b(alignment pin|w pin|tungsten pin|needle|pin)\b(?! diode)", re.I)),   # "pin diode" is a detector, not the alignment pin
     ("dark", re.compile(r"\bdark(s| field| frame)?\b", re.I)),
     ("flat_or_beam_only", re.compile(r"\bflat|white[- ]?field|open beam|no sample|hotspot|beam (position|shape|profile|on)|optical axis|direct beam", re.I)),
     ("radiograph", re.compile(r"radiograph|projection|tomo(graphy)?\b|\bnf\b|sample (in|on)", re.I)),
@@ -358,6 +359,21 @@ def cmd_addimage(a):
     con.commit()
 
 
+def cmd_curate(a):
+    if a.what == "replay":
+        return kb_curate.replay(KB_ROOT)
+    if a.what == "list":
+        for r in kb_curate.read_log(KB_ROOT):
+            print(json.dumps(r, sort_keys=True))
+        return
+    shape = {"rename": ("key", "old", "new"), "delete-value": ("key", "value"), "set": ("sha", "key", "value"), "add": ("sha", "key", "value"),
+             "remove": ("sha", "key", "value")}[a.what]
+    if not (len(shape) - (a.what == "remove") <= len(a.args) <= len(shape)):
+        sys.exit(f"curate {a.what} needs: {' '.join(shape)}")
+    r = kb_curate.submit(KB_ROOT, dict(zip(shape, a.args), op=a.what.replace("-", "_")), confirmed=True)
+    print(f"{a.what}: {r['changed']} label row(s) changed (logged in {KB_ROOT / kb_curate.LOG})")
+
+
 def cmd_labelfile(a):
     con = connect()
     n = 0
@@ -413,8 +429,14 @@ def main(argv=None):
     s.add_argument("--conf", type=float, default=0.8); s.set_defaults(f=cmd_labelfile)
     s = sp.add_parser("near"); s.add_argument("sha"); s.add_argument("--max-dist", type=int, default=8); s.set_defaults(f=cmd_near)
     s = sp.add_parser("export"); s.add_argument("--out", required=True); s.add_argument("--class", dest="cls"); s.set_defaults(f=cmd_export)
+    s = sp.add_parser("curate", help="remove/change/add labels permanently (see blade/kb_curate.py)")
+    s.add_argument("what", choices=["rename", "delete-value", "set", "add", "remove", "list", "replay"])
+    s.add_argument("args", nargs="*", help="rename KEY OLD NEW | delete-value KEY VALUE | set SHA KEY VALUE | add SHA KEY VALUE | remove SHA KEY [VALUE]")
+    s.set_defaults(f=cmd_curate)
     a = ap.parse_args(argv)
     a.f(a)
+    if a.cmd in ("ingest", "label", "labelfile", "addimage"):       # old labels may have just come back: re-apply every logged correction
+        kb_curate.replay(KB_ROOT)
 
 
 if __name__ == "__main__":

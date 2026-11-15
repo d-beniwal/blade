@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from .paths import RUNS_DIR
 from . import config as cfg
-from . import twin_api, edit_api
+from . import twin_api, edit_api, kb_curate
 from . import vbl_api, loop_api
 from . import kb_api, nav
 from .vbl import physics_doc
@@ -102,6 +102,9 @@ class H(BaseHTTPRequestHandler):
                 "outline": lambda: kb_api.doc_outline(a("doc")),
                 "cite": lambda: kb_api.cite_window(a("c"), int(a("ctx", 8))),
                 "window": lambda: kb_api.doc_window(a("doc"), int(a("a", 1)), int(a("b", 1)), int(a("ctx", 0))),
+                "labelkeys": lambda: {"keys": kb_curate.keys(kb_api.KB_DIR)},
+                "labelvalues": lambda: {"key": a("key"), "values": kb_curate.values(kb_api.KB_DIR, a("key"))},
+                "curation": lambda: kb_curate.history(kb_api.KB_DIR, int(a("limit", 50))),
             }
             if name not in routes:
                 return self._send({"error": f"unknown knowledge-base query {name!r}"}, code=404)
@@ -121,6 +124,12 @@ class H(BaseHTTPRequestHandler):
                     edit_api.check_request(self.headers)
                     return self._send(edit_api.apply_edit(body))
                 except edit_api.EditError as e:
+                    return self._send({"error": str(e)}, code=400)
+            if u.path == "/api/kb/curate":              # remove / change / add knowledge-base labels, logged so they persist (blade/kb_curate.py); same guard as /api/edit
+                try:
+                    kb_curate.check_request(self.headers)
+                    return self._send(kb_curate.submit(kb_api.KB_DIR, body, confirmed=body.get("confirm") is True))
+                except (kb_curate.CurateError, FileNotFoundError) as e:
                     return self._send({"error": str(e)}, code=400)
             if u.path == "/api/loop/dryrun":            # a stand-in SIMULATOR plays the real beamline; nothing real is touched
                 return self._send(loop_api.dry_run(body))

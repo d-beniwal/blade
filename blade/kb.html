@@ -147,7 +147,46 @@ function onClick(e){
  const c=e.target.closest('.cite');if(c){e.preventDefault();openCite(c.dataset.c);return}
  const im=e.target.closest('[data-img]');if(im){e.preventDefault();openImage(im.dataset.img);return}
  const pr=e.target.closest('[data-proc]');if(pr){e.preventDefault();if(TAB!=='procs')setTab('procs');selectProc(pr.dataset.proc);return}
+ const ac=e.target.closest('[data-act]');if(ac){e.preventDefault();labelAct(ac.dataset);return}
  if(e.target.id==='modal')closeModal();
+}
+
+/* ------------------------------------------------------------------ label curation (permanent; blade/kb_curate.py) */
+async function curate(body,question){
+ if(!confirm(question+'\n\nThis changes the knowledge base permanently (a backup copy is made once a day; the change is logged in curation.jsonl).'))return false;
+ try{
+  const r=await fetch('/api/kb/curate',{method:'POST',headers:{'X-Blade-Edit':'1','Content-Type':'application/json'},body:JSON.stringify({...body,confirm:true})});const d=await r.json();
+  if(d.error){alert(d.error);return false}
+  FAC=await j('/api/kb/facets');return d;
+ }catch(e){alert(e.message);return false}
+}
+async function labelAct(d){
+ const sha=d.sha;let ok=false;
+ if(d.act==='del')ok=await curate({op:'remove',sha,key:d.key,value:d.value},`Remove the label ${d.key} = "${d.value}" from this image?`);
+ else if(d.act==='edit'){const v=prompt(`New value for "${d.key}" on this image (replaces all its ${d.key} labels):`,d.value);if(v==null||!v.trim()||v.trim()===d.value)return;ok=await curate({op:'set',sha,key:d.key,value:v.trim()},`Set ${d.key} = "${v.trim()}" on this image (replacing all its other ${d.key} labels)?`)}
+ else if(d.act==='add'){const k=$('ladd_k').value.trim(),v=$('ladd_v').value.trim();if(!k||!v){alert('Enter a label and a value.');return}ok=await curate({op:'add',sha,key:k,value:v},`Add the label ${k} = "${v}" to this image?`)}
+ if(ok){await openImage(sha);if(TAB==='images')loadImages(true)}
+}
+async function openLabelMgr(key){
+ const m=$('modal');m.style.display='flex';
+ try{
+  const K=(await j('/api/kb/labelkeys')).keys;key=key||(K.find(k=>k[0]==='subject')||K[0])[0];
+  const V=(await j('/api/kb/labelvalues?key='+encodeURIComponent(key))).values;const H=(await j('/api/kb/curation?limit=15')).log;
+  const rows=V.map(([v,n])=>`<tr><td class="l"><b>${esc(v)}</b></td><td>${n}</td><td class="l" style="white-space:nowrap"><button class="chip" data-lm="rename" data-v="${esc(v)}">rename</button> <button class="chip" data-lm="del" data-v="${esc(v)}">delete</button></td></tr>`).join('');
+  const hist=H.map(h=>`<tr><td class="l mono">${esc(h.t)}</td><td class="l">${esc(h.op)}</td><td class="l">${esc(h.key)}</td><td class="l">${esc(h.old||h.value||'')}${h.new?' → '+esc(h.new):''}</td><td class="l mono mute">${h.sha?esc(h.sha.slice(0,10)):'all images'}</td></tr>`).join('');
+  m.innerHTML=`<div class="mbox"><div style="display:flex;justify-content:space-between"><h2 style="margin:0">Label manager</h2><button class="chip" onclick="closeModal()">close (Esc)</button></div>
+   <div class="note">Rename or delete a label value across every image (e.g. subject <b>pin</b> → <b>tomopin</b>). Per-image changes: open an image. Everything is permanent and logged.</div>
+   <label class="mute" style="font-size:12px">label <select id="lmkey">${K.map(([k,n])=>`<option value="${esc(k)}" ${k===key?'selected':''}>${esc(k)} (${n} images)</option>`).join('')}</select></label>
+   <table style="margin-top:8px"><tr><th class="l">value (best label)</th><th>images</th><th></th></tr>${rows||'<tr><td colspan="3" class="mute">no values</td></tr>'}</table>
+   <h2 style="margin-top:14px">Recent changes</h2><table><tr><th class="l">time</th><th class="l">op</th><th class="l">label</th><th class="l">value</th><th class="l">scope</th></tr>${hist||'<tr><td colspan="5" class="mute">none yet</td></tr>'}</table></div>`;
+  $('lmkey').onchange=()=>openLabelMgr($('lmkey').value);
+  m.querySelectorAll('[data-lm]').forEach(b=>b.onclick=async()=>{
+   const v=b.dataset.v;let ok;
+   if(b.dataset.lm==='rename'){const nv=prompt(`Rename ${key} = "${v}" to:`,v);if(nv==null||!nv.trim()||nv.trim()===v)return;ok=await curate({op:'rename',key,old:v,new:nv.trim()},`Rename every ${key} label "${v}" to "${nv.trim()}"?`)}
+   else ok=await curate({op:'delete_value',key,value:v},`Delete every ${key} label "${v}" (on every image)?`);
+   if(ok){await openLabelMgr(key);if(TAB==='images')viewImages()}
+  });
+ }catch(e){m.innerHTML=`<div class="mbox"><div class="empty"><b>${esc(e.message)}</b></div><button class="chip" onclick="closeModal()">close</button></div>`}
 }
 
 /* ------------------------------------------------------------------ source drawer (a log passage around a citation) */
@@ -177,7 +216,9 @@ async function openImage(sha){
  try{
   const I=await j('/api/kb/imginfo?sha='+sha);const im=I.image,b=I.best;
   const bests=Object.entries(b).map(([k,v])=>`<span class="badge" title="${esc(k)} from ${esc(v.source)}">${esc(k)}: <b>${esc(v.value)}</b> <span class="mute">${esc(v.source)}</span></span>`).join(' ');
-  const hist=I.labels.map(l=>`<tr><td class="l">${esc(l.key)}</td><td class="l">${esc(l.value)}</td><td class="l">${esc(l.source)}</td><td>${l.confidence==null?'':Number(l.confidence).toFixed(2)}</td><td class="l mute">${esc(l.note||'')}</td></tr>`).join('');
+  const hist=I.labels.map(l=>`<tr><td class="l">${esc(l.key)}</td><td class="l">${esc(l.value)}</td><td class="l">${esc(l.source)}</td><td>${l.confidence==null?'':Number(l.confidence).toFixed(2)}</td><td class="l mute">${esc(l.note||'')}</td>
+    <td class="l" style="white-space:nowrap"><button class="chip" data-act="edit" data-sha="${esc(im.sha256)}" data-key="${esc(l.key)}" data-value="${esc(l.value)}" title="replace all '${esc(l.key)}' labels of this image by a new value">change</button>
+    <button class="chip" data-act="del" data-sha="${esc(im.sha256)}" data-key="${esc(l.key)}" data-value="${esc(l.value)}" title="delete this label permanently">remove</button></td></tr>`).join('');
   const refs=I.citations.map(r=>`<div class="cr"><a href="#" class="cite" data-c="${esc(r.doc_id)}:L${r.ln}">${esc(docShort(r.doc_id))}:L${r.ln}</a> <span class="mute">${esc(r.date||'')} ${esc([r.h1,r.h2,r.h3].filter(Boolean).join(' › '))}</span>
     <div class="ctx">${r.before?'<div class="mute">… '+esc(r.before)+'</div>':''}${r.same_line?'<div><b>'+esc(r.same_line)+'</b></div>':''}${r.after?'<div class="mute">'+esc(r.after)+' …</div>':''}</div></div>`).join('');
   m.innerHTML=`<div class="mbox"><div style="display:flex;justify-content:flex-end"><button class="chip" onclick="closeModal()">close (Esc)</button></div>
@@ -185,7 +226,9 @@ async function openImage(sha){
      <div class="mono mute" style="margin-top:4px">${im.width}×${im.height} ${esc(im.ext)} · ${(im.bytes/1024).toFixed(0)} kB · ${esc(im.sha256.slice(0,16))}</div></div>
     <div><div class="legend" style="margin-bottom:8px">${bests}</div>
      <h2>Citations (${I.citations.length})</h2>${refs||'<div class="mute">none</div>'}
-     <h2 style="margin-top:12px">Label history</h2><table><tr><th class="l">key</th><th class="l">value</th><th class="l">source</th><th>conf</th><th class="l">note</th></tr>${hist}</table></div></div></div>`;
+     <h2 style="margin-top:12px">Label history</h2><table><tr><th class="l">key</th><th class="l">value</th><th class="l">source</th><th>conf</th><th class="l">note</th><th></th></tr>${hist}</table>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center"><input id="ladd_k" placeholder="label (e.g. subject)" list="lkeys" style="width:150px"><input id="ladd_v" placeholder="value" style="width:170px"><button class="chip" data-act="add" data-sha="${esc(im.sha256)}">add label</button><datalist id="lkeys">${['class','subject','camera','hutch','device','feature','sample','energy_keV','note'].map(k=>`<option value="${k}">`).join('')}</datalist></div>
+     <div class="note">Edits are permanent: applied to the knowledge base and logged in <span class="mono">curation.jsonl</span>, so a re-ingest or new labelling pass cannot bring the old labels back. The best label per key is human &gt; vision &gt; rule.</div></div></div></div>`;
  }catch(e){m.innerHTML=`<div class="mbox"><div class="empty"><b>${esc(e.message)}</b></div><button class="chip" onclick="closeModal()">close</button></div>`}
 }
 
@@ -235,7 +278,7 @@ function procHTML(r){
 function sel(id,label,opts){return `<label class="mute" style="font-size:12px">${label} <select id="${id}"><option value="">any</option>${opts.map(([v,n])=>`<option value="${esc(v)}">${esc(v)} (${n})</option>`).join('')}</select></label>`}
 function viewImages(){
  $('content').innerHTML=`<div class="card"><div style="display:flex;gap:8px 12px;flex-wrap:wrap;align-items:end"><input id="iq" placeholder="search captions, headings, device names …" style="flex:1;min-width:240px">
-  ${sel('icls','class',FAC.class)}${sel('isub','subject',FAC.subject)}${sel('icam','camera',FAC.camera)}${sel('ihut','hutch',FAC.hutch)}${sel('isrc','label source',FAC.source)}<input id="idev" placeholder="device (e.g. Kohzu)" style="width:150px"></div>
+  ${sel('icls','class',FAC.class)}${sel('isub','subject',FAC.subject)}${sel('icam','camera',FAC.camera)}${sel('ihut','hutch',FAC.hutch)}${sel('isrc','label source',FAC.source)}<input id="idev" placeholder="device (e.g. Kohzu)" style="width:150px"><button class="chip" onclick="openLabelMgr()" title="rename, delete or add label values (permanent)">Labels …</button></div>
   <div class="note" id="icount"></div></div><div class="card"><div class="grid" id="igrid"></div><div style="text-align:center;margin-top:10px"><button class="chip" id="imore" style="display:none">load more</button></div></div>`;
  const map={iq:'q',icls:'cls',isub:'subject',icam:'camera',ihut:'hutch',isrc:'source',idev:'device'};
  for(const id in map){$(id).value=IM[map[id]];$(id).oninput=$(id).onchange=debounce(()=>{IM[map[id]]=$(id).value.trim();IM.offset=0;loadImages(true)},id==='iq'||id==='idev'?300:0)}

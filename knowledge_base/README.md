@@ -18,6 +18,11 @@ it is unpublished user records, so it sits in the **knowledge tree** outside the
    statistics + dhash, records **every citation** (doc, line, section, date, caption text before/after) and writes **rule labels**.
 3. Vision/human labelling refines labels (`kb.py sheet` -> look -> `kb.py label` / `labelfile`). Labels are append-only with
    `source` (rule < vision < human), confidence, time; `label_best` / `image_index` views give the trusted value.
+   **Corrections are permanent** (2026-11-15): remove / change / add labels in the GUI (`/kb`: image dialog + **Labels …** manager) or with
+   `kb.py curate rename subject pin tomopin | delete-value KEY VALUE | set|add SHA KEY VALUE | remove SHA KEY [VALUE] | list | replay`.
+   Each change is applied to `kb.sqlite` at once and appended to `<kb>/curation.jsonl` (knowledge tree, not in git); `kb.py ingest|label|labelfile|addimage`
+   replay that log afterwards, so a re-ingest or a new vision pass cannot bring the old labels back (`blade/kb_curate.py`; a DB copy is made once a day).
+   The `subject` value `pin` was renamed to `tomopin` this way (the rule in `kb.py` now emits `tomopin`).
 4. `kb.py search|show|near|export` for retrieval (FTS over captions + headings, filtered by labels) and JSONL export for training.
 
 ## Label vocabulary (extend, don't rename; add keys freely)
