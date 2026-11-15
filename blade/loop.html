@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLADE virtual beamline - physics models</title>
+<script>(function(){var t='auto';try{t=localStorage.getItem('blade.theme')||'auto'}catch(e){}var r=t==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):t;document.documentElement.setAttribute('data-theme',r)})()</script>
+<style>
+:root,:root[data-theme=light]{color-scheme:light;--bg:#f4f5f8;--panel:#fff;--ink:#1b2330;--mute:#677386;--line:#dde2ea;--ok:#168a4a;--okbg:#e4f5ea;--bad:#c0352b;--warn:#a96a08;--warnbg:#fdf1dc;--acc:#2160c4;--accbg:#e6eefb;--agent:#6b3fa0;--mono:ui-monospace,Menlo,Consolas,monospace;--img:#000}
+:root[data-theme=dark]{color-scheme:dark;--bg:#11151b;--panel:#1a2029;--ink:#e5eaf1;--mute:#8d99aa;--line:#2b3441;--ok:#4cc380;--okbg:#17301f;--bad:#ff7064;--warn:#e3a549;--warnbg:#38290f;--acc:#6ea4ff;--accbg:#1a2a45;--agent:#b994f2}
+:root[data-theme=midnight]{color-scheme:dark;--bg:#0a1020;--panel:#101a33;--ink:#dce8ff;--mute:#8aa0c8;--line:#22335c;--ok:#5ee0a0;--okbg:#0f2f2a;--bad:#ff7a8a;--warn:#ffc15e;--warnbg:#3a2f12;--acc:#62b0ff;--accbg:#14325e;--agent:#c4a3ff}
+:root[data-theme=paper]{--bg:#efe6d2;--panel:#faf5e8;--ink:#3a3022;--mute:#7d6e58;--line:#dccfb2;--ok:#3b7d3a;--okbg:#e3efd6;--bad:#a8392b;--warn:#9a6200;--warnbg:#f4e4bd;--acc:#2b5b9a;--accbg:#dfe8f2;--agent:#6b3fa0}
+:root[data-theme=contrast]{--bg:#fff;--panel:#fff;--ink:#000;--mute:#2b2b2b;--line:#6b6b6b;--ok:#006400;--okbg:#d9f2d9;--bad:#b00000;--warn:#7a4b00;--warnbg:#ffe9b3;--acc:#0033cc;--accbg:#dbe5ff;--agent:#5a00a0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:12.5px/1.35 system-ui,sans-serif}a{color:var(--acc)}
+.wrap{max-width:1500px;margin:0 auto;padding:8px 10px;display:grid;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0}
+h2{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:0 0 5px;font-weight:700}
+h3{margin:0;font-size:14.5px}
+.top{display:flex;flex-wrap:wrap;gap:5px 10px;align-items:center;padding:6px 10px}.top h1{font-size:15px;margin:0 4px 0 0}.sp{flex:1}
+select,input,button{font:12px system-ui;padding:3px 7px;border:1px solid var(--line);border-radius:5px;background:var(--panel);color:var(--ink)}
+button{cursor:pointer}button:hover{border-color:var(--acc)}button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc)}
+.pill{padding:1px 8px;border-radius:99px;border:1px solid var(--line);font:11px var(--mono);white-space:nowrap}
+.sim{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.mute{color:var(--mute)}.mono{font-family:var(--mono)}
+.tbl{border-collapse:collapse;width:100%;font:12px var(--mono)}.tbl th,.tbl td{padding:3px 7px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.tbl th{color:var(--mute);font-weight:600}
+.s-verified{color:var(--ok);background:var(--okbg)}.s-unverified{color:var(--warn);background:var(--warnbg)}
+.st{display:inline-block;padding:0 8px;border-radius:99px;font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.04em;border:1px solid currentColor}
+.banner{background:var(--okbg);color:var(--ok);border-radius:6px;padding:6px 10px;font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:8px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px}.kv dt{color:var(--mute)}.kv dd{margin:0;font-family:var(--mono)}
+.bad{color:var(--bad)}.good{color:var(--ok)}
+</style></head><body>
+<div class="wrap">
+<div class="card top"><h1>BLADE <span class="mute">/ sync &amp; loop</span></h1><span class="pill" style="background:var(--okbg);color:var(--ok)" title="no write path exists in BLADE">READ-ONLY</span>
+ <span class="sp"></span><label class="mute">theme <select id="theme"></select></label></div>
+<div class="banner">BLADE reads the beamline and proposes; it cannot command it. Real values enter the simulator only through verified PV mappings - nothing is guessed.</div>
+<div class="card"><h2>The loop</h2><div>read PVs (+1 frame) &rarr; <b>sync</b> the simulator &rarr; <b>estimate</b> hidden offsets from scans/frames &rarr; <b>propose</b> by running a procedure on a copy &rarr; a person applies &rarr; read again. Playbook: <span class="mono">playbooks/loop.md</span>.</div></div>
+<div class="grid2">
+ <div class="card"><h2>Control &harr; PV mapping <span class="mono mute" id="mcount"></span></h2><div class="mute" style="margin-bottom:4px">Only <b>verified</b> entries with a numeric scale and offset are used (sim = scale &times; raw + offset). Edit <span class="mono">beamline_twins/&lt;bl&gt;/control_pv_map.json</span> after confirming a live readback.</div><div id="map"></div></div>
+ <div class="card"><h2>Ion chambers (display ground truth) <span class="mono mute" id="icount"></span></h2><div id="ics"></div><h2 style="margin-top:8px">Saved snapshots</h2><div id="snaps" class="mute">none</div></div>
+</div>
+<div class="card"><h2>Dry run on a stand-in beamline <span class="pill sim" style="background:var(--warnbg);color:var(--warn);border-color:transparent">SIMULATION</span></h2>
+ <div class="row"><label>stand-in seed <input id="seed" type="number" value="21" style="width:70px"></label><label>turns <input id="iters" type="number" value="2" min="1" max="4" style="width:50px"></label>
+  <button id="go">Run the loop</button><span class="mute" id="status">a simulator with its own hidden truth plays the real beamline; the model starts knowing none of it</span></div>
+ <div id="dry" style="margin-top:8px"></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const themes=['auto','light','dark','midnight','paper','contrast'];
+(function(){const s=$('theme');themes.forEach(t=>{const o=document.createElement('option');o.value=o.textContent=t;s.appendChild(o)});let c='auto';try{c=localStorage.getItem('blade.theme')||'auto'}catch(e){}s.value=c;
+ s.onchange=()=>{try{localStorage.setItem('blade.theme',s.value)}catch(e){};const r=s.value==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):s.value;document.documentElement.setAttribute('data-theme',r)}})();
+const f=(v,d=4)=>v==null?'':(typeof v==='number'?v.toFixed(d):esc(v));
+function renderState(S){
+ $('mcount').textContent=S.mapping.filter(m=>m.usable).length+' usable / '+S.mapping.length+' listed';
+ $('map').innerHTML='<table class="tbl"><tr><th>control</th><th>PV</th><th>status</th><th>scale</th><th>offset</th></tr>'+S.mapping.map(m=>`<tr title="${esc(m.source+' | '+m.note)}"><td>${esc(m.control)}</td><td>${esc(m.pv)}</td><td><span class="st s-${m.usable?'verified':'unverified'}">${esc(m.usable?'used':m.status)}</span></td><td>${f(m.scale)}</td><td>${f(m.offset)}</td></tr>`).join('')+'</table>';
+ $('icount').textContent=S.ics.length+' channels';
+ $('ics').innerHTML='<table class="tbl"><tr><th>IC</th><th>counts</th><th>time</th><th>preamp</th></tr>'+S.ics.map(c=>`<tr><td>${esc(c.ic)}</td><td>${esc(c.counts_pv)}</td><td>${esc(c.time_pv)}</td><td>${esc(c.preamp||'')}</td></tr>`).join('')+'</table>';
+ $('snaps').innerHTML=S.snapshots.length?S.snapshots.map(s=>`<div class="mono">${esc(s.name)} - ${s.usable} controls usable, ${s.unmapped} unmapped, ${s.ics} ICs</div>`).join(''):'none (use the loop_real_snapshot tool on the beamline network)';
+ if(S.dry_run)renderDry(S.dry_run);
+}
+function renderDry(D){
+ const T=D.turns,last=T[T.length-1],t=D.truth;
+ let h='<div class="grid2"><div><h2>Score of the stand-in\'s true state (lower is better)</h2><table class="tbl"><tr><th>turn</th><th>before</th><th>after</th><th>status</th></tr>'+
+  T.map(x=>`<tr><td>${x.iteration+1}</td><td>${f(x.score_before,1)}</td><td class="${x.score_after<4?'good':''}">${f(x.score_after,1)}</td><td>${esc(x.status)}</td></tr>`).join('')+'</table>'+
+  `<dl class="kv" style="margin-top:6px"><dt>gap error</dt><dd>${f(D.final.gap_error_mm,4)} mm</dd><dt>Th2 error</dt><dd>${f(D.final.th2_error_deg,5)} deg</dd><dt>mu_t error</dt><dd>${f(D.final.mu_t_error,3)}</dd><dt>flux vs best</dt><dd>${f(D.final.flux_vs_best,3)}</dd></dl></div>`;
+ const e=T[0].estimate;
+ if(e)h+='<div><h2>Hidden quantities: fitted vs true</h2><table class="tbl"><tr><th>parameter</th><th>fitted</th><th>true</th><th>sigma</th></tr>'+Object.keys(e.values).map(k=>`<tr><td>${esc(k)}</td><td>${f(e.values[k])}</td><td>${f(t[k])}</td><td>${f(e.sigma[k])}</td></tr>`).join('')+'</table></div>';
+ h+='</div>';
+ const p=T[0].proposal;
+ if(p)h+='<h2 style="margin-top:8px">Proposal of turn 1 (data only)</h2><table class="tbl"><tr><th>control</th><th>from</th><th>to</th><th>unit</th><th>real panel value</th></tr>'+p.changes.map(c=>`<tr><td>${esc(c.control)}</td><td>${f(c.before)}</td><td>${f(c.after)}</td><td>${esc(c.unit)}</td><td>${c.real_display==null?'<span class="mute">mapping not verified</span>':f(c.real_display)}</td></tr>`).join('')+'</table><div class="mute">'+p.notes.map(esc).join('<br>')+'</div>';
+ $('dry').innerHTML=h;
+}
+async function load(){const r=await fetch('/api/loop/state');renderState(await r.json())}
+$('go').onclick=async()=>{$('status').textContent='running (about 10-20 s)...';$('go').disabled=true;
+ try{const r=await fetch('/api/loop/dryrun',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({seed:+$('seed').value,iterations:+$('iters').value})});const D=await r.json();
+  if(D.error)throw new Error(D.error);renderDry(D);$('status').textContent='done'}catch(e){$('status').textContent='error: '+e.message}$('go').disabled=false};
+load();
+</script></body></html>

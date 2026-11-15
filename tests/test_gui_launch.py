@@ -28,8 +28,8 @@ assert gui._is_blade_gui(port)
 time.sleep(0.6)
 assert opened == [f"http://localhost:{port}/twin"], opened                 # opened the twin page once the server was listening
 
-gui.serve(port, "monitor")                                                  # second launch: returns immediately (does not block), reuses the first
-assert opened[-1] == f"http://localhost:{port}/" and len(opened) == 2, opened
+gui.serve(port, "vbl")                                                      # second launch: returns immediately (does not block), reuses the first
+assert opened[-1] == f"http://localhost:{port}/vbl" and len(opened) == 2, opened
 gui.serve(port)                                                             # no --open: nothing opened
 assert len(opened) == 2
 
@@ -37,7 +37,7 @@ foreign = socket.socket()                                                   # so
 foreign.bind(("127.0.0.1", 0)); foreign.listen(1)
 fp = foreign.getsockname()[1]
 try:
-    gui.serve(fp, "monitor")
+    gui.serve(fp, "vbl")
     raise AssertionError("expected SystemExit")
 except SystemExit as e:
     assert "in use by something else" in str(e), e

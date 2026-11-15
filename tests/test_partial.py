@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT))
 import numpy as np  # noqa: E402
 import h5py  # noqa: E402
 from scipy import ndimage as ndi  # noqa: E402
-from blade.alignment import measure as M  # noqa: E402
+from blade.analysis.pin import measure as M  # noqa: E402
 from blade import config as cfg  # noqa: E402
 
 from blade import paths  # noqa: E402

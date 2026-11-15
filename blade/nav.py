@@ -7,9 +7,9 @@ import html
 # (id, path, label, icon paths: stroke-only 24x24 SVG)
 TABS = [
     ("vbl", "/vbl", "Virtual Beamline", '<path d="M2 12h6M8 6v12M12 6v4M12 14v4M12 12h5"/><rect x="17" y="8" width="5" height="8" rx="1"/>'),
+    ("loop", "/loop", "Sync & Loop", '<path d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>'),
     ("physics", "/physics", "Physics", '<path d="M2 12c3-8 5-8 8 0s5 8 8 0c1-2 2-3 4-3"/><path d="M2 20h20" opacity=".5"/>'),
     ("kb", "/kb", "Knowledge Base", '<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h11"/>'),
-    ("monitor", "/", "Alignment Monitor", '<path d="M2 12h4l3-8 4 16 3-8h6"/>'),
     ("twin", "/twin", "Beamline Twin", '<rect x="3" y="4" width="7" height="5" rx="1"/><rect x="14" y="15" width="7" height="5" rx="1"/><path d="M6.5 9v3h11v3"/>'),
 ]
 WIDTH = 74

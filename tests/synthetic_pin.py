@@ -1,8 +1,9 @@
-"""Simulated instrument: renders tomo frames (beam + dark trapezoid pin) like the real 1490x1940 uint16 frames, with a hidden
+"""SYNTHETIC pin frames for the pin-detection / alignment tests (the former stand-alone simulator `blade/backends/sim.py`, retired 2026-11-15: the virtual
+beamline is the one simulator; this stays as a small test fixture with exactly known truth). Renders tomo frames (beam + dark trapezoid pin) like the real 1490x1940 uint16 frames, with a hidden
 ground truth (axis column c, pin offsets a, b) that the motors change. No hardware, no EPICS."""
 import numpy as np
 from scipy.special import erf, expit
-from .. import config as cfg
+from blade import config as cfg
 
 H, W = 1490, 1940
 BEAM_BOX = (457, 1488, 347, 1157)   # x0, x1, y0, y1 of the lit area (from real frames)
@@ -10,7 +11,7 @@ BG, PLATEAU, PIN_T = 5400.0, 12000.0, 0.045
 TOP_ROW, TOP_W, HALF_ANGLE = 477.0, 151.5, 15.0
 
 
-class SimInstrument:
+class SyntheticPin:
     """State is a plain dict so it can be persisted between CLI calls."""
     name = "sim"
 

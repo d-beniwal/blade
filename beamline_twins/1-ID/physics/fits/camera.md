@@ -1,6 +1,6 @@
 # Detectors and image formation: fits from the knowledge base (2026-11-13)
 
-Code `blade/physics/camera_fit.py`, numbers `camera.json` (per-frame tables, derived numbers only), test `tests/test_fit_camera.py`. Citations: startup/tables documents as doc_id:line, user logs as "user log <year>".
+Code `blade/calibration/camera_fit.py`, numbers `camera.json` (per-frame tables, derived numbers only), test `tests/test_fit_camera.py`. Citations: startup/tables documents as doc_id:line, user logs as "user log <year>".
 
 **Limit of the data.** Most KB images are 8-bit screenshots of ImageJ/areaDetector windows with a stretched display range and viewer scales of 33-150 %. Counts, noise and transmission are not recoverable; geometry (px/um widths, angles, spatial spectra) is. Scale and native frame size were recovered from the window width (canvas = native x scale + border 10/18/28 px; 13 windows whose title I read by eye were all reproduced), camera from native size/aspect, um/px from the logged value of that camera. Frames in one log are correlated, so independent n is smaller than the frame counts below.
 

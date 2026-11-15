@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""blade.physics.mono_fit vs the numbers it was fitted to / checked against (1-ID logs 2022-2026): edge offsets, Th1 model, foil steps, edge widths,
+"""blade.calibration.mono_fit vs the numbers it was fitted to / checked against (1-ID logs 2022-2026): edge offsets, Th1 model, foil steps, edge widths,
 Emon<->energy relation, drift/dump statistics, Th2 prior, E_scan timing.  No hardware, numpy + json only (xraydb optional for the step check).
 Run: ~/miniconda3/envs/blade/bin/python -I tests/test_fit_mono.py   (non-zero exit on failure, < 30 s)"""
 import json
@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from blade.physics import mono_fit as mf  # noqa: E402
+from blade.calibration import mono_fit as mf  # noqa: E402
 
 J = json.loads((ROOT / "beamline_twins/1-ID/physics/fits/mono.json").read_text())
 FAILS = []

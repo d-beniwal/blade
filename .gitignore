@@ -53,3 +53,6 @@ knowledge_base/review/
 # Agent context (local only; not published)
 AGENTS.md
 .context/
+
+# Local working documents (open conflicts / to-do lists), never committed
+pending/

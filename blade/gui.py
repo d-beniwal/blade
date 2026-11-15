@@ -1,7 +1,7 @@
-"""Local web GUI (stdlib + numpy): follows runs/<id>/events.jsonl live (/), shows the beamline twin of any profile (/twin), the virtual beamline (/vbl)
-and the local knowledge base (/kb: procedures, log images, log text; read-only).
-Everything here is read-only for real hardware - it never moves anything; /vbl only changes the SIMULATED session (runs/vbl/).
-Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (twin viewer: /twin, virtual beamline: /vbl, knowledge base: /kb)"""
+"""Local web GUI (stdlib + numpy): the virtual beamline (/ and /vbl), the read-only sync & loop (/loop), the beamline twin of any profile (/twin), the physics catalogue (/physics) and the local
+knowledge base (/kb: procedures, log images, log text; read-only).
+Everything here is read-only for real hardware - it never commands anything; /vbl only changes the SIMULATED session (runs/vbl/).
+Run:  python -I gui.py [--port 8765]   then open http://localhost:8765  (virtual beamline: /vbl, twin viewer: /twin, physics: /physics, knowledge base: /kb)"""
 import json
 import mimetypes
 import sys
@@ -14,15 +14,10 @@ from urllib.parse import parse_qs, urlparse
 from .paths import RUNS_DIR
 from . import config as cfg
 from . import twin_api, edit_api
-from . import vbl_api
+from . import vbl_api, loop_api
 from . import kb_api, nav
 from .vbl import physics_doc
 
-
-
-def _latest():
-    f = RUNS_DIR / "CURRENT"
-    return f.read_text().strip() if f.exists() else None
 
 
 class H(BaseHTTPRequestHandler):
@@ -42,8 +37,7 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
-        rid = q.get("run") or _latest()
-        page = {"/": ("gui.html", "monitor"), "/twin": ("twin.html", "twin"), "/vbl": ("vbl.html", "vbl"), "/kb": ("kb.html", "kb"), "/physics": ("physics.html", "physics")}.get(u.path)
+        page = {"/": ("vbl.html", "vbl"), "/vbl": ("vbl.html", "vbl"), "/twin": ("twin.html", "twin"), "/kb": ("kb.html", "kb"), "/physics": ("physics.html", "physics"), "/loop": ("loop.html", "loop")}.get(u.path)
         if page:                                       # every page gets the left navigation ribbon (blade/nav.py); pages carry no links to each other
             return self._send(nav.inject((Path(__file__).parent / page[0]).read_text(), page[1]), "text/html; charset=utf-8")
         if u.path == "/api/vbl/physics":
@@ -63,6 +57,8 @@ class H(BaseHTTPRequestHandler):
                 return self._send({"error": str(e)}, code=400)
         if u.path.startswith("/api/kb/"):
             return self._kb(u.path[len("/api/kb/"):], q)
+        if u.path == "/api/loop/state":
+            return self._send(loop_api.state(q.get("twin")))
         if u.path == "/api/vbl/state":
             return self._send(vbl_api.state_payload(reveal=q.get("reveal") == "1"))
         if u.path == "/api/vbl/frame":
@@ -84,36 +80,6 @@ class H(BaseHTTPRequestHandler):
             if f:
                 return self._send(f.read_bytes(), mimetypes.guess_type(str(f))[0] or "image/jpeg")
             return self._send({"error": "photo not found"}, code=404)
-        if u.path == "/api/config":
-            try:
-                st = json.loads((RUNS_DIR / rid / "state.json").read_text()) if rid else {}
-            except Exception:
-                st = {}
-            cam = (st.get("inst") or {}).get("camera")
-            cfg.load(st.get("profile"), st.get("station"))          # the GUI follows the profile and camera of the shown run
-            cfg.set_camera(cam if cam in cfg.CAMERA_INFO else None)
-            return self._send({"profile": cfg.PROFILE, "station": cfg.STATION, "beamline": cfg.BEAMLINE, "motors": cfg.MOTOR_NAMES, "base_motor": cfg.BASE_MOTOR,
-                               "pixel_um": cfg.PIXEL_UM, "camera": cfg.CAMERA, "tol_ab_px": cfg.TOL_AB_PX, "tol_c_px": cfg.TOL_C_PX,
-                               "latest": _latest(), "runs": sorted(p.name for p in RUNS_DIR.iterdir() if p.is_dir()) if RUNS_DIR.exists() else []})
-        if rid is None:
-            return self._send({"events": [], "state": None})
-        d = (RUNS_DIR / rid).resolve()
-        if RUNS_DIR.resolve() not in d.parents:
-            return self._send({"error": "bad run"}, code=400)
-        if u.path == "/api/events":
-            since = int(q.get("since", 0))
-            evs = []
-            ep = d / "events.jsonl"
-            if ep.exists():
-                for i, line in enumerate(open(ep)):
-                    if i >= since and line.strip():
-                        evs.append(json.loads(line))
-            st = json.loads((d / "state.json").read_text()) if (d / "state.json").exists() else None
-            return self._send({"run": rid, "events": evs, "state": st})
-        if u.path.startswith("/runs/"):
-            f = (RUNS_DIR / u.path[len("/runs/"):]).resolve()
-            if RUNS_DIR.resolve() in f.parents and f.is_file():
-                return self._send(f.read_bytes(), mimetypes.guess_type(str(f))[0] or "application/octet-stream")
         self._send({"error": "not found"}, code=404)
 
 
@@ -156,6 +122,8 @@ class H(BaseHTTPRequestHandler):
                     return self._send(edit_api.apply_edit(body))
                 except edit_api.EditError as e:
                     return self._send({"error": str(e)}, code=400)
+            if u.path == "/api/loop/dryrun":            # a stand-in SIMULATOR plays the real beamline; nothing real is touched
+                return self._send(loop_api.dry_run(body))
             if u.path == "/api/vbl/set":
                 return self._send(vbl_api.apply_set(body))
             if u.path == "/api/vbl/reset":
@@ -175,7 +143,7 @@ class _Server(ThreadingHTTPServer):
     request_queue_size = 64          # the default backlog (5) resets connections when a page fires several requests at once while a handler is busy
 
 
-PAGES = {"monitor": "/", "twin": "/twin", "vbl": "/vbl", "kb": "/kb", "physics": "/physics"}
+PAGES = {"vbl": "/vbl", "loop": "/loop", "twin": "/twin", "kb": "/kb", "physics": "/physics"}
 
 
 def _is_blade_gui(port):
@@ -188,11 +156,11 @@ def _is_blade_gui(port):
 
 
 def serve(port=8765, open_page=None):
-    """Serve the GUI. open_page = None | "monitor" | "twin" | "vbl" | "kb" | "physics": also open it in the default browser. If a BLADE GUI is already running on the
+    """Serve the GUI. open_page = None | "vbl" | "loop" | "twin" | "kb" | "physics": also open it in the default browser. If a BLADE GUI is already running on the
     port, do not start a second one: just open it (or print its address) and return."""
     if open_page not in (None, *PAGES):
         raise ValueError(f"page must be one of {sorted(PAGES)}")
-    url = f"http://localhost:{port}{PAGES.get(open_page, '/')}"
+    url = f"http://localhost:{port}{PAGES.get(open_page, '/vbl')}"
     try:
         srv = _Server(("127.0.0.1", port), H)
     except OSError:
@@ -202,7 +170,7 @@ def serve(port=8765, open_page=None):
                 webbrowser.open(url)
             return
         raise SystemExit(f"port {port} is in use by something else; choose another with --port N")
-    print(f"BLADE GUI on http://localhost:{port}  (twin viewer: /twin, virtual beamline: /vbl, its physics models: /physics, knowledge base: /kb; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
+    print(f"BLADE GUI on http://localhost:{port}  (virtual beamline: /vbl, sync & loop: /loop, twin viewer: /twin, physics: /physics, knowledge base: /kb; runs dir: {RUNS_DIR}); Ctrl+C to stop", flush=True)
     if open_page:                                   # the socket is already listening, so the browser's request just queues until serving starts
         threading.Timer(0.3, webbrowser.open, (url,)).start()
     try:
@@ -213,4 +181,4 @@ def serve(port=8765, open_page=None):
 
 if __name__ == "__main__":
     port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8765
-    serve(port, "monitor" if "--open" in sys.argv else None)
+    serve(port, "vbl" if "--open" in sys.argv else None)

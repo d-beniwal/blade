@@ -1,15 +1,15 @@
 """BLADE MCP server (`blade mcp`): the way other agents reach BLADE workflows. Everything registered in blade.registry becomes an MCP tool; each module's
 playbook is served as the resource blade://playbook/<module>. Transport: stdio (default) or streamable-http. Needs the optional dependency `mcp` (pip install -e .[mcp]).
 
-Safety is unchanged from the CLI: the simulator is the default backend, `new_run(backend='epics')` is the only way to reach hardware, and the profile's
-equipment limits (step size, soft limits, rotation range) are enforced inside the tools."""
+Safety: there is no way to reach hardware: `new_run(backend='epics')` is refused and the real-beamline reader is read-only."""
 import inspect
 from . import registry
 
-INSTRUCTIONS = """BLADE - Beamline Automation and Device Experiments (APS). Workflow: 1) read the playbook resource for the module you are using (blade://playbook/<module>);
-2) list_profiles, then new_run (backend 'sim' by default; 'epics' = real beamline, only when the user has said they are on the beamline and authorised hardware);
-3) call the module's tools, explaining your steps with add_note; 4) finish_run. Every tool takes an optional run_id (default: the current run). Tools whose
-description says they move motors act on real hardware when the run uses the epics backend. The user can watch progress in `blade gui`."""
+INSTRUCTIONS = """BLADE - Beamline Automation and Device Experiments (APS). BLADE builds a virtual beamline (simulator) of the real one; everything it does is SIMULATION or READ-ONLY:
+it never commands the real beamline (user decision 2026-11-15). Workflow: 1) read the playbook resource for the module you are using (blade://playbook/<module>);
+2) the vbl_* tools drive the simulated beamline (set controls, read ICs, take frames, run the operator scans); new_run + align_* tools run the rotation-axis
+alignment on the simulator; analysis_* tools fit profiles/images; loop_* tools compare the simulator with a read-only snapshot of the real beamline and propose
+changes (they never apply them to the real machine). Explain your steps with add_note; finish_run when done. The user can watch in `blade gui`."""
 
 
 def _wrap(t):

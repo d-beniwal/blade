@@ -1,25 +1,33 @@
 # BLADE — Beamline Automation and Device Experiments
 
-Agent-driven beamline automation for APS beamlines. An AI agent (Claude Code, Codex, ...) drives small JSON command-line tools while you watch a live local web GUI.
-Everything specific to one beamline lives in a **profile** (`profiles/<beamline>/`), so the same software moves between beamlines by adding a profile.
+A **virtual beamline** for APS beamlines, built to close this loop: *read the real beamline (PVs + one image) -> sync the simulator to it -> optimise in the simulator -> propose
+the changes -> a person applies them -> read again.* Everything specific to one beamline lives in a **profile** and a **beamline twin** (`profiles/<bl>/`, `beamline_twins/<bl>/`), so
+the software moves between beamlines by adding those.
 
-**Current scope:** Sector 1 (profile `s1id`, 1-ID). Implemented module: **alignment** — put the rotation axis (`samE.ry`) of the sample stage on the X-ray beam by imaging an
-alignment pin on a tomo camera, rotating it, and correcting the stage motors until the pin axis stays fixed in the image at the beam centre. Later modules (slits, undulator / mono edge and flux, ...) plug in beside it.
+**BLADE never commands the real beamline** (user decision 2026-11-15): there is no write path in the code. The real beamline is only *read*, through one gate
+(`blade/instrument/readonly.py`: allow-listed read fields, channel-access GETs, pyepics writes disabled); the loop *proposes*, a person applies.
+**Current scope:** Sector 1 (profile `s1id`, 1-ID). Status of each stage of the loop is in `.context/STATE.md`.
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `blade/` | the Python package: `config.py` (profile loader), `session.py` (runs), `cli.py`, `gui.py`/`gui.html` (run monitor), `twin_api.py`/`twin.html` (twin viewer), `paths.py` |
-| `blade/backends/` | `sim` (simulator, default) and `epics` (real beamline: pvapy camera frames + pyepics motors) |
-| `blade/alignment/` | the alignment module: `cli.py` (commands), `measure.py`, `pinfit.py` (pin detection), `beam_center.py`, `axis_align.py` |
-| `blade/registry.py`, `blade/mcp_server.py`, `blade/*/tools.py` | the MCP server (`blade mcp`): every capability is registered as a tool here; this is how other agents use BLADE |
-| `profiles/<name>/default_config.json` | cameras, pixel sizes, per-hutch `stations` (motor PVs/names, signs), limits, tolerances, pin shape. See `profiles/README.md` |
-| `playbooks/alignment.md` | the agent's instructions for the alignment module — **the agent reads this** |
-| `knowledge.example.json` | template for the git-ignored `knowledge.json`: where the (private) knowledge tree is |
+| `blade/instrument/` | **the one interface** (`Instrument`) between procedures and a beamline: `SimInstrument` (the virtual beamline) and `EpicsReader` (the real one, READ-ONLY; PV mapping in `pvmap.py`) |
+| `blade/vbl/` | the simulator itself: `world.py` (controls, hidden truth, optics, flux, mono/undulator, ICs), `imaging.py` (camera frames), `store.py` (shared session), `readiness.py` (truth scoring) |
+| `blade/physics/` | runtime physics (Bragg/edges, undulator, lenses, detector) |
+| `blade/procedures/` | operator procedures on any `Instrument`: energy/flux, camera, optics, slits, the start-of-beamtime sequence, and the rotation-axis (pin) alignment |
+| `blade/analysis/` | image analysis: line/ROI profile fits (`fitting`, `profile`), frame analysis (`frame`), pin detection (`pin/`) |
+| `blade/loop/` | **the loop**: `sync` (real -> simulator), `estimate` (fit hidden offsets), `optimize` (procedure on a copy -> proposal), `run`, `demo` (stand-in dry run), `mapcheck` |
+| `blade/calibration/` | OFFLINE fits of the simulator's parameters from the logbooks (`*_fit.py`); not on the runtime path |
+| `blade/gui.py`, `*.html`, `*_api.py`, `nav.py` | the web GUI: virtual beamline `/vbl`, sync & loop `/loop`, physics `/physics`, knowledge base `/kb`, beamline twin `/twin` |
+| `blade/registry.py`, `mcp_server.py`, `*/tools.py` | the MCP server (`blade mcp`): every capability is a registered tool - this is how other agents use BLADE |
+| `blade/config.py`, `session.py`, `paths.py`, `cli.py` | profile loader, run record (events/frames/outputs), path configuration, CLI (`gui`, `mcp`, `profiles`) |
+| `beamline_twins/<bl>/` | the machine-readable model of a beamline (elements, PVs, `sim.json`, `control_pv_map.json`, physics notes) + `tools/` (twin check/render, CS-Studio extract, read-only probe) |
+| `knowledge_base/` | OFFLINE tooling that builds the private knowledge base from the logbooks (data lives outside the repo) |
+| `profiles/<name>/default_config.json` | cameras, pixel sizes, per-hutch stations, limits. See `profiles/README.md` |
+| `playbooks/` | what an agent reads: `loop.md`, `virtual_beamline.md`, `alignment.md` (pin), `image_analysis.md` |
+| `tests/` | `python tests/run_all.py` runs everything (simulation / offline only) |
 | `AGENTS.md`, `.context/` | project context for agents (state, decisions, domain notes) |
-| `tests/` | simulator end-to-end test and detection tests |
-| `launch.py` | run from a checkout without installing: `python -I launch.py align ...` |
 
 ## Setup (once per machine)
 
@@ -32,45 +40,31 @@ pip install -e .          # gives the `blade` and `blade-gui` commands; `python 
 **Open the GUI with one command** (no environment activation, no URL to type):
 
 ```
-./blade-gui            # from this folder: starts the GUI and opens the run monitor in your browser
-blade-gui twin         # open the beamline twin viewer instead
+./blade-gui            # from this folder: starts the GUI and opens the virtual beamline in your browser
+blade-gui loop         # open the sync & loop page (also: twin, physics, kb)
 blade-gui --port 8800  # any `blade gui` option works
 ```
 
 To run it from anywhere: `ln -s "$PWD/blade-gui" ~/.local/bin/blade-gui` (once). The script finds the `blade` conda env by itself (or set `BLADE_PYTHON=/path/to/python`; the GUI is stdlib-only, so plain `python3` also works). If a BLADE GUI is already running on that port it just opens it. Ctrl+C stops the server. Inside the activated env, `blade gui --open [--page twin]` and `blade-gui` do the same.
 
-Commands: `blade align <cmd>` (alignment), `blade gui` (monitor on http://localhost:8765; beamline twin viewer with a profile switcher on http://localhost:8765/twin), `blade profiles` (list beamlines). Runs are written to `runs/<id>/` (override with `BLADE_RUNS`).
+Commands: `blade gui` (virtual beamline on http://localhost:8765; also `/loop`, `/twin`, `/physics`, `/kb`), `blade mcp` (the MCP server for agents), `blade profiles` (list beamlines). Runs are written to `runs/<id>/` (override with `BLADE_RUNS`).
 
-## Running on the Sector 1 beamline
+## The loop in practice
 
-1. On the beamline workstation: `conda activate blade`, then start Claude Code in this folder (`claude`). The camera must already be acquiring.
-2. Open http://localhost:8765 in a browser (the agent starts the GUI if it is not running).
-3. Tell the agent (this is the whole prompt):
-
-```
-Start the beam alignment at beamline. You can access hardware.
-```
-
-   Optionally add the camera (`... Use pg1.`; default is `gh1`) or a variation (`... First move the pin 1 mm down.`). That sentence authorises connecting to the hardware; everything else
-   (read the playbook, start the GUI, run `adaptive-align`, retry once on failure, report the result) is in `AGENTS.md` / `playbooks/alignment.md` ("Standard beamline run").
-
-Notes:
-- The camera sets the pixel size (s1id: retiga2 1.0 µm/px, pg5 1.17, gh1 0.69, pg1 1.17). `retiga2` (B hutch) has no PV prefix yet, so it only works in the simulator until one is added to the profile.
-- Equipment protection is always on and is not a confirmation prompt: per-move step limits (larger moves are split), motor soft limits, mm-units check, readback check after every move, rotation limited to ±90°.
-- If the pin is not in the beam, `adaptive-align` calls `find-pin` (searches x then y within ±3 mm / ±2 mm of the start; returns to the start if nothing is found).
-- Every frame is saved in `runs/<id>/raw/` — keep them: they are how detection problems are debugged afterwards.
-- Without the words "at beamline" / "hardware" the agent uses the simulator.
+1. Verify the control<->PV mapping once (`beamline_twins/<bl>/control_pv_map.json`; evidence from `probe_readonly.py` + `blade.loop.mapcheck`). Only verified entries with a numeric transform are used.
+2. On the beamline network, ask an agent: *"take a read-only snapshot and propose the energy/flux settings"* (`loop_real_snapshot`, `loop_propose` over MCP) - or do it from Python (`blade.loop`).
+3. Apply the proposal yourself on the beamline; take the next snapshot.
+No beamline at hand: `loop_dry_run` (or the button on `/loop`) runs the whole cycle on a stand-in simulator with a different hidden truth (the stand-in's score drops from ~17 to ~2).
+See `playbooks/loop.md`.
 
 ## Try it without hardware
 
 ```
-python -I tests/scripted_agent.py            # full alignment on the simulator, ~20 s
-python -I tests/test_detection.py            # detection logic on simulated frames
+python tests/run_all.py                      # every test (simulation / offline), in parallel
+python -I tests/test_loop.py                 # the loop: sync, estimate, closed loop on a stand-in, read-only enforcement
+python -I tests/test_instrument_readonly.py  # the real-beamline reader cannot write (and only verified mappings are used)
+python -I tests/test_pin_alignment.py        # rotation-axis alignment on synthetic frames
 python -I tests/test_identity.py             # pin vs holder/other objects (needs real frames in the knowledge tree, data/)
-python -I tests/test_partial.py              # partly visible pin (needs the same)
-python -I tests/test_cs_registry.py          # twin + profile vs the CS-Studio display registry
-python -I tests/test_edit_api.py             # the guarded GUI editor + the to-verify list
-blade align new-run --profile demo           # the generic simulator-only profile
 ```
 
 ## Code vs knowledge (two isolated trees)
@@ -91,11 +85,11 @@ what resolves where. With nothing configured the fallback is an empty, git-ignor
 
 ## Taking BLADE to another beamline
 
-1. `cp -r profiles/demo profiles/<name>` and fill in `default_config.json` (cameras and PVs, a station per hutch with motors and signs, limits). Details and the checklist: `profiles/README.md`.
-2. Machine-specific overrides go in the git-ignored `profiles/<name>/active_config.json`; a profile folder can also live outside the repo (`BLADE_PROFILES_DIR`). Give the new beamline its own folder in the knowledge tree (`<root>/<twin id>/`) - nothing of another beamline is shared.
-3. Prove it on the simulator (`--profile <name>`), then on hardware with `--backend epics --camera <name>`.
+1. `cp -r profiles/demo profiles/<name>` and fill in `default_config.json` (cameras, a station per hutch, limits). Details: `profiles/README.md`.
+2. Build the beamline twin (`beamline_twins/README.md`): elements, PVs, `sim.json`, and a `control_pv_map.json` whose entries you verify one by one.
+3. Machine-specific overrides go in the git-ignored `profiles/<name>/active_config.json`; give the new beamline its own folder in the knowledge tree (`<root>/<twin id>/`).
 
 ## What a run produces
 
-Everything for one run is in `runs/<id>/`: `events.jsonl`, `state.json` (includes the profile), `frames/` (overlay JPEGs the GUI shows), `outputs/` (the JSON each command printed), `raw/`, `figures/`, `logs/`, `report/`.
+Everything for one run is in `runs/<id>/`: `events.jsonl`, `state.json`, `frames/`, `outputs/`, `raw/`, `figures/`, `logs/`, `report/`; the loop writes `runs/loop/{snapshots,frames,dryrun}/`.
 Only `runs/CURRENT` (a pointer) lives directly in `runs/`.

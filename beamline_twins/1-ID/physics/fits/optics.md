@@ -1,6 +1,6 @@
 # Focusing optics and beam propagation: fits to the logs (2026-11-13)
 
-Code `blade/physics/optics_fit.py`, numbers `optics.json`, test `tests/test_fit_optics.py`. Citations: startup/tables docs by `doc_id:line`; user logs only as "user log <year>".
+Code `blade/calibration/optics_fit.py`, numbers `optics.json`, test `tests/test_fit_optics.py`. Citations: startup/tables docs by `doc_id:line`; user logs only as "user log <year>".
 
 ## 1. Fitted / validated
 

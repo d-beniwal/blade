@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Flux-chain fits (blade/physics/flux_fit.py + beamline_twins/1-ID/physics/fits/flux.json) vs the numbers logged at 1-ID.  No hardware.
+"""Flux-chain fits (blade/calibration/flux_fit.py + beamline_twins/1-ID/physics/fits/flux.json) vs the numbers logged at 1-ID.  No hardware.
 Run: python -I tests/test_fit_flux.py   (xraydb is used only for cross-checks and is skipped when missing)"""
 import json
 import math
@@ -10,7 +10,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from blade.physics import flux_fit as F  # noqa: E402
+from blade.calibration import flux_fit as F  # noqa: E402
 
 J = json.loads((ROOT / "beamline_twins/1-ID/physics/fits/flux.json").read_text())
 PAR, DATA = J["params"], J["data"]

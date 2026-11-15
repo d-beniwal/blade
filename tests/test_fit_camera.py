@@ -1,4 +1,4 @@
-"""Camera / detector fit test (no hardware, no private KB data): blade.physics.camera_fit against its own fitted JSON
+"""Camera / detector fit test (no hardware, no private KB data): blade.calibration.camera_fit against its own fitted JSON
 (beamline_twins/1-ID/physics/fits/camera.json) plus synthetic checks of every model.
 Run: ~/miniconda3/envs/blade/bin/python -I tests/test_fit_camera.py   (numpy only, < 10 s)"""
 import json
@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from blade.physics import camera_fit as cf
+from blade.calibration import camera_fit as cf
 
 J = json.loads((ROOT / "beamline_twins/1-ID/physics/fits/camera.json").read_text())
 FAILS = []

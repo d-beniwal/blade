@@ -1,6 +1,6 @@
 """Capability registry: the ONE place a BLADE capability is declared so that agents can reach it through the MCP server (`blade mcp`).
 
-Every module (blade/<module>/tools.py) declares its tools with `@tool(...)` and its playbook with `playbook(...)`; `blade/mcp_server.py` turns whatever is
+Every module (blade/<package>/tools.py) declares its tools with `@tool(...)` and its playbook with `playbook(...)`; `blade/mcp_server.py` turns whatever is
 registered here into MCP tools/resources, so a new capability is available to agents as soon as its tools.py is listed in MODULES. This file has no MCP
 dependency (tests and the CLI can call `invoke` directly).
 
@@ -13,7 +13,7 @@ import threading
 from dataclasses import dataclass
 from typing import Callable
 
-MODULES = ["core", "alignment", "vbl", "imganalysis"]     # blade.<name>.tools (core: blade/core_tools.py) - add a new capability module here
+MODULES = ["blade.core_tools", "blade.procedures.tools", "blade.analysis.tools", "blade.loop.tools"]     # import paths of the modules that declare tools - add a new capability module here
 
 TOOLS = {}          # name -> Tool
 PLAYBOOKS = {}      # module -> Path of its playbook (markdown)
@@ -49,7 +49,7 @@ def playbook(module, path):
 
 def load_modules():
     for m in MODULES:
-        importlib.import_module("blade.core_tools" if m == "core" else f"blade.{m}.tools")
+        importlib.import_module(m)
     return TOOLS
 
 

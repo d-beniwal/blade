@@ -4,8 +4,7 @@
   "twin": "1-ID",
   "backends": [
     "sim",
-    "vbl",
-    "epics"
+    "vbl"
   ],
   "default_camera": "gh1",
   "default_pixel_um": 1.0,

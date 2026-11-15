@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "blade"
 version = "0.1.0"
-description = "BLADE - Beamline Automation and Device Experiments: agent-driven beamline automation, first module: rotation-axis alignment."
+description = "BLADE - Beamline Automation and Device Experiments: a virtual beamline synced READ-ONLY to the real one, to optimise in simulation and propose changes."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.26", "scipy", "pillow"]
 
 [project.optional-dependencies]
-epics = ["pvapy==5.4.1", "pyepics==3.5.10"]   # real-beamline backend only
+epics = ["pvapy==5.4.1", "pyepics==3.5.10"]   # READ-ONLY reader of the real beamline (blade.instrument.epics); BLADE never commands it
 mcp = ["mcp>=1.2"]                            # `blade mcp` server (agents reach every capability through it)
 physics = ["xraydb==4.5.8"]                   # blade.physics: edges, attenuation, delta (same version as the beamline's mpe_bluesky env; works with numpy 1.26)
 dev = ["h5py", "matplotlib"]                  # tests that read the HDF5 scans
@@ -24,4 +24,4 @@ blade-gui = "blade.cli:gui_main"   # start the GUI and open it in the browser
 include = ["blade*"]
 
 [tool.setuptools.package-data]
-blade = ["gui.html", "twin.html", "vbl.html"]
+blade = ["twin.html", "vbl.html", "kb.html", "physics.html", "loop.html"]

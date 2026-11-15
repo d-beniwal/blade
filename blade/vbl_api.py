@@ -2,7 +2,8 @@
 (runs/vbl/default.json) and never touch hardware. Kept apart from gui.py (which is otherwise read-only)."""
 import threading
 from . import registry
-from .vbl import store, imaging, procedures as P
+from .vbl import store, imaging
+from . import procedures as P
 from .vbl.world import control_specs, CAMERAS
 from .physics import core as pcore
 
@@ -73,15 +74,15 @@ def _scurve(x, a, m, s, c):
     return c + a * 0.5 * (1.0 + erf((x - m) / (s * 2 ** 0.5)))
 
 
-# slit kinds of the tomo-view profile (blade.imganalysis.fitting, ported from areaDetector ADViewers' LiveFitter slit fit). 'bowed' = plateau curved by k1,k2 (real
+# slit kinds of the tomo-view profile (blade.analysis.fitting, ported from areaDetector ADViewers' LiveFitter slit fit). 'bowed' = plateau curved by k1,k2 (real
 # gh1 slit windows have a hot core; the flat/tilted LiveFitter model then gives an edge sigma ~14x too wide), 'flat' = LiveFitter's straight tilt.
 SLIT_KINDS = {"slit_pos": "slit_positive_bowed", "slit_neg": "slit_negative_bowed", "slit_pos_flat": "slit_positive", "slit_neg_flat": "slit_negative"}
 
 
 def _fit_slit(x, y, kind):
-    """Slit fit through blade.imganalysis, returned in the same shape as the legacy gauss/scurve fits plus derived slit values (edges, aperture, edge width)."""
+    """Slit fit through blade.analysis, returned in the same shape as the legacy gauss/scurve fits plus derived slit values (edges, aperture, edge width)."""
     import numpy as np
-    from .imganalysis import fitting as F
+    from .analysis import fitting as F
     r = F.fit(x, y, SLIT_KINDS[kind])
     if not r.get("ok"):
         return {"error": r.get("error", "slit fit failed")}
@@ -192,7 +193,7 @@ def profile(body, session=store.DEFAULT):
     position along the frame (um from its left/top edge), so fitted centres/edges are in detector coordinates. A fit also carries marks_frac: where its centre/edges
     lie on the image (fractions), for the overlay."""
     import numpy as np
-    from .imganalysis import profile as IP
+    from .analysis import profile as IP
     with _LOCK:
         w = store.require(session)
         cam = body.get("camera", "gh1")

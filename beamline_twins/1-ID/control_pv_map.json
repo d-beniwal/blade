@@ -1,0 +1,137 @@
+{
+ "schema": 1,
+ "twin": "1-ID",
+ "note": "Control name (as in the simulator / twin) -> the real PV that reads it back, and the transform real -> sim: sim = scale*raw + offset. RULE (user 2026-11-13, no guessed assignments): an entry is USED by the read-only sync only if status is 'verified' AND scale and offset are numbers. Everything else is listed, read for the report, but never fed into the simulator. Verify by comparing readbacks with the beamline (ask the operator, or `blade.loop.mapcheck`) and set status + transform + note with the evidence; add items to verify.json. There is deliberately NO write direction: BLADE does not command the beamline.",
+ "controls": {
+  "samE.ry": {
+   "pv": "1ide:m9",
+   "field": "RBV",
+   "unit": "deg",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "profiles/s1id stations.E.motors (existence/signs hardware-tested 2026-10-28)",
+   "note": "the sim coordinate and the user coordinate differ by an unknown offset (sim limits are shifted vs the panel limits); see `blade.loop.mapcheck` for evidence from limits"
+  },
+  "samE.x": {
+   "pv": "1ide1:m34",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "profiles/s1id stations.E.motors (existence/signs hardware-tested 2026-10-28)",
+   "note": "the sim coordinate and the user coordinate differ by an unknown offset (sim limits are shifted vs the panel limits); see `blade.loop.mapcheck` for evidence from limits"
+  },
+  "samE.y": {
+   "pv": "1ide1:m35",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "profiles/s1id stations.E.motors (existence/signs hardware-tested 2026-10-28)",
+   "note": "the sim coordinate and the user coordinate differ by an unknown offset (sim limits are shifted vs the panel limits); see `blade.loop.mapcheck` for evidence from limits"
+  },
+  "samE.z": {
+   "pv": "1ide1:m36",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "profiles/s1id stations.E.motors (existence/signs hardware-tested 2026-10-28)",
+   "note": "the sim coordinate and the user coordinate differ by an unknown offset (sim limits are shifted vs the panel limits); see `blade.loop.mapcheck` for evidence from limits"
+  },
+  "samE.aerox": {
+   "pv": "1ide1:m101",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "profiles/s1id stations.E.motors (existence/signs hardware-tested 2026-10-28)",
+   "note": "the sim coordinate and the user coordinate differ by an unknown offset (sim limits are shifted vs the panel limits); see `blade.loop.mapcheck` for evidence from limits"
+  },
+  "tomoE.x": {
+   "pv": "1ide1:m63",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.gh1.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoE.y": {
+   "pv": "1ide1:m40",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.gh1.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoEds.x": {
+   "pv": "1ide1:m111",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.pg1.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoEds.y": {
+   "pv": "1ide1:m112",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.pg1.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoC.x": {
+   "pv": "1idc:m79",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.pg5.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoC.y": {
+   "pv": "1idc:m84",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.pg5.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoB.x": {
+   "pv": "1idb:m52",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.retiga2.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  },
+  "tomoB.y": {
+   "pv": "1idb:m40",
+   "field": "RBV",
+   "unit": "mm",
+   "status": "unverified",
+   "scale": null,
+   "offset": null,
+   "source": "beamline_twins/1-ID/sim.json cameras.retiga2.stage_xy_pv (from mpe_bluesky)",
+   "note": "not checked against the CS-Studio display; sign and zero (operators zero the stage on the hotspot) unknown"
+  }
+ }
+}

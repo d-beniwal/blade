@@ -1,6 +1,6 @@
 # Flux chain fits (WB slits, ion chambers, attenuators, flux vs energy, fast shutter, steering) - 2026-11-13
 
-Code `blade/physics/flux_fit.py` (numpy only), parameters + every data table in `flux.json`, test `tests/test_fit_flux.py`. Citations: `doc_id:line` for startup/tables
+Code `blade/calibration/flux_fit.py` (numpy only), parameters + every data table in `flux.json`, test `tests/test_fit_flux.py`. Citations: `doc_id:line` for startup/tables
 records, `user log <year>` for user records. Nothing in `sim.json`, `blade/vbl/*` or the older docs was changed; "sim says" below is a pointer for whoever adopts the fits.
 
 ## 1. Fitted / validated

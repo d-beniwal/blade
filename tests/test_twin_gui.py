@@ -32,7 +32,7 @@ import re
 themes = set(re.findall(rb":root\[data-theme=([a-z]+)\]", body))
 assert {b"light", b"dark", b"midnight", b"paper", b"contrast"} <= themes, themes     # every selectable theme has a CSS block
 st, _, body = get("/")
-assert st == 200 and b'href="/twin"' in body                       # the monitor links to the twin viewer
+assert st == 200 and b'href="/twin"' in body                       # the ribbon links to the twin viewer
 
 L = json.loads(get("/api/profiles")[2])
 names = {p["name"]: p for p in L["profiles"]}

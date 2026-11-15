@@ -8,7 +8,7 @@ from .paths import RUNS_DIR
 
 @tool("core", needs_run=False)
 def list_profiles() -> dict:
-    """List beamline profiles with their stations (hutches), cameras and enabled backends. Call first to learn what can be run."""
+    """List beamline profiles with their stations (hutches), cameras and simulator backends. Call first to learn what can be run."""
     out = {}
     for n in cfg.profiles():
         p = json.loads((cfg.profile_dir(n) / "default_config.json").read_text())
@@ -17,10 +17,10 @@ def list_profiles() -> dict:
     return {"default": cfg.PROFILE, "profiles": out}
 
 
-@tool("core", moves=True, needs_run=False)
+@tool("core", needs_run=False)
 def new_run(profile: str | None = None, station: str | None = None, backend: str = "sim", camera: str | None = None, seed: int = 0) -> dict:
-    """Start a new run (becomes the current run). backend='sim' (default) is the simulator; backend='epics' connects to the REAL beamline and must be used
-    only when the user said they are on the beamline and authorised hardware access. `station` is the hutch whose motors/geometry apply (default: the
+    """Start a new run (becomes the current run) on a SIMULATED instrument: backend='sim' (default) = a private simulator, 'vbl' = the shared virtual-beamline session.
+    backend='epics' is REFUSED: BLADE does not command the real beamline (read-only phase). `station` is the hutch whose motors/geometry apply (default: the
     profile's default_station); `camera` is a camera name from the profile (e.g. gh1)."""
     run = Run.create(backend, seed, None, camera, profile, station)
     return {"run": run.dir.name, "dir": str(run.dir), "profile": cfg.PROFILE, "station": cfg.STATION, "beamline": cfg.BEAMLINE,

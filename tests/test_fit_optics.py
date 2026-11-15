@@ -1,4 +1,4 @@
-"""Fitted focusing-optics models (blade.physics.optics_fit): reproduce the logged tuples they were fitted on, agree with the JSON, and agree with
+"""Fitted focusing-optics models (blade.calibration.optics_fit): reproduce the logged tuples they were fitted on, agree with the JSON, and agree with
 blade.vbl's penumbra. No hardware. Run: python -I tests/test_fit_optics.py   (vbl cross-check needs numpy/scipy; skipped if missing)"""
 import json
 import math
@@ -7,7 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from blade.physics import optics_fit as O, lens as L
+from blade.calibration import optics_fit as O
+from blade.physics import lens as L
 
 close = lambda a, b, tol: abs(a - b) <= tol
 J = json.load(open(ROOT / "beamline_twins/1-ID/physics/fits/optics.json"))

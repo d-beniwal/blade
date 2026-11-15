@@ -45,10 +45,16 @@ AUX = {"IOCs", "Preamps", "Scaler", "Keyence", "Temperature", "Furnace", "SoftGl
 KNOWN_CONFLICTS = [
     {"what": "fast shutter E: display labels FS_X = 1ide1:m75, FS_Y = 1ide1:m77; log-panel motor descriptions 'FS2X E' = m77, 'FS2Y E' = m75 and mpe_bluesky x_pv m77 / y_pv m75",
      "kept": "m77 = x, m75 = y (descriptions + code)"},
-    {"what": "LabMotion SMS (C): display labels m25 samZ, m27 samX; log-panel descriptions samXC = m25, samZC = m27 and mpe_bluesky x = m25, z = m27",
+    {"what": "LabMotion SMS (C): display labels m25 samZ, m27 samX; log-panel descriptions samXC = m25, samZC = m27, mpe_bluesky x = m25, z = m27 and the NeXus metadata map (HR samX = m25, samZ = m27)",
      "kept": "x = m25, z = m27 (descriptions + code); y = m26 on display and logs (mpe_bluesky says 1idGalil1:m1)"},
-    {"what": "1idc:m31: display label LabMotion_TransX / Trans_X, log-panel description 'rotXC'", "kept": "role left open"},
+    {"what": "1idc:m31: display label LabMotion_TransX / Trans_X, log-panel description 'rotXC' and NeXus metadata map 'HR RotX = m31'", "kept": "role left open"},
     {"what": "Hydra D4 z: display opens P=1idc: M=m7 (Hydra_D4); mpe_bluesky has 1ide1:m7; not seen on the log panels", "kept": "1idc:m7 (display; explicit PV)"},
+    {"what": "HEM axes 1idHEM:m1,m4,m7,m8: display widget names (HEM_control_1id.bob) m1 = Z2Aero, m4 = Chi2, m8 = Th1, m7 = Th2 (m5 = X2, m6 = Y2); NeXus metadata map (1ide_metadata_devices_pvs.csv, 1id_instr_attributes_trans.xml) m1 = Th1, m4 = Th2, m8 = Z2, m7 = Chi2; Sep-Nov 2026 log panels: m1 'Th1 rotY1 (C1)', m4 'Th2 rotY2 (C2)', m8 'Z2' (reads 412-748 mm), m7 'Roll 2 Coarse'; the 20-ID transform record's input 'Current Th1' = 20idHEM:m1.RBV",
+     "kept": "roles left open; metadata map + logs + 20-ID record agree with each other, the display widget names do not"},
+    {"what": "HEM motor PVs changed over time: logs 2024-2026-02 show Th1 1ida:m11 then 1ida:m30, Th2 1ida:m13 then 1ida:m32, Chi2 1ida:m17, Z2 Aero 1idsft1:m1; logs from 2026-09-23 show 1idHEM:m1/m4/m7/m8; the IOC Control list still has 'HEM_Z2' = 1idsft1:", "kept": "twin uses the current 1idHEM set; old PVs not attached"},
+    {"what": "Lens L1 (C) rotations: display C_L1 labels m102 = Rz (Chi), m104 = Rx (Theta); mpe_bluesky, log panels and the NeXus metadata map (LensRX = m102, LensRZ = m104) say m102 = Rx (theta), m104 = Rz (chi)", "kept": "roles left open"},
+    {"what": "E HL-SMS: NeXus metadata map has HL RotX = 1ide1:m9 (display: MTS_X2), HL samY = 1ide1:m10 (not on display), HL samY2 = 1idcAMCI:m16 (hutch-C AMCI IOC); 1ide:m9 (Aero Rot, omega) and 1ide1:m9 share a motor number", "kept": "not attached to the twin"},
+    {"what": "C four-circle: display circles unnamed; NeXus metadata map names th = 1idc:m74, phi = 1idc:m75, tth = 1idc:m85, chi = 1idc:m88 (not on display), RotX = 1idc:m76, RotY1-3/RotZ1-2 = 1idcAMCI:m6,m2,m3,m4,m5; 1idc:m40 and m86 have no name anywhere", "kept": "roles left open (candidates only)"},
     {"what": "d2E in mpe_bluesky (P=1ide1:, x m103, z m50, shield m47) uses the D3 'GE_X/GE_Z in E' stage and the Tomo D1 shielding motor, not the NF D2 axes", "kept": "twin follows the display"},
 ]
 

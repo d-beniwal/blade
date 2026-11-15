@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "note": "Flux-chain fits (WB slits, ion chambers, attenuators, flux vs energy, fast shutter, steering/BPM) from the 1-ID logs; produced 2026-11-13 by the flux-chain modelling pass. 'params' feeds blade/physics/flux_fit.py; 'data' holds every table used. user-log entries are cited as 'user log <year>' only.",
+ "note": "Flux-chain fits (WB slits, ion chambers, attenuators, flux vs energy, fast shutter, steering/BPM) from the 1-ID logs; produced 2026-11-13 by the flux-chain modelling pass. 'params' feeds blade/calibration/flux_fit.py; 'data' holds every table used. user-log entries are cited as 'user log <year>' only.",
  "params": {
   "wb_sigma_mm": {
    "value": 0.1472,
@@ -1249,6 +1249,6 @@
     "src": "startup + user logs 2025-26 (71.7 and 80.7 keV)"
    }
   },
-  "gas_assumption": "IC gas and length are not recorded in any log: the IC energy response cannot be separated from the photon-flux trend; N2/Ar/He tables in blade/physics/flux_fit.py are for what-if use only"
+  "gas_assumption": "IC gas and length are not recorded in any log: the IC energy response cannot be separated from the photon-flux trend; N2/Ar/He tables in blade/calibration/flux_fit.py are for what-if use only"
  }
 }

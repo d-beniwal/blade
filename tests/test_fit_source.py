@@ -1,4 +1,4 @@
-"""Source-fit test (no hardware): blade.physics.source_fit reproduces the logged gap/energy/current points stored in
+"""Source-fit test (no hardware): blade.calibration.source_fit reproduces the logged gap/energy/current points stored in
 beamline_twins/1-ID/physics/fits/source.json within the residuals stated there.
 Run: ~/miniconda3/envs/blade/bin/python -I tests/test_fit_source.py"""
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from blade.physics import source_fit as S   # noqa: E402
+from blade.calibration import source_fit as S   # noqa: E402
 
 J = json.loads((ROOT / "beamline_twins/1-ID/physics/fits/source.json").read_text())
 fails = []

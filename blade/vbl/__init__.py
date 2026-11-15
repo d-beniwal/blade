@@ -2,8 +2,8 @@
 
   world       VirtualBeamline: controls, hidden truth, ray optics, flux, mono/undulator, ICs   (what changes when a setting changes)
   imaging     tomo-camera frames: beam, slit edges (penumbra + Fresnel), pin, textures        (what the camera shows)
-  procedures  operator scans/measurements + the start-of-beamtime sequence + truth scoring    (how the beamline is aligned)
-  store       persistent session shared by the MCP tools, CLI and GUI (runs/vbl/state.json)
-  tools       MCP tools (registered through blade.registry)
+  readiness   truth scoring of a state (tests/scoring only)
+  store       persistent session shared by the MCP tools and the GUI (runs/vbl/<session>.json)
+The operator procedures that act on it live in blade/procedures (through the Instrument interface, blade/instrument), the MCP tools in blade/procedures/tools.py.
 """
 from .world import VirtualBeamline, control_specs  # noqa: F401

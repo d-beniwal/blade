@@ -1,6 +1,6 @@
 # Monochromator + energy-calibration fits (1-ID, built 2026-11-13)
 
-Code `blade/physics/mono_fit.py`, parameters + data tables `fits/mono.json`, test `tests/test_fit_mono.py`. Data: 43 distinct E_scan fit blocks (2022-2026, 13 elements) and 129 Emon readings in the knowledge base (`lines` table; regex on `b/dif/pos/wid = x +/- err` and on the Emon printout). Startup logs are cited `doc_id:line`, experiment logs only as "user log <year>" (JSON `prov`).
+Code `blade/calibration/mono_fit.py`, parameters + data tables `fits/mono.json`, test `tests/test_fit_mono.py`. Data: 43 distinct E_scan fit blocks (2022-2026, 13 elements) and 129 Emon readings in the knowledge base (`lines` table; regex on `b/dif/pos/wid = x +/- err` and on the Emon printout). Startup logs are cited `doc_id:line`, experiment logs only as "user log <year>" (JSON `prov`).
 Convention: `off_eV` = HEM readback at the true edge minus the xraydb edge (negative = readback low); `th1_err_mdeg = -off_eV/|dE/dTh1|` (true minus set Th1 offset). 1 mdeg = 24 / 45 / 72 eV at 52 / 71.7 / 90.5 keV.
 
 ## FITTED / VALIDATED

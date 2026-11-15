@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # One-command launcher for the BLADE GUI: no conda activation, no URL to type.
-#   blade-gui              start the GUI and open the run monitor in your browser (if one is already running, just opens it)
+#   blade-gui              start the GUI and open the virtual beamline in your browser (if one is already running, just opens it)
 #   blade-gui twin         ... open the beamline twin viewer instead
-#   blade-gui vbl          ... open the VIRTUAL BEAMLINE (simulated 1-ID control room: tomo camera, slits, energy/flux, pin)
+#   blade-gui vbl          ... same (the default): the VIRTUAL BEAMLINE (simulated 1-ID control room: tomo camera, slits, energy/flux, pin)
 #   blade-gui physics      ... open the PHYSICS MODELS page of the virtual beamline (equations, live parameters, curves)
 #   blade-gui kb           ... open the KNOWLEDGE BASE viewer (procedures, labelled log images, log text; needs the knowledge tree, see `python -m blade.paths`)
 #   blade-gui --port 8800  other port (any `blade gui` option works)

@@ -4,7 +4,7 @@ os.environ["BLADE_RUNS"] = tempfile.mkdtemp()          # vbl sessions stay out o
 from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from blade.imganalysis import fitting as F, profile as P
+from blade.analysis import fitting as F, profile as P
 ROOT = Path(__file__).resolve().parents[1]
 from blade import registry
 

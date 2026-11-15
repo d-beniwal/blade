@@ -67,6 +67,7 @@ class VirtualBeamline:
         self.z = {k: v for k, v in self.sim["z_m"].items() if not k.startswith("_")}
         self.cams = _profile_cameras()
         self.last_meta = {}
+        self.noise_scale = 1.0          # 0 = noiseless read-outs (the estimator predicts with a noiseless copy); not part of the state
         if state is None:
             state = self._new_state(seed, scenario)
         self.s = state
@@ -269,22 +270,15 @@ class VirtualBeamline:
         return self.ctl("und.gap") + self.s["gap_hyst"]
 
     def und_coef(self):
-        """Field coefficients (a, b, c) of the undulator K(gap) model: sim.json `undulator.k_coef` (fitted to the logs) or the module default."""
-        k = self.sim["undulator"].get("k_coef")
-        return tuple(k) if k else pund.HALBACH_HYBRID_NDFEB
+        """Field coefficients (a, b, c) of the undulator K(gap) model (see blade.physics.undulator.coef_from_sim)."""
+        return pund.coef_from_sim(self.sim)
 
     def harmonics(self):
-        u = self.sim["undulator"]
-        return [int(n) for n in (u["flux_model"]["harmonics"] if u.get("flux_model") else u["harmonic_amplitude"])]
+        return pund.harmonics_from_sim(self.sim)
 
     def harm_amp(self, n, gap):
-        """Relative peak flux of harmonic n with the (true) gap `gap`: the Bessel flux factor of the undulator at that K (log-calibrated, see
-        blade.physics.undulator.harmonic_amplitude) when sim.json has `flux_model`, else the old constant per harmonic."""
-        u = self.sim["undulator"]
-        fm = u.get("flux_model")
-        if fm:
-            return pund.harmonic_amplitude(int(n), gap, u["period_mm"], fm["exponent"], coef=self.und_coef())
-        return u["harmonic_amplitude"][str(int(n))]
+        """Relative peak flux of harmonic n at the (true) gap `gap` (see blade.physics.undulator.harm_amp_from_sim)."""
+        return pund.harm_amp_from_sim(self.sim, n, gap)
 
     def harmonic_peaks(self, E_keV=None, gap=None):
         """[(n, E_n(gap))] of the undulator at the (true) gap."""
@@ -559,7 +553,7 @@ class VirtualBeamline:
         rate = ics["ref_kHz_at_icB1"] * self.flux_at(z) / self.ref_flux() * self.flux_energy_factor()
         dark = ics.get("dark_kHz_by_ic", {}).get(ic, ics["dark_kHz"])
         rng = np.random.default_rng(stable_seed(self.s["seed"], self.s["n_acq"], ic, round(self.s["t_s"])))
-        rate = rate * (1.0 + rng.normal(0, 0.004)) + dark * (1 + rng.normal(0, 0.05))
+        rate = rate * (1.0 + rng.normal(0, 0.004) * self.noise_scale) + dark * (1 + rng.normal(0, 0.05) * self.noise_scale)
         return float(min(rate, ics["max_kHz"]))
 
     def mu_t(self):
@@ -652,7 +646,7 @@ class VirtualBeamline:
 
     def truth_report(self):
         """THE ANSWERS (hidden truth vs current settings) - for tests, scoring and debugging, not for the operator/agent."""
-        from .procedures import readiness
+        from .readiness import readiness
         return readiness(self)
 
 

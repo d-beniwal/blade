@@ -1,6 +1,6 @@
 # Source (undulator + ring) fits for the virtual beamline
 
-Code `blade/physics/source_fit.py`, constants `source.json`, test `tests/test_fit_source.py`. Built 2026-11-13 from the knowledge base only (no hardware). Citations: startup/tables documents as `doc_id:line`, user logs as `user log <year>`.
+Code `blade/calibration/source_fit.py`, constants `source.json`, test `tests/test_fit_source.py`. Built 2026-11-13 from the knowledge base only (no hardware). Citations: startup/tables documents as `doc_id:line`, user logs as `user log <year>`.
 
 ## Fitted
 

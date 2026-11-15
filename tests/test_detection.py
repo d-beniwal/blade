@@ -1,12 +1,13 @@
-"""Detection checks on simulated frames (no hardware): beam centre ignores the pin; pin validity / view state / hints.
+"""Detection checks on synthetic pin frames (tests/synthetic_pin.py; no hardware): beam centre ignores the pin; pin validity / view state / hints.
 Usage: python -I tests/test_detection.py"""
 import sys
 sys.dont_write_bytecode = True
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from blade.backends.sim import SimInstrument  # noqa: E402
-from blade.alignment import measure as M  # noqa: E402
-from blade.alignment import beam_center as bc  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from synthetic_pin import SyntheticPin as SimInstrument  # noqa: E402
+from blade.analysis.pin import measure as M  # noqa: E402
+from blade.analysis.pin import beam_center as bc  # noqa: E402
 
 fails = []
 

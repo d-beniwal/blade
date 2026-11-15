@@ -1,5 +1,4 @@
-"""BLADE command line.   blade align <cmd> ...   alignment module (see playbooks/alignment.md; every command prints JSON)
-                       blade gui [--port N] [--open [--page monitor|twin|vbl|kb|physics]]   web GUI: run monitor, beamline twin (/twin), virtual beamline (/vbl, simulated), knowledge base (/kb)
+"""BLADE command line.   blade gui [--port N] [--open [--page vbl|twin|kb|physics]]   web GUI: beamline twin (/twin), virtual beamline (/vbl, simulated), knowledge base (/kb)
                        blade mcp [--http]        MCP server exposing every BLADE capability to agents (stdio; --http = streamable-http)
                        blade profiles            list beamline profiles (profiles/<name>/default_config.json)"""
 import sys
@@ -9,13 +8,10 @@ from . import __version__
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     cmd = argv[0] if argv else ""
-    if cmd == "align":
-        from .alignment.cli import main as align_main
-        return align_main(argv[1:])
     if cmd == "gui":
         from .gui import serve
         port = int(argv[argv.index("--port") + 1]) if "--port" in argv else 8765
-        page = argv[argv.index("--page") + 1] if "--page" in argv else "monitor"
+        page = argv[argv.index("--page") + 1] if "--page" in argv else "vbl"
         return serve(port, page if "--open" in argv else None)
     if cmd == "mcp":
         from .mcp_server import serve

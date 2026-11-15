@@ -81,3 +81,24 @@ def fit_period_mm(points, ring_GeV=RING_GEV, coef=HALBACH_HYBRID_NDFEB, lo=14.0,
         w = (b - a) / steps * 5
         a, b = best - w, best + w
     return best, cost(best)
+
+
+# -- helpers that read the undulator section of the twin's sim.json (static machine knowledge; used by the simulator AND by procedures on any instrument) --
+def coef_from_sim(sim):
+    """Field coefficients (a, b, c) of the K(gap) model: sim.json `undulator.k_coef` (fitted to the logs) or the module default."""
+    k = sim["undulator"].get("k_coef")
+    return tuple(k) if k else HALBACH_HYBRID_NDFEB
+
+
+def harmonics_from_sim(sim):
+    u = sim["undulator"]
+    return [int(n) for n in (u["flux_model"]["harmonics"] if u.get("flux_model") else u["harmonic_amplitude"])]
+
+
+def harm_amp_from_sim(sim, n, gap):
+    """Relative peak flux of harmonic n at gap `gap`: the Bessel flux factor (log-calibrated) when sim.json has `flux_model`, else a constant per harmonic."""
+    u = sim["undulator"]
+    fm = u.get("flux_model")
+    if fm:
+        return harmonic_amplitude(int(n), gap, u["period_mm"], fm["exponent"], coef=coef_from_sim(sim))
+    return u["harmonic_amplitude"][str(int(n))]

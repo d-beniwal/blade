@@ -1,4 +1,4 @@
-"""MCP server test (simulator only): every registered tool is exposed, and a full alignment can be driven through the MCP protocol.
+"""MCP server test (simulator only): every registered tool is exposed, a measurement can be driven through the MCP protocol, and the real beamline is refused.
 Run: python -I tests/test_mcp.py   (needs `mcp`; the registry part runs without it)"""
 import asyncio, json, os, sys, tempfile
 from pathlib import Path
@@ -10,9 +10,14 @@ from blade import registry
 tools = registry.load_modules()
 assert {"new_run", "run_status", "align_adaptive", "align_measure", "align_move"} <= set(tools), set(tools)
 r = registry.invoke("new_run", backend="sim")
-res = registry.invoke("align_adaptive")
-assert res.get("ok") is not False, res
-print("PASS registry: adaptive alignment via invoke -> ok, converged:", res["final"]["converged"])
+res = registry.invoke("align_measure", omega=0)
+assert "view" in res and "beam" in res, res
+try:
+    registry.invoke("new_run", backend="epics")
+    raise SystemExit("FAIL: the real-beamline backend must be refused (read-only phase)")
+except PermissionError:
+    pass
+print("PASS registry: new_run + align_measure on the simulator; backend 'epics' refused")
 
 try:
     from mcp import ClientSession, StdioServerParameters
@@ -32,8 +37,10 @@ async def main():
             assert "alignment" in str(pb).lower()
             out = await s.call_tool("new_run", {"backend": "sim"})
             assert not (getattr(out, "is_error", None) or getattr(out, "isError", None)), out
-            out = await s.call_tool("align_adaptive", {})
+            out = await s.call_tool("align_measure", {"omega": 0})
             assert not (getattr(out, "is_error", None) or getattr(out, "isError", None)), out
-            print("PASS protocol: %d tools, playbook resource, adaptive alignment over MCP" % len(names))
+            out = await s.call_tool("new_run", {"backend": "epics"})
+            assert getattr(out, "is_error", None) or getattr(out, "isError", None), "epics backend must be refused"
+            print("PASS protocol: %d tools, playbook resource, measurement over MCP, epics refused" % len(names))
 asyncio.run(main())
 print("ALL OK")

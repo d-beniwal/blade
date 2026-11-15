@@ -123,10 +123,10 @@
     "hem"
    ],
    "physical_effect": "The second crystal slides along the beam to keep a constant exit offset.",
-   "formula": "Z2 = D/tan(2 theta_B), D = 32.91 mm",
+   "formula": "Z2 = 33.3417/tan(2 theta_B) - 7.4407 mm (fitted 2026-11-13; the earlier fixed-exit form Z2 = D/tan(2 theta_B), D = 32.91 mm misses by up to 3.5 mm)",
    "function": "blade.physics.core.hem_z2_mm",
    "sensitivity": "Z2 595.9 mm at 71.7 keV, 431.9 at 52, 831.8 at 100",
-   "typical": "D constant to 0.7% over 51-90 keV, 2022-2025",
+   "typical": "fit residual 0.3 um rms (max 0.7 um), 21 distinct (E, Z2) pairs, 51.9-100 keV, 2022-2026 (physics/12_panel_facts.md 12.2); the legacy D form was constant only to 0.7% over 51-90 keV",
    "evidence": [
     "S23 screenshots",
     "O22:L60",
@@ -134,7 +134,7 @@
     "S25b screenshots"
    ],
    "confidence": "model validated vs logs",
-   "caveats": "derived by this project from log values, not a drawing"
+   "caveats": "empirical fit of the userTran3 Z2 output, not a drawing; the old constant-exit form is kept selectable in core.hem_z2_mm via offset_mm"
   },
   {
    "id": "hem_offset_to_energy",
@@ -413,7 +413,7 @@
    ],
    "physical_effect": "Pin column vs omega is a sinusoid; x cancels a, z cancels b, Aero X moves c (axis column).",
    "formula": "x(w) = c + a cos w + b sin w",
-   "function": "blade.alignment.axis_align",
+   "function": "blade.analysis.pin.axis_align",
    "sensitivity": "Aero X -1431 px/mm on GH1",
    "typical": "aeroXE -2.426 mm after APS-U",
    "evidence": [

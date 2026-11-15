@@ -202,7 +202,7 @@ Lasers (cs04): US Laser, Mid Laser, DS Laser, Wall Laser.
 | `d2E` | E | NF D2 |  | retractable | seen | Near-field detector. Retractable placement inferred from the panel layout (see tomoE). Motors = the eight of the NF_D2 panel (CS-Studio disp |
 | `d3` | E | D3 |  | in_line | seen | Shared position: ONE of GE5, Pilatus 2M or Eiger16M is mounted at D3 at any time (user 2026-11-12). Which one is installed varies by experim |
 | `hydra` | E | Hydra D4 |  | in_line | seen | Hydra D4 z motor is 1idc:m7 per the CS-Studio display (button opens motorx_more2 with P=1idc:, title Hydra_D4); mpe_bluesky has 1ide1:m7 - t |
-| `vff` | E | VFF D5 |  | in_line | seen | pg1 may be the camera of VFF D5 or of the Radiograph (user, unconfirmed). |
+| `vff` | E | VFF D5 |  | in_line | seen | pg1 is the camera of the Radiograph stage per the CS-Studio display (README 2026-11-13); an earlier user remark that it may belong to VFF D5 |
 | `radiograph` | E | Radiograph |  | in_line | seen | Radiograph detector on tall aluminium columns (label 'Rad Grph' in p09). A monitor in hutch E shows its live image (p09, p10): a conical pin |
 | `saxs` | E | SAXS D6 |  | in_line | seen | cs05 lists 'SAXS (s1_pixirad2:)' under Detector(E): the SAXS D6 detector is a Pixirad (IOC s1_pixirad2:). |
 

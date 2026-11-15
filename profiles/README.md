@@ -9,13 +9,13 @@ station `E` (samE stage); another hutch with different motors/geometry is added 
 `--station <S>` on `new-run` (stored in the run), or `BLADE_STATION`; default `default_station`. Cameras stay beamline-level and name their `hutch`.
 Limits, tolerances and pin shape are still shared by all stations of a profile; move them under a station if a hutch needs different values.
 
-Select a profile with `--profile <name>` on `blade align new-run` (stored in the run afterwards), or `BLADE_PROFILE=<name>`; default `s1id`.
+Select a profile with `--profile <name>` on `new_run` (stored in the run afterwards), or `BLADE_PROFILE=<name>`; default `s1id`.
 `blade profiles` lists what is available.
 
 | Section | Meaning |
 |---|---|
 | `beamline`, `description` | labels shown in the GUI |
-| `backends` | `sim`, `vbl` (virtual beamline built on the twin: needs `twin` and a `beamline_twins/<bl>/sim.json`) and/or `epics` (real hardware) |
+| `backends` | `sim` (private simulator per run) and/or `vbl` (the shared virtual-beamline session: needs `twin` and a `beamline_twins/<bl>/sim.json`). There is no hardware backend: BLADE does not command the beamline; the read-only reader is `blade/instrument/epics.py` |
 | `twin` | optional: id of the beamline twin (`beamline_twins/<id>/`) the GUI's twin viewer (`/twin`) shows for this profile; omit if there is none |
 | `cameras` | per camera: `pixel_um`, `pv_prefix` (pvAccess `<prefix><camera_pva_suffix>`; `null` = simulator only), `hutch`; `default_camera` |
 | `stations` | **per hutch/station** (key = hutch, e.g. `E`): `description`, `motors`, `geometry` (below). `default_station` picks one |
@@ -27,7 +27,7 @@ Select a profile with `--profile <name>` on `blade align new-run` (stored in the
 | `procedure` | fast-align steps, default sweep angles, whether to save raw frames |
 
 ## Adding a beamline
-1. `cp -r profiles/demo profiles/<name>`, edit `default_config.json` (rename/edit the one station; set `backends` to include `epics` only once PVs are filled in).
-2. Check each sign in `geometry` with one small test move on the real stage (`blade align move`); a wrong sign is also caught by the shrink guard in `adaptive-align`.
-3. Run on the simulator first (`blade align new-run --profile <name>`), then with `--backend epics --camera <name>`.
-The alignment module assumes the *rotation stage + cone-shaped pin on a tomo camera* arrangement; other arrangements need a new module under `blade/` (see `AGENTS.md`).
+1. `cp -r profiles/demo profiles/<name>`, edit `default_config.json` (rename/edit the one station).
+2. Build its twin and `control_pv_map.json` (`beamline_twins/README.md`); a sign in `geometry` is only a sign - confirm it against the real stage when someone is at the beamline.
+3. Run on the simulator (`new_run(profile=<name>)`).
+The pin-alignment procedure assumes the *rotation stage + cone-shaped pin on a tomo camera* arrangement; other arrangements need a new procedure under `blade/procedures/` (see `AGENTS.md`).

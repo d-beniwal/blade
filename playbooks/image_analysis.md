@@ -1,6 +1,6 @@
-# Image / profile analysis (module `imganalysis`)
+# Image / profile analysis (module `analysis`)
 
-Read-only tools (MCP: `analysis_*`, resource `blade://playbook/imganalysis`). Ported from the areaDetector ADViewers ImageJ plugins
+Read-only tools (MCP: `analysis_*`, resource `blade://playbook/analysis`). Ported from the areaDetector ADViewers ImageJ plugins
 (`Gaussian_Profiler`: live Gaussian fit for focusing/beam diagnostics; `LiveFitter_EPICSUserCalc`: any fit + slit aperture fit). Code: `blade/imganalysis/`.
 
 1. `analysis_list_models` - catalogue (parameter names and formulas).
@@ -26,4 +26,4 @@ instead of ImageJ's simplex and its 4-try retry loop. EPICS userCalc output, Ima
 "vertical"; switch with the two buttons in that card), with a *fit* menu (default auto = BIC over Gaussian, S-curve, slit window/blocker bowed). A slit fit reports both
 edges, aperture, edge 10-90 % width and plateau bow, marks the edges on the plot and as circles on the image. Positions are um from the frame's left/top edge. One *live*
 checkbox refreshes the frame, the axes and the box profile together. Backend: `vbl_api.profile` (box + direction + fit) and `vbl_api.fit_profile`, which calls
-`blade.imganalysis.fitting`; the old line-profile tool (lines, width, "profile" and "follow live" buttons) was removed.
+`blade.analysis.fitting`; the old line-profile tool (lines, width, "profile" and "follow live" buttons) was removed.

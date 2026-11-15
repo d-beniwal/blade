@@ -19,7 +19,7 @@ The **virtual beamline** (`blade.vbl`, tools `vbl_*`, page `blade-gui vbl`) is t
 | re-peak flux (gap, Th2), re-check energy | as above | icB1, mu_t | back at the reference |
 | Kohzu slits on the hotspot | `vbl_align_slit` (E US, E DS; also C, B), `vbl_slit_ic_scan` for a coarse start | slit image on the frame centre | shifts < 10 um |
 | lenses (hutch E): put one in (x = 0), tilt to focus | `vbl_lens_scan`, prediction in the result | footprint size | narrowest line |
-| rotation axis with the pin | `new_run(backend='vbl', camera='gh1')`, then `align_adaptive` (see `playbooks/alignment.md`) | pin column vs omega | a, b < 1 px; c on the beam |
+| rotation axis with the pin | `new_run(backend='vbl', camera='gh1')`, then `align_adaptive` (see `playbooks/alignment.md`; KNOWN OPEN: does not converge on the textured vbl frames) | pin column vs omega | a, b < 1 px; c on the beam |
 Re-peak after ANY change of WB size, gap, steering or after a long wait: the first mono crystal warms (Th2 optimum shifts, time constant ~7 min of virtual time).
 
 ## What the images tell you (rules the renderer follows)
@@ -31,4 +31,4 @@ Re-peak after ANY change of WB size, gap, steering or after a long wait: the fir
 ## Rules and honesty
 - The truth is hidden. `vbl_readiness` reveals it (scoring only, e.g. to judge a finished run); do not use it to steer.
 - Distances not in the twin are ASSUMED (see `beamline_twins/1-ID/sim.json`); the Th2 rocking width, steering gain, source size and blade properties are assumptions too, tagged there. Real beamline behaviour wins over the simulator when they differ: update `sim.json`.
-- Add a new simulated effect as a function in `blade/vbl/` plus a `vbl_*` tool in `tools.py` (the MCP rule in `AGENTS.md` applies).
+- Add a new simulated effect as a function in `blade/vbl/`, a procedure that uses it in `blade/procedures/` (through the `Instrument` interface), and a `vbl_*` tool in `blade/procedures/tools.py` (the MCP rule in `AGENTS.md` applies).

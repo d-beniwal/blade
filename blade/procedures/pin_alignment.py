@@ -1,27 +1,57 @@
-"""BLADE alignment module - command-line tools for the agent (`blade align <cmd>`). Every command prints one JSON object (stdout) and appends events the GUI shows live.
-The agent decides what to run next; nothing here decides or loops on its own, except the explicit `sweep`/`calibrate` helpers.
-Backends: sim (default), vbl (virtual beamline, simulation) or epics (real beamline, when the user says so; see backends.get_backend)."""
-import argparse
-import json
-import sys
+"""Rotation-axis (pin) alignment procedure, consolidated into the main procedure library (formerly `blade align`, retired 2026-11-15).
+
+Goal: put the pin on the rotation axis (a, b -> 0) and the axis on the beam centre (c -> beam centre), model x(w) = c + a cos w + b sin w (see
+analysis/pin/axis_align.py and playbooks/procedures.md). The image analysis is blade/analysis/pin/*; this module is the decision logic (adaptive passes,
+find-pin, fast steps, calibration) and runs on a `PinStage` view of any `Instrument` - the simulator today; the real beamline only when commanding it is allowed
+again (it is NOT: a read-only instrument raises ReadOnlyError at the first move). Every function takes a `run` (blade/session.py: event log, frames, state)."""
 import numpy as np
 from .. import config as cfg
-from ..session import Run
-from . import axis_align
-from . import measure as M
+from ..analysis.pin import axis_align, measure as M
 
 
 def _clean(m):
     return {k: v for k, v in m.items() if not k.startswith("_")}
 
 
-_CTX = {"run": None, "cmd": None}   # set by main(): every result is also saved inside the run folder (outputs/)
+class PinStage:
+    """The few things the pin alignment needs from an Instrument, by ROLE (omega, x, y, z, base -> control names from the profile's station motors):
+    omega/positions/moves in mm or deg, and one frame of the chosen camera. Same method names the old backends had, so the do_* functions are unchanged."""
 
+    def __init__(self, inst, camera=None, state=None):
+        self.inst = inst
+        self.s = state if state is not None else {}
+        self.s["camera"] = camera or self.s.get("camera") or cfg.DEFAULT_CAMERA or "gh1"
+        self.s.setdefault("n_acq", 0)
+        self.name = inst.name
 
-def _out(obj):
-    print(json.dumps(obj, indent=2, default=float))
-    if _CTX["run"] is not None:
-        _CTX["run"].save_output(_CTX["cmd"], obj)
+    @property
+    def camera(self):
+        return self.s["camera"]
+
+    def _ctl(self, role):
+        return cfg.MOTOR_NAMES[role]
+
+    def get_state(self):
+        return self.s
+
+    def get_omega(self):
+        return float(self.inst.ctl(self._ctl("omega")))
+
+    def positions(self):
+        return {"omega": self.get_omega(), **{r: float(self.inst.ctl(self._ctl(r))) for r in ("x", "y", "z", "base")}}
+
+    def move_omega(self, deg):
+        self.inst.set(self._ctl("omega"), float(deg))
+
+    def move(self, motor, mm):
+        if motor not in ("x", "y", "z", "base"):
+            raise ValueError(f"unknown motor {motor}")
+        name = self._ctl(motor)
+        self.inst.set(name, float(self.inst.ctl(name) + mm))
+
+    def acquire(self):
+        self.s["n_acq"] += 1
+        return self.inst.frame(self.camera)
 
 
 # ---- primitives -----------------------------------------------------------------------------------------------------
@@ -502,110 +532,3 @@ def do_calibrate(run, motor, mm, undo=True):
     if undo:
         do_move(run, motor, -mm, "undo calibration test move")
     return {"ok": True, "calibration": cal, "undone": undo}
-
-
-def do_live_feed(run, interval, seconds):
-    """Write runs/<id>/live.jpg every `interval` s (read-only frame grab + beam centre / last axis lines). Run it in its own terminal/process."""
-    import time
-    from PIL import Image, ImageDraw
-    t_end = time.time() + seconds if seconds else None
-    n = 0
-    while t_end is None or time.time() < t_end:
-        r = Run.current(run.dir.name)                       # re-read state: omega, last fit
-        inst = r.inst
-        img = inst.grab_latest() if hasattr(inst, "grab_latest") else inst.acquire()
-        lo, hi = np.percentile(img, [1, 99.5])
-        g = np.clip((img.astype(np.float32) - lo) / max(hi - lo, 1) * 255, 0, 255).astype(np.uint8)
-        im = Image.fromarray(g).convert("RGB").resize((img.shape[1] // 3, img.shape[0] // 3))
-        d = ImageDraw.Draw(im)
-        lf = r.state.get("last_fit")
-        if lf:
-            for x, col in ((lf["beam_cx"], (80, 200, 120)), (lf["c"], (110, 164, 255))):
-                d.line([x / 3, 0, x / 3, im.size[1]], fill=col, width=1)
-        d.text((6, 4), f"LIVE  omega {inst.get_omega():+.1f}  (green: beam centre, blue: fitted axis c)", fill=(255, 255, 255))
-        tmp = r.dir / "live.tmp.jpg"
-        im.save(tmp, quality=75)
-        tmp.replace(r.dir / "live.jpg")
-        n += 1
-        time.sleep(interval)
-    return {"ok": True, "frames": n}
-
-
-# ---- argparse -------------------------------------------------------------------------------------------------------
-def main(argv=None):
-    p = argparse.ArgumentParser(prog="blade align", description=__doc__)
-    p.add_argument("--run", help="run id (default: current)")
-    sub = p.add_subparsers(dest="cmd", required=True)
-    s = sub.add_parser("new-run"); s.add_argument("--profile", help="beamline profile (default: $BLADE_PROFILE or s1id; see `blade profiles`)"); s.add_argument("--station", help="hutch/station whose motors+geometry to use (default: profile default_station or $BLADE_STATION)"); s.add_argument("--backend", default="sim"); s.add_argument("--camera"); s.add_argument("--seed", type=int, default=0)
-    s.add_argument("--truth", help="JSON dict overriding hidden sim truth, e.g. '{\"a\":-50,\"true_k_z\":-1}'")
-    sub.add_parser("status")
-    s = sub.add_parser("goto-omega"); s.add_argument("deg", type=float)
-    s = sub.add_parser("measure"); s.add_argument("--omega", type=float)
-    s = sub.add_parser("sweep"); s.add_argument("--angles", type=float, nargs="+", default=None, help="default: the profile's default_sweep_deg")
-    s = sub.add_parser("estimate-pm"); s.add_argument("theta", type=float)
-    s = sub.add_parser("step-pm"); s.add_argument("theta", type=float); s.add_argument("--apply", action="store_true", help="also move z, x (and the base motor with --base)")
-    s.add_argument("--base", action="store_true", help="include the base-motor move (axis -> beam centre); sensible for theta >= 60"); s.add_argument("--force", action="store_true")
-    s = sub.add_parser("fast-align"); s.add_argument("--no-verify", action="store_true")
-    s = sub.add_parser("adaptive-align"); s.add_argument("--step", type=float, default=15.0); s.add_argument("--max-passes", type=int, default=6)
-    s = sub.add_parser("find-pin"); s.add_argument("--max-steps", type=int, default=60); s.add_argument("--no-y", action="store_true")
-    sub.add_parser("propose")
-    s = sub.add_parser("move"); s.add_argument("motor"); s.add_argument("mm", type=float); s.add_argument("--reason", default="")
-    s = sub.add_parser("calibrate"); s.add_argument("--motor", required=True); s.add_argument("--mm", type=float, required=True)
-    s.add_argument("--no-undo", action="store_true")
-    s = sub.add_parser("live-feed"); s.add_argument("--interval", type=float, default=1.0); s.add_argument("--seconds", type=float, default=0)
-    s = sub.add_parser("note"); s.add_argument("text")
-    s = sub.add_parser("finish"); s.add_argument("--status", default="ok"); s.add_argument("--summary", default="")
-    a = p.parse_args(argv)
-
-    if a.cmd == "new-run":
-        run = Run.create(a.backend, a.seed, json.loads(a.truth) if a.truth else None, a.camera, a.profile, a.station)
-        _CTX.update(run=run, cmd=a.cmd)
-        return _out({"run": run.dir.name, "dir": str(run.dir), "profile": cfg.PROFILE, "station": cfg.STATION, "beamline": cfg.BEAMLINE, "pixel_um": cfg.PIXEL_UM})
-    run = Run.current(a.run)
-    _CTX.update(run=run, cmd=a.cmd)
-    if a.cmd == "status":
-        return _out({"run": run.dir.name, "positions": run.inst.positions(), "last_fit": run.state["last_fit"],
-                     "calibration": run.state["calibration"], "status": run.state["status"], "events": run.n_events(),
-                     "pixel_um": cfg.PIXEL_UM})
-    if a.cmd == "goto-omega":
-        goto_omega(run, a.deg); return _out({"omega": a.deg})
-    if a.cmd == "measure":
-        return _out(do_measure(run, a.omega))
-    if a.cmd == "sweep":
-        return _out(do_sweep(run, a.angles or list(cfg.DEFAULT_SWEEP_DEG)))
-    if a.cmd == "estimate-pm":
-        t = a.theta
-        x0 = do_measure(run, 0, "pm0")["pin_col"]; xm = do_measure(run, -t, "pm_neg")["pin_col"]; xp = do_measure(run, t, "pm_pos")["pin_col"]
-        if None in (x0, xm, xp):
-            return _out({"ok": False, "reason": "pin not measured in one of the frames"})
-        aa, bb = axis_align.estimate_ab(x0, xp, xm, t)
-        res = {"ok": True, "theta": t, "x0": x0, "x_plus": xp, "x_minus": xm, "a": None if np.isnan(aa) else aa, "b": bb,
-               "note": f"a only reliable for theta >= {axis_align.A_MIN_DEG}"}
-        run.log("estimate", f"+-{t} deg: b={bb:+.2f} px" + ("" if np.isnan(aa) else f", a={aa:+.2f} px"), res)
-        return _out(res)
-    if a.cmd == "step-pm":
-        return _out(do_step_pm(run, a.theta, a.apply, a.base, a.force))
-    if a.cmd == "adaptive-align":
-        return _out(do_adaptive_align(run, a.step, a.max_passes))
-    if a.cmd == "fast-align":
-        return _out(do_fast_align(run, not a.no_verify))
-    if a.cmd == "find-pin":
-        return _out(do_find_pin(run, a.max_steps, not a.no_y))
-    if a.cmd == "propose":
-        return _out(do_propose(run))
-    if a.cmd == "move":
-        return _out(do_move(run, a.motor, a.mm, a.reason))
-    if a.cmd == "calibrate":
-        return _out(do_calibrate(run, a.motor, a.mm, not a.no_undo))
-    if a.cmd == "live-feed":
-        return _out(do_live_feed(run, a.interval, a.seconds))
-    if a.cmd == "note":
-        run.log("note", a.text, {"agent": True}); return _out({"ok": True})
-    if a.cmd == "finish":
-        run.state["status"] = a.status; run.save()
-        run.log("run_finished", f"Run finished: {a.status}. {a.summary}", {"status": a.status, "summary": a.summary})
-        return _out({"ok": True})
-
-
-if __name__ == "__main__":
-    main()

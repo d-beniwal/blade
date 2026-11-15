@@ -1,6 +1,6 @@
 """Catalogue of the physics models built into the virtual beamline (served by the GUI at /physics).
 
-SIMULATION ONLY. Every entry describes code that exists in blade/vbl/{world,imaging,procedures}.py or blade/physics/*; parameter VALUES are not copied here but read live
+SIMULATION ONLY. Every entry describes code that exists in blade/vbl/{world,imaging}.py, blade/procedures/* or blade/physics/*; parameter VALUES are not copied here but read live
 from beamline_twins/<bl>/sim.json (so the page cannot drift from the simulator), together with the provenance note stored next to each value. The curves are computed by
 calling the real simulator functions on an 'aligned' world, not by re-implementing the formulas.
 
@@ -129,7 +129,7 @@ MODELS = [
          equations=["mu_t(E) = ln( I_before / I_after ) = dif + b (1 + erf( (E - pos)/wid )) / 2   (the beamline's E_scan form)", "foil thickness t = b / [mu(E_edge + 0.3 keV) - mu(E_edge - 0.3 keV)]   (mu from xraydb)", "edge width: wid(E) = E * dtheta / tan(theta_B) ,  dtheta = 22.8 urad"],
          how=["The foil transmission at the mono energy is smoothed by the edge width (erf) so a scan across the edge gives the logged shape.", "Calibrating = adjust the Th1 offset until mu*t equals b at the readout energy (45 eV per mdeg at 71.7 keV)."],
          params=[("edge width", "hem.edge_wid_rad", "rad"), ("step b per foil", "foils.b", ""), ("foil list", "foils.elements", ""), ("default ut", "foils.ut_default", "")],
-         curve="foil", code=["blade/vbl/world.py: _foil_T_smooth, foil_thickness_mm, edge_wid_keV, mu_t, calibrate_energy_model", "blade/vbl/procedures.py: edge_scan, calibrate_energy"],
+         curve="foil", code=["blade/vbl/world.py: _foil_T_smooth, foil_thickness_mm, edge_wid_keV, mu_t, calibrate_energy_model", "blade/procedures/energy.py: edge_scan, calibrate_energy"],
          evidence=["tests/test_vbl_vs_logs.py (width on 7 logged fits, mu*t slope)", "tests/test_fit_mono.py", "physics/fits/mono.md"],
          limits=["Natural K-edge width and instrumental width are not separable in the data, so wid is one number.", "mu*t in the simulator uses ion-chamber counts, so noise and the attenuator wheel enter as in Emon."]),
     # ------------------------------------------------------------------------------------------------------------------------------ flux
@@ -152,7 +152,7 @@ MODELS = [
          equations=["flux(z) = 0 if a shutter upstream of z is closed ; fast shutter = aperture 3.0 mm (h) x 1.69 mm (v)"],
          how=["Aligning a fast shutter means finding the centre from the ion-chamber plateau."],
          params=[("fast shutter B", "fast_shutters.fsB", "mm"), ("fast shutter E", "fast_shutters.fsE", "mm"), ("hidden zero", "truth_scales.fs_zero_mm", "mm")],
-         code=["blade/vbl/world.py: beam_open", "blade/vbl/procedures.py: align_fast_shutter"], evidence=["physics/fits/flux.md"],
+         code=["blade/vbl/world.py: beam_open", "blade/procedures/slits.py: align_fast_shutter"], evidence=["physics/fits/flux.md"],
          limits=["Leakage (~8e-5 of the open beam) and opening/closing timing are not modelled; there are no millisecond numbers in the logs."]),
     # ------------------------------------------------------------------------------------------------------------------------------ image
     dict(id="cam_geom", section="image", title="Camera geometry, pixel size and focus", status="validated",
@@ -204,7 +204,7 @@ MODELS = [
          equations=["gap scan, Th2 scan: scan -> fit a Gaussian peak -> apply", "E_scan / calibrate: erf fit of mu*t -> Th1 offset -> repeat until mu*t = b", "slit alignment: close, find edge centres, step open; lens scan: tilt vs spot size"],
          how=["Procedures: open gap, nominal gap, gap scan, Th2 scan, select edge, E scan, calibrate energy, tune exposure, find beam on camera, centre camera, steering check, align slit, slit IC scan, align fast shutter, focus camera, lens scan, startup sequence.",
               "readiness() scores the final state against the hidden truth (for tests and agent evaluation only)."],
-         params=[], code=["blade/vbl/procedures.py", "blade/vbl/tools.py (23 MCP tools)"], evidence=["startup sequence converges from random truths (gap error ~4 um, Th2 ~0, flux 0.997 of the best)", "tests/test_vbl_physics.py"],
+         params=[], code=["blade/procedures/ (energy, camera, optics, slits, startup, pin_alignment)", "blade/procedures/tools.py (vbl_* and align_* MCP tools)"], evidence=["startup sequence converges from random truths (gap error ~4 um, Th2 ~0, flux 0.997 of the best)", "tests/test_vbl_physics.py"],
          limits=["The pin alignment procedure (blade align) runs on this simulator but is being reworked; test_vbl currently stops at align_adaptive."]),
 ]
 
