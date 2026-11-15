@@ -27,6 +27,7 @@ select#prof{font-weight:600;border-color:var(--acc)}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{font:13px system-ui;padding:4px 14px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer}
 .tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chip.on{border-color:var(--acc);background:var(--accbg)}
 .chip{font:12px system-ui;padding:2px 9px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer}.chip.off{opacity:.35}
 .main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
 @media(max-width:1100px){.main{grid-template-columns:1fr}}
@@ -152,8 +153,30 @@ function onClick(e){
 }
 
 /* ------------------------------------------------------------------ label curation (permanent; blade/kb_curate.py) */
-async function curate(body,question){
- if(!confirm(question+'\n\nThis changes the knowledge base permanently (a backup copy is made once a day; the change is logged in curation.jsonl).'))return false;
+/* In-page dialog (native prompt()/confirm() get blocked by browsers after a few uses). o={title,text,ok,fields:[{name,label,value,chips}]};
+   chips = async (valuesSoFar)=>[[value,count],...] : the existing values to pick from (click to fill; typing filters them). Resolves to {name:value} or null. */
+function dlg(o){return new Promise(res=>{
+ let d=$('dlg');if(!d){d=document.createElement('div');d.id='dlg';d.style.cssText='position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:rgba(0,0,0,.5)';document.body.appendChild(d)}
+ d.style.display='flex';
+ d.innerHTML=`<div class="mbox" style="max-width:560px;width:94%;max-height:86vh;overflow:auto"><h2 style="margin:0 0 4px">${esc(o.title)}</h2><div class="note" style="margin:0 0 8px">${o.text||''}</div>
+  ${(o.fields||[]).map(f=>`<div style="margin-top:8px"><label class="mute" style="font-size:12px">${esc(f.label)}</label><input id="dlgin_${f.name}" value="${esc(f.value||'')}" autocomplete="off" style="width:100%;box-sizing:border-box"><div id="dlgch_${f.name}" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;max-height:150px;overflow:auto"></div></div>`).join('')}
+  <div class="note">Permanent: applied to the knowledge base now and logged in <span class="mono">curation.jsonl</span> (a backup copy is made once a day).</div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="chip" id="dlgc">cancel</button><button class="chip" id="dlgo" style="font-weight:600;border-color:var(--acc)">${esc(o.ok||'apply')}</button></div></div>`;
+ const F=o.fields||[],val=()=>Object.fromEntries(F.map(f=>[f.name,$('dlgin_'+f.name).value.trim()]));
+ const done=v=>{d.style.display='none';d.innerHTML='';document.removeEventListener('keydown',key,true);res(v)};
+ const key=e=>{if(e.key==='Escape'){e.stopPropagation();done(null)}else if(e.key==='Enter'&&F.length){e.preventDefault();ok()}};
+ const ok=()=>{const v=val();for(const f of F)if(!v[f.name]){$('dlgin_'+f.name).focus();return}done(v)};
+ const draw=async f=>{if(!f.chips)return;let L=[];try{L=await f.chips(val())}catch(e){}
+  const t=f.typed?$('dlgin_'+f.name).value.trim().toLowerCase():'',cur=$('dlgin_'+f.name).value.trim();
+  const shown=L.filter(([v])=>!t||String(v).toLowerCase().includes(t)).slice(0,60);
+  $('dlgch_'+f.name).innerHTML=shown.length?shown.map(([v,n])=>`<button type="button" class="chip${v===cur?' on':''}" data-v="${esc(v)}" title="${n!=null?n+' images':''}">${esc(v)}${n!=null?` <span class="mute">${n}</span>`:''}</button>`).join(''):'<span class="mute" style="font-size:12px">no existing value matches: your text will be a new one</span>';
+  $('dlgch_'+f.name).onclick=e=>{const b=e.target.closest('button[data-v]');if(!b)return;$('dlgin_'+f.name).value=b.dataset.v;f.typed=false;F.forEach(draw)}};
+ F.forEach(f=>{$('dlgin_'+f.name).oninput=()=>{f.typed=true;F.forEach(draw)};draw(f)});
+ $('dlgc').onclick=()=>done(null);$('dlgo').onclick=ok;document.addEventListener('keydown',key,true);
+ const first=F.length?$('dlgin_'+F[0].name):$('dlgo');first.focus();if(F.length)first.select()})}
+const valuesOf=key=>async()=>key?(await j('/api/kb/labelvalues?key='+encodeURIComponent(key))).values:[];
+const keysOf=async()=>(await j('/api/kb/labelkeys')).keys;
+async function curate(body){
  try{
   const r=await fetch('/api/kb/curate',{method:'POST',headers:{'X-Blade-Edit':'1','Content-Type':'application/json'},body:JSON.stringify({...body,confirm:true})});const d=await r.json();
   if(d.error){alert(d.error);return false}
@@ -162,9 +185,11 @@ async function curate(body,question){
 }
 async function labelAct(d){
  const sha=d.sha;let ok=false;
- if(d.act==='del')ok=await curate({op:'remove',sha,key:d.key,value:d.value},`Remove the label ${d.key} = "${d.value}" from this image?`);
- else if(d.act==='edit'){const v=prompt(`New value for "${d.key}" on this image (replaces all its ${d.key} labels):`,d.value);if(v==null||!v.trim()||v.trim()===d.value)return;ok=await curate({op:'set',sha,key:d.key,value:v.trim()},`Set ${d.key} = "${v.trim()}" on this image (replacing all its other ${d.key} labels)?`)}
- else if(d.act==='add'){const k=$('ladd_k').value.trim(),v=$('ladd_v').value.trim();if(!k||!v){alert('Enter a label and a value.');return}ok=await curate({op:'add',sha,key:k,value:v},`Add the label ${k} = "${v}" to this image?`)}
+ if(d.act==='del'){if(await dlg({title:'Remove label',text:`Remove <b>${esc(d.key)} = ${esc(d.value)}</b> from this image?`,ok:'remove'}))ok=await curate({op:'remove',sha,key:d.key,value:d.value})}
+ else if(d.act==='edit'){const r=await dlg({title:`Change ${d.key}`,text:`Pick an existing <b>${esc(d.key)}</b> value or type a new one. It replaces all ${esc(d.key)} labels of this image (now: <b>${esc(d.value)}</b>).`,ok:'change',fields:[{name:'value',label:`new ${d.key}`,value:d.value,chips:valuesOf(d.key)}]});
+  if(r&&r.value!==d.value)ok=await curate({op:'set',sha,key:d.key,value:r.value})}
+ else if(d.act==='add'){const r=await dlg({title:'Add label',text:'Pick a label and a value from the existing ones, or type new ones.',ok:'add',fields:[{name:'key',label:'label',value:'',chips:async()=>await keysOf()},{name:'value',label:'value',value:'',chips:async v=>await valuesOf(v.key)()}]});
+  if(r)ok=await curate({op:'add',sha,key:r.key,value:r.value})}
  if(ok){await openImage(sha);if(TAB==='images')loadImages(true)}
 }
 async function openLabelMgr(key){
@@ -172,18 +197,19 @@ async function openLabelMgr(key){
  try{
   const K=(await j('/api/kb/labelkeys')).keys;key=key||(K.find(k=>k[0]==='subject')||K[0])[0];
   const V=(await j('/api/kb/labelvalues?key='+encodeURIComponent(key))).values;const H=(await j('/api/kb/curation?limit=15')).log;
-  const rows=V.map(([v,n])=>`<tr><td class="l"><b>${esc(v)}</b></td><td>${n}</td><td class="l" style="white-space:nowrap"><button class="chip" data-lm="rename" data-v="${esc(v)}">rename</button> <button class="chip" data-lm="del" data-v="${esc(v)}">delete</button></td></tr>`).join('');
+  const rows=V.map(([v,n])=>`<tr><td class="l"><b>${esc(v)}</b></td><td>${n}</td><td class="l" style="white-space:nowrap"><button class="chip" data-lm="rename" data-v="${esc(v)}">rename / merge</button> <button class="chip" data-lm="del" data-v="${esc(v)}">delete</button></td></tr>`).join('');
   const hist=H.map(h=>`<tr><td class="l mono">${esc(h.t)}</td><td class="l">${esc(h.op)}</td><td class="l">${esc(h.key)}</td><td class="l">${esc(h.old||h.value||'')}${h.new?' → '+esc(h.new):''}</td><td class="l mono mute">${h.sha?esc(h.sha.slice(0,10)):'all images'}</td></tr>`).join('');
   m.innerHTML=`<div class="mbox"><div style="display:flex;justify-content:space-between"><h2 style="margin:0">Label manager</h2><button class="chip" onclick="closeModal()">close (Esc)</button></div>
-   <div class="note">Rename or delete a label value across every image (e.g. subject <b>pin</b> → <b>tomopin</b>). Per-image changes: open an image. Everything is permanent and logged.</div>
+   <div class="note">Rename or delete a label value across every image (e.g. subject <b>pin</b> → <b>tomopin</b>); renaming to an existing value merges them. Per-image changes: open an image. Everything is permanent and logged.</div>
    <label class="mute" style="font-size:12px">label <select id="lmkey">${K.map(([k,n])=>`<option value="${esc(k)}" ${k===key?'selected':''}>${esc(k)} (${n} images)</option>`).join('')}</select></label>
    <table style="margin-top:8px"><tr><th class="l">value (best label)</th><th>images</th><th></th></tr>${rows||'<tr><td colspan="3" class="mute">no values</td></tr>'}</table>
    <h2 style="margin-top:14px">Recent changes</h2><table><tr><th class="l">time</th><th class="l">op</th><th class="l">label</th><th class="l">value</th><th class="l">scope</th></tr>${hist||'<tr><td colspan="5" class="mute">none yet</td></tr>'}</table></div>`;
   $('lmkey').onchange=()=>openLabelMgr($('lmkey').value);
   m.querySelectorAll('[data-lm]').forEach(b=>b.onclick=async()=>{
-   const v=b.dataset.v;let ok;
-   if(b.dataset.lm==='rename'){const nv=prompt(`Rename ${key} = "${v}" to:`,v);if(nv==null||!nv.trim()||nv.trim()===v)return;ok=await curate({op:'rename',key,old:v,new:nv.trim()},`Rename every ${key} label "${v}" to "${nv.trim()}"?`)}
-   else ok=await curate({op:'delete_value',key,value:v},`Delete every ${key} label "${v}" (on every image)?`);
+   const v=b.dataset.v;let ok=false;
+   if(b.dataset.lm==='rename'){const r=await dlg({title:`Rename ${key} "${v}"`,text:`Changes every <b>${esc(key)} = ${esc(v)}</b> label on all images. Pick an existing value to merge into it, or type a new one.`,ok:'rename',fields:[{name:'value',label:`new ${key}`,value:v,chips:async()=>V.filter(x=>x[0]!==v)}]});
+    if(r&&r.value!==v)ok=await curate({op:'rename',key,old:v,new:r.value})}
+   else if(await dlg({title:'Delete label value',text:`Delete every <b>${esc(key)} = ${esc(v)}</b> label (on every image)?`,ok:'delete'}))ok=await curate({op:'delete_value',key,value:v});
    if(ok){await openLabelMgr(key);if(TAB==='images')viewImages()}
   });
  }catch(e){m.innerHTML=`<div class="mbox"><div class="empty"><b>${esc(e.message)}</b></div><button class="chip" onclick="closeModal()">close</button></div>`}
@@ -227,7 +253,7 @@ async function openImage(sha){
     <div><div class="legend" style="margin-bottom:8px">${bests}</div>
      <h2>Citations (${I.citations.length})</h2>${refs||'<div class="mute">none</div>'}
      <h2 style="margin-top:12px">Label history</h2><table><tr><th class="l">key</th><th class="l">value</th><th class="l">source</th><th>conf</th><th class="l">note</th><th></th></tr>${hist}</table>
-     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center"><input id="ladd_k" placeholder="label (e.g. subject)" list="lkeys" style="width:150px"><input id="ladd_v" placeholder="value" style="width:170px"><button class="chip" data-act="add" data-sha="${esc(im.sha256)}">add label</button><datalist id="lkeys">${['class','subject','camera','hutch','device','feature','sample','energy_keV','note'].map(k=>`<option value="${k}">`).join('')}</datalist></div>
+     <div style="margin-top:8px"><button class="chip" data-act="add" data-sha="${esc(im.sha256)}">+ add label</button></div>
      <div class="note">Edits are permanent: applied to the knowledge base and logged in <span class="mono">curation.jsonl</span>, so a re-ingest or new labelling pass cannot bring the old labels back. The best label per key is human &gt; vision &gt; rule.</div></div></div></div>`;
  }catch(e){m.innerHTML=`<div class="mbox"><div class="empty"><b>${esc(e.message)}</b></div><button class="chip" onclick="closeModal()">close</button></div>`}
 }
