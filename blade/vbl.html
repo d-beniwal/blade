@@ -51,6 +51,10 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
 .note{font-size:11.5px;color:var(--mute);margin-top:3px}
 .log{font:11px var(--mono);color:var(--mute);max-height:100px;overflow:auto}
 #tip{position:fixed;z-index:50;max-width:310px;background:var(--ink);color:var(--bg);font:12px/1.35 system-ui;padding:6px 9px;border-radius:6px;box-shadow:0 3px 12px #0005;pointer-events:none;display:none}
+.sec>summary{list-style:none;cursor:pointer;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);font-weight:700;user-select:none;display:flex;align-items:center;gap:5px}
+.sec>summary::-webkit-details-marker{display:none}.sec>summary::before{content:'▸';display:inline-block;width:10px;transition:transform .12s}.sec[open]>summary::before{transform:rotate(90deg)}
+.sec[open]>summary{margin-bottom:5px}.sec>summary:hover{color:var(--ink)}.sec>summary .hint{text-transform:none;letter-spacing:0;font-weight:400}
+.pinres{font:11.5px/1.4 var(--mono);margin:2px 0}
 .fitres{font:11.5px/1.4 var(--mono);margin-top:4px}.fitres b{color:var(--acc)}
 </style></head><body>
 <div class="wrap">
@@ -66,10 +70,11 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
   <svg class="plot" id="plot" viewBox="0 0 600 170" preserveAspectRatio="none" style="margin-top:5px;display:none"></svg><pre id="actout" style="margin-top:4px;max-height:140px"></pre></div>
 <div class="main">
  <div class="col">
-  <div class="card"><h2>Tomo camera</h2>
-   <div class="row"><select id="cam"></select><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
+  <div class="card"><h2>Camera</h2>
+   <div class="row"><label class="mute">Camera <select id="cam"></select></label><label class="mute">Stage <select id="stage"></select></label><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
     <label class="mute"><input type="checkbox" id="live" checked> live</label><label class="mute"><input type="checkbox" id="auto" checked> auto contrast</label>
-    <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><span class="mono mute" id="camst"></span></div>
+    <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><button id="pinfit" data-tip="Take a full-resolution frame and, IF the tomo pin is recognised in it, move aero X and the sample-stage height until the pin axis is on the centre of the lit footprint and its tip sits 20 % below the footprint top. If no pin is recognised (or it is only partly visible with unreliable edges) nothing moves and the reason is shown. It does not search: use the pin search tool to bring a missing pin into view first.">tomo-pin fit</button><span class="mono mute" id="camst"></span></div>
+   <div class="pinres" id="pinres"></div>
    <div class="row"><b class="mute">profile</b>
     <label class="mute" data-tip="Show the summed intensity of every column (top axis) and every row (right axis) of the whole image, each with an automatic Gaussian fit: the fit and its centre are drawn on the axes and on the image, and the centre is reported in pixels and as an offset from the frame centre. A slit-defined footprint is flat-topped, so check R²: the Gaussian centre is then the centre of the plateau, not a focused peak."><input type="checkbox" id="axon"> intensity axes</label>
     <label class="mute" data-tip="Plot each axis profile from zero instead of from its own minimum, so the contrast is not exaggerated."><input type="checkbox" id="axzero"> zero-based</label>
@@ -85,13 +90,13 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
   <div class="card"><h2>Ion chambers &amp; foil</h2><div id="ics"></div></div>
  </div>
  <div class="col">
-  <div class="card"><h2>Energy, flux &amp; steering</h2><div class="tgs" id="g_tg"></div><div class="cg" id="g_flux"></div></div>
-  <div class="card"><h2>Slits (size / centre, mm)</h2><div style="overflow-x:auto"><table class="sl" id="slits"></table></div></div>
-  <div class="card"><h2>Tomo stage &amp; camera</h2><div class="cg" id="g_cam"></div></div>
-  <div class="card"><h2>Sample stage (hutch E)</h2><div class="cg" id="g_sam"></div></div>
-  <div class="card"><h2>Lenses (hutch E; x ≈ 25 = parked out)</h2><div class="cg" id="g_lens"></div></div>
-  <div class="card" id="truthcard" style="display:none"><h2>Answers (hidden truth vs settings)</h2><pre id="truth"></pre></div>
-  <div class="card"><h2>Session log</h2><div class="log" id="log"></div></div>
+  <details class="card sec" data-k="camctl" open><summary>Camera controls <span class="hint mute" id="camctl_name"></span></summary><div class="cg" id="g_camctl"></div></details>
+  <details class="card sec" data-k="stage" open><summary>Stage controls <span class="hint mute" id="stage_name"></span></summary><div class="cg" id="g_stage"></div></details>
+  <details class="card sec" data-k="slits" open><summary>Slit controls <span class="hint mute">(size / centre, mm)</span></summary><div style="overflow-x:auto"><table class="sl" id="slits"></table></div></details>
+  <details class="card sec" data-k="flux" open><summary>Energy, flux &amp; steering</summary><div class="tgs" id="g_tg"></div><div class="cg" id="g_flux"></div></details>
+  <details class="card sec" data-k="lens" open><summary>Lenses <span class="hint mute">(hutch E; x ≈ 25 = parked out)</span></summary><div class="cg" id="g_lens"></div></details>
+  <details class="card sec" data-k="truth" id="truthcard" style="display:none" open><summary>Answers <span class="hint mute">(hidden truth vs settings)</span></summary><pre id="truth"></pre></details>
+  <details class="card sec" data-k="log" open><summary>Session log</summary><div class="log" id="log"></div></details>
  </div>
 </div></div><div id="tip"></div>
 <script>
@@ -147,15 +152,27 @@ function addCtl(box,name,label){const cell=document.createElement('div');cell.cl
 function build(){
  for(const k of Object.keys(setters))delete setters[k];
  const tg=$('g_tg');tg.innerHTML='';TOGGLES.forEach(n=>tg.append(mkToggle(n,{shutter_a:'A shutter',fsB:'B fast shutter',fsE:'E fast shutter'}[n])));
- for(const [id,names] of [['g_flux',FLUX],['g_sam',SAM]]){$(id).innerHTML='';names.forEach(n=>addCtl($(id),n))}
+ $('g_flux').innerHTML='';FLUX.forEach(n=>addCtl($('g_flux'),n));
  const sl=$('slits');sl.innerHTML='<tr><th class="l">slit</th><th>hsize</th><th>vsize</th><th>hcentre</th><th>vcentre</th></tr>';
  for(const s of SLITS){const tr=document.createElement('tr');tr.innerHTML=`<td class="l">${s}<small class="mute"> ${S.z_m[s]}m</small></td>`;
   for(const k of ['hsize','vsize','hcenter','vcenter']){const td=document.createElement('td');td.append(mkMotor(`${s}.${k}`));tr.append(td)}sl.append(tr)}
  $('g_lens').innerHTML='';for(const s of LENSES)for(const k of ['x','y','th','phi'])addCtl($('g_lens'),`${s}.${k}`,`${s.replace('lens','L')} ${k}`);
  {const ed=$('edge'),cur=ed.value;ed.innerHTML=S.foils.filter(f=>f!=='out').map(f=>`<option>${f}</option>`).join('');ed.value=cur||'Re';ed.onchange=async()=>{try{const r=await api('/api/vbl/tool',{name:'vbl_select_edge',args:{element:ed.value}});show(r,'select edge '+ed.value+' → hem.energy');await refresh(true)}catch(e){$('actout').textContent=e.message}}}
- buildCam();building=false}
-function buildCam(){const cam=$('cam').value,c=S.cameras[cam],st=c.stage;const b=$('g_cam');b.innerHTML='';
- [[`${st}.x`,'stage x'],[`${st}.y`,'stage y'],[`${cam}.focus`,'focus'],[`${cam}.exposure`,'exposure']].forEach(([n,l])=>addCtl(b,n,l));fill()}
+ buildCam();buildStage();building=false}
+function dropSetters(re){for(const k of Object.keys(setters))if(re.test(k))delete setters[k]}
+function buildCam(){const cam=$('cam').value,b=$('g_camctl');dropSetters(/\.(focus|exposure)$/);b.innerHTML='';$('camctl_name').textContent='· '+cam;
+ [[`${cam}.focus`,'focus'],[`${cam}.exposure`,'exposure']].forEach(([n,l])=>addCtl(b,n,l));fill()}
+const SAMSTAGE='samE';
+function stageList(){const seen=[],hut={};for(const [cn,c] of Object.entries(S.cameras))if(!seen.includes(c.stage)){seen.push(c.stage);hut[c.stage]=c.hutch}return {tomo:seen,hut}}
+function buildStage(){const st=$('stage').value,b=$('g_stage');dropSetters(/^(tomo\w+|samE)\./);b.innerHTML='';
+ if(st===SAMSTAGE){$('stage_name').textContent='· sample stage (hutch E)';SAM.forEach(n=>addCtl(b,n))}
+ else{$('stage_name').textContent='· '+st+' (tomo stage, hutch '+stageList().hut[st]+')';[[`${st}.x`,'stage x'],[`${st}.y`,'stage y']].forEach(([n,l])=>addCtl(b,n,l))}
+ fill()}
+function fillStageSelect(){const {tomo,hut}=stageList();$('stage').innerHTML=`<optgroup label="Tomo stages">${tomo.map(t=>`<option value="${t}">${t} (hutch ${hut[t]})</option>`).join('')}</optgroup><optgroup label="Sample stage"><option value="${SAMSTAGE}">sample stage (hutch E)</option></optgroup>`}
+function fillCamSelect(){const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+ const ad=S.area_detectors||[];
+ $('cam').innerHTML=`<optgroup label="Tomo cameras">${Object.keys(S.cameras).map(c=>`<option value="${c}">${c} (hutch ${S.cameras[c].hutch})</option>`).join('')}</optgroup>`+
+  (ad.length?`<optgroup label="Area Detectors">${ad.map(a=>`<option value="ad:${esc(a.id)}" disabled title="listed from the beamline twin; the simulator has no geometry or beam model for it yet">${esc(a.label)}${a.element?' ('+esc(a.element)+')':''} · not simulated</option>`).join('')}</optgroup>`:'')}
 function fill(){if(!S)return;const c=S.snapshot.controls;for(const [n,f] of Object.entries(setters)){if(n in c)f(c[n])}}
 function syncEdge(){ // the 'edge (foil)' dropdown follows the HEM energy readout (e.g. after a session reset the energy is back at the Re edge, so the dropdown must be too)
  const ed=$('edge');if(!S.edges_keV||!ed||document.activeElement===ed)return;const E=S.snapshot.controls['hem.energy'];let best=null,bd=1e9;
@@ -171,20 +188,34 @@ function renderState(){
  if(S.truth){$('truthcard').style.display='';$('truth').textContent=JSON.stringify(S.truth,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)}else $('truthcard').style.display='none';
  fill()}
 async function refresh(force){try{S=await api('/api/vbl/state'+($('reveal').checked?'?reveal=1':''));if(!S.session){await api('/api/vbl/reset',{scenario:'startup',seed:0});S=await api('/api/vbl/state')}
-  if(building){$('scenario').innerHTML=S.scenarios.map(s=>`<option>${s}</option>`).join('');$('scenario').value=S.scenario;$('seed').value=S.seed;$('cam').innerHTML=Object.keys(S.cameras).map(c=>`<option value="${c}">${c} (hutch ${S.cameras[c].hutch})</option>`).join('');$('cam').value='gh1';build()}
+  if(building){$('scenario').innerHTML=S.scenarios.map(s=>`<option>${s}</option>`).join('');$('scenario').value=S.scenario;$('seed').value=S.seed;fillCamSelect();fillStageSelect();$('cam').value='gh1';$('stage').value=S.cameras.gh1.stage;build()}
   renderState();if(force)loadFrame()}catch(e){$('camst').textContent=e.message}}
 let busy=false;
 function loadFrame(){if(busy||!S)return;busy=true;const cam=$('cam').value,t=Date.now();const im=$('frame');
  im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();runBoxProfile();runProj()};
  im.onerror=()=>{busy=false;$('camst').textContent='render failed'};
  im.src=`/api/vbl/frame?camera=${cam}&bin=${$('bin').value}&auto=${$('auto').checked?1:0}&_=${t}`}
-$('cam').onchange=()=>{buildCam();loadFrame()};$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
+$('cam').onchange=()=>{const c=S.cameras[$('cam').value];if(c)$('stage').value=c.stage;buildCam();buildStage();pinMsg('');loadFrame()};$('stage').onchange=buildStage;$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
 $('reveal').onchange=()=>refresh(false);
 $('reset').onclick=async()=>{await api('/api/vbl/reset',{scenario:$('scenario').value,seed:parseInt($('seed').value||0)});await refresh(true)};
 let HOT=null;
 $('ana').onclick=async()=>{const r=await api('/api/vbl/tool',{name:'vbl_get_frame',args:{camera:$('cam').value,bin:2,save:false}});const a=r.analysis;
  if(a.beam){const c=S.cameras[$('cam').value];HOT={x:a.hotspot_px.x/c.cols,y:a.hotspot_px.y/c.rows}}else HOT=null;drawOverlay();
  $('anaout').style.display='';$('anaout').textContent=JSON.stringify(a,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)};
+
+/* ---------------------------------------------------------------- collapsible right-hand sections (open/closed state remembered per browser) */
+document.querySelectorAll('details.sec').forEach(d=>{const k='blade.vbl.open.'+d.dataset.k;try{const v=localStorage.getItem(k);if(v!==null)d.open=v==='1'}catch(e){}
+ d.addEventListener('toggle',()=>{try{localStorage.setItem(k,d.open?'1':'0')}catch(e){}})});
+
+/* ---------------------------------------------------------------- tomo-pin fit */
+function pinMsg(h){$('pinres').innerHTML=h}
+$('pinfit').onclick=async()=>{const b=$('pinfit'),esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;');b.disabled=true;pinMsg('▶ looking for the pin …');
+ try{const r=await api('/api/vbl/tool',{name:'vbl_fit_pin',args:{camera:$('cam').value}});
+  if(r.found){const o=r.offsets_px||{},c=r.controls||{};pinMsg(`<span class="${r.converged?'ok':'bad'}">${r.converged?'✓ pin fitted':'⚠ pin recognised but not converged'}</span> in ${r.frames} frames · ${r.moved?'aero X → '+(+c['samE.aerox']).toFixed(3)+' mm, samE.y → '+(+c['samE.y']).toFixed(3)+' mm':'already in place'} · axis ${o.axis_col_px} px, tip row ${o.tip_row_px} px (targets ${o.target_col_px}, ${o.target_row_px})`)}
+  else pinMsg(`<span class="bad">✗ pin not fitted:</span> ${esc(r.reason)}${r.note?' <span class="mute">'+esc(r.note)+'</span>':''}`);
+  show(r,'tomo-pin fit (vbl_fit_pin)');await refresh(true)}
+ catch(e){pinMsg(`<span class="bad">${esc(e.message)}</span>`)}
+ b.disabled=false};
 
 /* ---------------------------------------------------------------- tooltips (one floating box; works inside scrolling tables and on tiny buttons) */
 const tip=$('tip');let tipT=null;

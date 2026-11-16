@@ -10,6 +10,7 @@ from ..vbl import store, imaging
 from ..vbl.world import control_specs, CAMERAS
 from .. import procedures as P
 from . import pin_find as PF
+from . import pin_fit as PFIT
 from . import pin_alignment as C
 
 playbook("vbl", ROOT / "playbooks" / "virtual_beamline.md")
@@ -178,6 +179,15 @@ def vbl_find_pin(camera: str = "gh1", session: str = "default") -> dict:
     works for tip, shaft or the ~7 mm wide brass chuck), then lower samE.y by at most the pin protrusion until a narrow tip sits inside the window. Needs the beam on the camera."""
     w = _w(session)
     return _done(w, session, PF.find_pin(w, camera))
+
+
+@tool("vbl", needs_run=False)
+def vbl_fit_pin(camera: str = "gh1", apply: bool = True, session: str = "default") -> dict:
+    """Fit the tomo pin into the field of view ON THE SIMULATOR: take a full-resolution frame, and IF the pin is recognised (the code validated on the real alignment frames) move
+    aero X and samE.y until its axis is on the lit footprint's centre and its tip 20 % below the footprint top (up to 4 looks). If no pin is recognised, or it is only partly visible
+    with unreliable edges, nothing moves and the reason is returned (use `vbl_find_pin` to search). apply=False only reports the moves it would make."""
+    w = _w(session)
+    return _done(w, session, PFIT.fit_pin_in_view(w, camera, apply=apply))
 
 
 @tool("vbl", needs_run=False)

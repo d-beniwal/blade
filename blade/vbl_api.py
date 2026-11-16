@@ -10,6 +10,25 @@ from .physics import core as pcore
 _LOCK = threading.RLock()
 
 
+def area_detectors(twin="1-ID"):
+    """Area detectors the twin knows (beamline.json detector_iocs) that are NOT simulated tomo cameras: listed in the page's camera dropdown but not selectable - the simulator
+    has no geometry, pixel size or beam model for them and none is guessed."""
+    import json
+    from . import paths
+    try:
+        twin = json.load(open(paths.TWINS_DIR / twin / "beamline.json"))
+    except Exception:
+        return []
+    out, seen = [], set(CAMERAS)
+    for it in twin.get("detector_iocs", {}).get("items", []):
+        cam = it.get("camera")
+        if not cam or cam in seen or it.get("label") == "Tomo":
+            continue
+        seen.add(cam)
+        out.append({"id": cam, "label": it.get("label") or cam, "prefix": it.get("prefix"), "element": it.get("element"), "note": it.get("note")})
+    return out
+
+
 def state_payload(session=store.DEFAULT, reveal=False):
     with _LOCK:
         w = store.load(session)
@@ -19,7 +38,7 @@ def state_payload(session=store.DEFAULT, reveal=False):
         specs = {k: {"lo": v[0], "hi": v[1], "unit": v[2], "doc": v[3]} for k, v in control_specs().items()}
         cams = {c: {"hutch": w.sim["cameras"][c]["hutch"], "stage": w.sim["cameras"][c]["stage"], "pixel_um": w.cams[c]["pixel_um"], "rows": w.sim["cameras"][c]["rows"],
                     "cols": w.sim["cameras"][c]["cols"], "z_m": w.z[w.sim["cameras"][c]["z_key"]]} for c in CAMERAS}
-        out = {"session": session, "scenario": w.s["scenario"], "seed": w.s["seed"], "snapshot": snap, "specs": specs, "cameras": cams, "log": w.s["log"][-12:],
+        out = {"session": session, "scenario": w.s["scenario"], "seed": w.s["seed"], "snapshot": snap, "specs": specs, "cameras": cams, "area_detectors": area_detectors(w.twin), "log": w.s["log"][-12:],
                "z_m": w.z, "foils": w.sim["foils"]["elements"] + ["out"],
                "edges_keV": {el: round(float(pcore.edge_keV(el)), 4) for el in w.sim["foils"]["elements"]}, "scenarios": ["startup", "camera_in_beam", "ready_for_pin", "aligned"]}
         if reveal:
