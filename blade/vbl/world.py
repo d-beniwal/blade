@@ -126,7 +126,7 @@ class VirtualBeamline:
             xb, yb = float(rng.uniform(-0.4, 1.2)), float(rng.uniform(-0.8, 0.8))
             truth["cam_zero"][cam] = [ub - sg["xsign"] * xb, vb - sg["ysign"] * yb]
         if scenario == "startup":
-            ctl["samE.y"] = 26.0          # sample stage lifted: the pin is out of the beam while the beam is being set up
+            self._park_pin(ctl)           # pin parked sideways (aero X): with the full mount a lifted stage would put the brass chuck in the beam
             # start with the beam already on the gh1 camera (user request 2026-11-12): camera 0.15-0.3 mm off the hotspot, downstream slits open, exposure set to see it
             for sid in ("slitB", "slitCus", "slitCds", "slitEus", "slitEds"):
                 ctl[f"{sid}.hsize"] = ctl[f"{sid}.vsize"] = 2.5
@@ -143,6 +143,15 @@ class VirtualBeamline:
             raise ValueError("scenario must be 'startup' (everything misaligned), 'camera_in_beam' (beam on gh1, rest unoptimised), "
                              "'ready_for_pin' (beam + flux good, pin in view: for `blade align`) or 'aligned'")
         return s
+
+    def _park_pin(self, ctl):
+        """Move the pin out of the beam. Legacy 2-D pin: lift the stage (the pin hangs 12 mm). 3-D mount: the chuck hangs below the tip, so the only way out is sideways."""
+        sE = self.sim["stage_E"]
+        if sE["pin"].get("model") == "3d":
+            ctl["samE.y"] = sE["y_ref_mm"]
+            ctl["samE.aerox"] = sE["aerox_ref_mm"] + sE["pin"]["park_aerox_mm"]
+        else:
+            ctl["samE.y"] = 26.0
 
     def _zero_spread(self, sid):
         sp = self.sim["slits"]["truth_zero_spread_mm"]
@@ -172,7 +181,9 @@ class VirtualBeamline:
         T["cam_zero"][cam] = [ub - sg["xsign"] * 0.30, vb - sg["ysign"] * 0.10]
         c[f"{st}.x"], c[f"{st}.y"] = 0.30, 0.10
         if scenario in ("camera_in_beam", "ready_for_pin", "aligned"):
-            c["samE.y"] = self.sim["stage_E"]["y_ref_mm"] if scenario != "camera_in_beam" else 26.0
+            c["samE.y"] = self.sim["stage_E"]["y_ref_mm"]
+            if scenario == "camera_in_beam":
+                self._park_pin(c)
         if scenario in ("ready_for_pin", "aligned"):
             c["slitEus.hsize"], c["slitEus.vsize"] = 0.65, 0.52
             c["slitEds.hsize"], c["slitEds.vsize"] = 1.2, 1.0
@@ -580,6 +591,13 @@ class VirtualBeamline:
         return self.ctl(f"{cam}.focus") - self.s["truth"]["cam_focus_true"][cam]
 
     # ------------------------------------------------------------------------------------------------------------------------------ pin
+    def pin_mount(self):
+        """The 3-D pin + holder model (blade/physics/pin_mount.py) built from sim.json stage_E.pin.mount; static, built once."""
+        if getattr(self, "_pin_mount", None) is None:
+            from ..physics import pin_mount
+            self._pin_mount = pin_mount.from_sim(self.sim)
+        return self._pin_mount
+
     def pin_state(self, omega=None):
         """Pin geometry in the lab at rotation `omega`: dict with u (mm, horizontal position of the pin axis at the sample), v_top (mm, top flat),
         a, b, c (mm) in the BLADE convention x(w) = c + a cos w + b sin w, tilt of the pin axis in the image (rad)."""

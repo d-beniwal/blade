@@ -1,0 +1,34 @@
+# Real pin frames vs the virtual beamline: calibration of the pin, footprint and camera (2026-11-15)
+
+Code `blade/calibration/pin_frames_fit.py` (offline), numbers `pin_frames.json`, test `tests/test_fit_pin_frames.py` (needs no private data), converter `beamline_twins/tools/moving_frames.py`, file->control map `../../file_control_map.json`.
+Input: three beamline-written HDF5 alignment files (GH1, 1940 x 1490 ROI, 0.69 um/px, 71.676 keV, 0.1 s), 85 frames in which the rotation stage `samRy` (1ide:m9) was actually moving (dwell frames removed; rule in `moving_frames.py`). The images stay in the knowledge tree; only aggregates are here.
+The simulator is put at the read-backs of the files (slits, sample stage, energy, exposure), rendered at the **same angle of every real frame** and measured with the **same code** (`measure_frame`).
+
+## 1. Result in one paragraph
+After the changes below the simulated frames agree with the 85 real ones on footprint size (1050 x 831 vs 1051 x 828 px), dark floor (5545 vs 5550), peak brightness (p95 18220 vs 18350), pin top width (99.65 vs 99.75 um), half angle (14.96 vs 14.96 deg), edge width (28.1 vs 28.6 px), interior transmission (0.081 vs 0.075), tip row (480 vs 479) and the tip column vs omega (c, a, b within 0.1 px). Per frame the tip-column difference has rms 3.7 px, equal to the real data's own scatter about the sinusoid (3.7 px: angle read-back timing), so it is not model error. Edge softness agrees to ~10 %; the beam's mottled texture does not (random vs fixed pattern).
+
+## 2. What the real frames say (and what changed in `sim.json`)
+| quantity | real | before | now |
+|---|---|---|---|
+| pin position | tip column = 815.9 - 130.0 cos w - 16.0 sin w px, tip row 479.3 | pin invisible: this cycle's pin sits **11.8 mm lower on the mount** (tip on the beam at samY 25.65, old reference 13.85) | `stage_E` refs set to the files' read-backs (x -0.1453, y 25.6471, z -0.0412, aeroX 0.1); truth c_axis -0.1084, a -0.0899, b -0.0143, tip +0.191 mm: **almost identical to the old test-frame values** (-0.106, -0.091, -0.007, 0.18), i.e. only the reference snapshot was off |
+| pin cone | top width 99.75 um, half angle 14.96 deg as measured (the same code reads 99.2-99.9 um / 15.0-15.2 deg on a 104.5 um / 15 deg simulated pin) | 104.5 um, 15.0 deg | 105.0 um, 14.8 deg. **No bevel, no omega-dependent flank**: top width varies by 1.5 um (+-0.5 um noise) and the tip row by 2 px over 180 deg (the old simulator's half-transparent flank at +-90 deg is not in these frames) |
+| pin absorption | interior brightness / lit level falls 0.29 (near the tip) -> 0.077 (0.42 mm below) | 0.25 -> 0.03 (black) | same trend: Beer-Lambert of a round W cone **plus a veiling halo** |
+| veiling halo | glow outside the footprint: 5 % of the lit signal at 50 px, 3.5 % at 120 px, 2 % at 250 px, 0 beyond ~440 px; it also sets the floor inside the pin | `halo` key existed but no code used it | `cameras.gh1.halo` = 0.18 (weight), `halo_sigma_um` = 200 (broad Gaussian, `imaging._broad_blur`) |
+| camera PSF | pin edge 10-90 % = 28.6 px (round-cone chord geometry alone gives ~23 px) | psf_px 1.8 | **6.8 px for gh1** (absorbs every unmodelled softening: optics, bandwidth around the W K edge). The logged 5-10 px sharp E-slit edges were other cameras (1.17 um/px) |
+| footprint | 1051 x 828 px = 0.725 x 0.571 mm, soft edges 95 / 79 px (10-90 %) | 1092 x 844 px, 15-100 px edges | defined by the **WB slit** (see 3): `source.wb_edge_scale` h 0.911 / v 0.709 (image only) |
+| beam profile | falls to 0.55-0.62 of the centre at the horizontal footprint edges (0.71 / 0.87 vertically) | 0.67-0.69 | `source.image_sigma_scale` h 0.80 / v 1.00 (image only) |
+| brightness | lit mean above floor 10.5 kcounts, relative spread 0.17, 95th pct 18.3 k | 8 kcounts, spread 0.37 (hot core, texture 3x too strong) | `cameras.gh1`: core 0, texture 0.04, full 28100, bg 5490 |
+
+## 3. Why the footprint is the WB slit's (and what stays open)
+The E upstream slit read back 0.700 x 0.540 mm, which the simulator projects to 0.757 x 0.584 mm at the camera: **wider** than the real footprint (0.725 x 0.571 mm). The real edges are also 95 / 79 px soft, like the logbooks' WB-limited ramps (60-100 px), while logged E-slit-limited edges are 5-10 px. So the E slit is not what defines these frames; the WB slit (0.300 x 0.300 mm) does, but its geometric image (0.796 mm at the camera) is too big by 0.911 (h) / 0.709 (v). With that scale the horizontal edge width is reproduced **with the original 30 um source size** (94.2 vs 94.7 px) - a check that was not fitted. A first attempt (an extra soft edge on the E slit) fitted just as well and was dropped because it contradicts the logged sharp E-slit edges.
+**Open / not explained:** (a) one demagnification should narrow the WB edges and the profile alike (here h 0.911 vs 0.80, v 0.709 vs 1.0); (b) the vertical edges need a source size of 50 um (logs: 17-23 um); (c) the flux fit fixes 0.147 mm for the same beam (`flux.md`), so the narrower image profile is image-only; (d) candidates: HEM bent-crystal focusing between WB and E (not modelled), a non-Gaussian profile, energy-dependent divergence. All factors are image-only: **the flux chain, gaps and angular acceptance are unchanged** (all flux tests still pass).
+
+## 4. Device read-backs: what could and could not be mapped
+33 controls map by device name (`file_control_map.json`; no scale or offset was invented). **Not recorded in the files:** the GH1 stage position (`tomoE.x/y`, 1ide1:m63/m40: the DMS group lists the hutch-C stage), so the camera position is a fit (it only places the footprint at (972.6, 752.3) px); the E lens stacks (recorded, but the simulator's lens controls mean something else; the frames show no lens focusing, so the lenses are treated as not acting). The slit centre read-backs cannot give per-slit zeros: every slit opening is assumed centred on the beam in the replay.
+
+## 5. Limits (read before using a number)
+1. One alignment, one energy (71.7 keV), one camera (GH1), one mount; three files are consecutive scans of the same state, so the independent n is 1 state, not 85.
+2. White and dark frames in the files are empty (zeros): the dark floor and the beam profile come from the frames themselves; the profile statistics mix beam, texture and halo.
+3. The measurement code has its own bias (it reads 5 um narrower and 0.2 deg steeper than the nominal pin of a simulated frame): compare only measured-vs-measured, as done here.
+4. The pin's shaft diameter (0.5 mm) and everything below the visible cone (chuck, rod, blocks: photo estimates) are not constrained by these frames: only the first 0.47 mm below the tip is in the field of view.
+5. Real mottle is a fixed pattern; the simulated one is random. Other cameras (pg1, pg5, retiga2) keep their old, uncalibrated PSF / halo / texture.

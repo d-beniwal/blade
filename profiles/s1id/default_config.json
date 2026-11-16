@@ -19,19 +19,38 @@
     "pg5": {
       "hutch": "C",
       "pixel_um": 1.17,
-      "pv_prefix": "1idSP5:"
+      "pv_prefix": "1idSP5:",
+      "spec": {
+        "model": "Point Grey Grasshopper3 GS3-U3-23S6M",
+        "sensor": "Sony ICX825", "sensor_pitch_um": 5.86, "native_px": [1920, 1200], "lens_mag": 5,
+        "pixel_um_datasheet": 1.172, "fov_mm": [2.25, 1.41], "fps_16bit": 82,
+        "src": "'Camera Options' slide, left column (1-ID / 6-BM-A), red box = 5x as set (slide supplied by the user 2026-11-15, in the knowledge base as subject=camera_options_slide); CS-Studio panel title PGR_GS3_U3_23S6M (display record 2026-11-13). The slide names the 1-ID camera of this model, not PG1 vs PG5 separately; both panel titles are 23S6M."
+      }
     },
     "gh1": {
       "hutch": "E",
       "pixel_um": 0.69,
       "pv_prefix": "1idGH1:",
-      "note": "high-res table"
+      "note": "high-res table",
+      "spec": {
+        "model": "Point Grey Grasshopper3 GS3-U3-89S6M",
+        "sensor": "Sony IMX255", "sensor_pitch_um": 3.45, "native_px": [4096, 2160], "lens_mag": 5,
+        "pixel_um_datasheet": 0.69, "fov_mm": [2.826, 1.49], "fps_16bit": 43,
+        "src": "user 2026-11-15: GH1 is the 5x / 0.69 um camera of the middle column of the 'Camera Options' slide (red box; slide column is labelled 20-ID-D). Frames in the logs are ROI crops of the 4096 x 2160 sensor, e.g. gh1.crop(585,475,1940,1490).",
+        "conflict": "The CS-Studio Tomo D1 button opens the 1idGH1 panel titled PGR_GS3-U3-123S6M (IMX253, 4096 x 3000, V FOV 2.07 mm), not 89S6M. Pixel size, pitch, magnification and H FOV (2.826 mm) are the same for both; only the model and the vertical size differ. Open item gh1-model in beamline_twins/1-ID/verify.json."
+      }
     },
     "pg1": {
       "hutch": "E",
       "pixel_um": 1.17,
       "pv_prefix": "1idPG1:",
-      "note": "close to back wall"
+      "note": "close to back wall",
+      "spec": {
+        "model": "Point Grey Grasshopper3 GS3-U3-23S6M",
+        "sensor": "Sony ICX825", "sensor_pitch_um": 5.86, "native_px": [1920, 1200], "lens_mag": 5,
+        "pixel_um_datasheet": 1.172, "fov_mm": [2.25, 1.41], "fps_16bit": 82,
+        "src": "'Camera Options' slide, left column (1-ID / 6-BM-A), red box = 5x as set (user 2026-11-15); CS-Studio panel title SAXSRad_1idPG1 / PGR_GS3_U3_23S6M (display record 2026-11-13). PG1 was also run at 7.5x (0.781 um/px, Nov 2024), the slide's 7.5x row: 1.50 x 0.94 mm."
+      }
     }
   },
   "limits": {

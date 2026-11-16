@@ -43,7 +43,7 @@ ok("flux linear in ring current; mu_t(Re) = b at the calibrated energy and steep
 
 # undulator: scan finds the optimum, hysteresis, width
 w = VirtualBeamline(seed=4, scenario="startup")
-w.set("samE.y", 26.0)
+w.set("samE.aerox", w.sim["stage_E"]["pin"]["park_aerox_mm"])    # pin parked sideways
 g = P.nominal_gap(w)
 P.open_gap(w, g["gap_mm"]); w.set("und.gap", g["gap_mm"])
 r = P.gap_scan(w, g["gap_mm"], 0.30, 61)
@@ -59,7 +59,7 @@ ok(f"gap scan: peak error {abs(r['peak_gap_mm'] - w.optimal_gap(w.ctl('hem.energ
 
 # ---------------------------------------------------------------------------------------------------------------------------------- camera: beam search and view
 w = VirtualBeamline(seed=2, scenario="startup")
-w.set("samE.y", 26.0)
+w.set("samE.aerox", w.sim["stage_E"]["pin"]["park_aerox_mm"])    # pin parked sideways
 for s in SLIT_IDS[1:]:
     w.set(f"{s}.hsize", 3.0); w.set(f"{s}.vsize", 3.0)
 assert P.analyze_frame(im.render(w, "gh1"), 0.69)["beam"]                       # startup now begins with the beam already on gh1
@@ -91,7 +91,7 @@ ok(f"line profile: S-curve edge 10-90 = {_e['width_10_90']:.0f} um (R2 {_e['r2']
 
 # ---------------------------------------------------------------------------------------------------------------------------------- slit edges: sharp vs blurry
 w = VirtualBeamline(seed=1, scenario="ready_for_pin")
-w.set("samE.y", 26.0)                                                         # pin out
+w.set("samE.aerox", w.sim["stage_E"]["pin"]["park_aerox_mm"])                  # pin out (parked sideways: with the full mount a raised stage puts the chuck in the beam)
 w.set("slitEus.hsize", 3.0); w.set("slitEus.vsize", 3.0)
 w.set("slitEds.hsize", 3.0); w.set("slitEds.vsize", 3.0)
 img, info = im.render(w, "gh1", return_info=True, with_noise=False)
@@ -105,7 +105,7 @@ img2, info2 = im.render(w, "gh1", return_info=True, with_noise=False)
 an_s = P.analyze_frame(img2, 0.69)
 assert info2["h"]["low_side"]["id"] == "slitEus" and info2["h"]["low_side"]["penumbra_px"] < 3
 sw = an_s["edge_width_10_90_px"]
-assert max(sw["left"], sw["right"], sw["top"], sw["bottom"]) < 16, sw         # logs: Kohzu E edges 5-10 px (0.78-1.17 um/px)
+assert max(sw["left"], sw["right"], sw["top"], sw["bottom"]) < 32, sw         # logs (other cameras): Kohzu E edges 5-10 px; gh1's fitted PSF (6.8 px sigma, from the real pin edges 2026-11-15) alone gives ~18-25 px
 assert an_s["box_px"]["width"] < an_wb["box_px"]["width"] * 0.7
 ok(f"WB-limited edges {wb_w['left']:.0f}/{wb_w['right']:.0f} px (blurry), E-slit-limited {sw['left']:.0f}/{sw['right']:.0f} px (sharp, footprint shrinks)")
 
@@ -143,7 +143,7 @@ ok("pin silhouette follows x(w) = c + a cos w + b sin w; +x moves it left")
 
 # ---------------------------------------------------------------------------------------------------------------------------------- lens focus
 w = VirtualBeamline(seed=2, scenario="camera_in_beam")
-w.set("samE.y", 26.0)
+w.set("samE.aerox", w.sim["stage_E"]["pin"]["park_aerox_mm"])    # pin parked sideways
 for s in ("slitEus", "slitEds"):
     w.set(s + ".hsize", 1.5); w.set(s + ".vsize", 1.5)
 w.set("lens2E.x", 0.0)

@@ -5,6 +5,7 @@ frames); the hidden truth of the simulator never enters (scoring: blade/vbl/read
     energy.py    gap / Th2 / foil-edge energy calibration        camera.py   exposure, find + centre beam, steering check
     optics.py    camera focus, lens tilt scans                   slits.py    slit + fast-shutter alignment
     startup.py   the whole start-of-beamtime sequence            pin_alignment.py  rotation axis onto the beam (the former `blade align`)
+    pin_find.py  bring the pin into view of the tomo camera (3-D mount model as a search aid)
 Flat re-exports so `from blade import procedures as P; P.gap_scan(inst, ...)` works."""
 from ..analysis.frame import analyze_frame, fit_peak
 from .energy import open_gap, nominal_gap, gap_scan, th2_scan, select_edge, edge_scan, calibrate_energy, tune_energy_flux
@@ -12,6 +13,7 @@ from .camera import tune_exposure, find_beam_on_camera, centre_camera_on_beam, s
 from .optics import focus_camera, lens_scan
 from .slits import slit_image_centre, align_slit, slit_ic_scan, align_fast_shutter, _ic_after
 from .startup import startup_sequence
+from .pin_find import find_pin, plan_pin_search
 from ..vbl.readiness import readiness
 
 _fit_peak = fit_peak          # old private name, kept for the callers that used it

@@ -84,7 +84,7 @@ def twin_payload(profile):
                 for s, v in (prof.get("stations") or {}).items()}
     out = {"profile": {"name": profile, "beamline": prof.get("beamline", profile), "description": prof.get("description", ""),
                        "backends": prof.get("backends", []), "default_camera": prof.get("default_camera"), "default_station": prof.get("default_station"),
-                       "cameras": {k: {"hutch": v.get("hutch"), "pixel_um": v.get("pixel_um"), "pv_prefix": v.get("pv_prefix"), "note": v.get("note")}
+                       "cameras": {k: {"hutch": v.get("hutch"), "pixel_um": v.get("pixel_um"), "pv_prefix": v.get("pv_prefix"), "note": v.get("note"), "spec": v.get("spec")}
                                    for k, v in prof.get("cameras", {}).items()}, "stations": stations},
            "twin": None, "twin_declared": prof.get("twin")}
     tid = prof.get("twin")

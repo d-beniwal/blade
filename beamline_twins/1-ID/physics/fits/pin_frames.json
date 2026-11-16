@@ -1,0 +1,148 @@
+{
+ "built": "2026-11-15",
+ "n_frames": 85,
+ "n_files": 3,
+ "camera": "gh1",
+ "ray_map_note": "frames: 1940 x 1490 ROI of GH1 at 0.69 um/px, 71.676 keV, 0.1 s",
+ "real_pin_tip_column_px": {
+  "c": 815.87,
+  "a": -130.03,
+  "b": -16.0,
+  "rms_about_fit_px": 3.71
+ },
+ "real_tip_row_px": 479.28,
+ "sim_minus_real_pin": {
+  "tip_col": {
+   "n": 85,
+   "mean": -0.0016,
+   "rms": 3.6907
+  },
+  "tip_row": {
+   "n": 85,
+   "mean": -0.0353,
+   "rms": 1.0
+  },
+  "top_width_um": {
+   "n": 85,
+   "mean": -0.1869,
+   "rms": 1.4289
+  },
+  "half_angle_deg": {
+   "n": 85,
+   "mean": -0.044,
+   "rms": 0.1021
+  },
+  "interior_transmission": {
+   "n": 85,
+   "mean": 0.0078,
+   "rms": 0.0102
+  },
+  "edge_10_90_px": {
+   "n": 85,
+   "mean": -0.7822,
+   "rms": 2.1056
+  }
+ },
+ "footprint_median": {
+  "w_px": {
+   "real": 1051.0,
+   "sim": 1050.0
+  },
+  "h_px": {
+   "real": 828.0,
+   "sim": 831.0
+  },
+  "edge_left_10_90_px": {
+   "real": 95.27,
+   "sim": 104.83
+  },
+  "edge_right_10_90_px": {
+   "real": 94.06,
+   "sim": 86.14
+  },
+  "edge_top_10_90_px": {
+   "real": 82.71,
+   "sim": 75.49
+  },
+  "edge_bottom_10_90_px": {
+   "real": 75.04,
+   "sim": 71.48
+  }
+ },
+ "levels_median": {
+  "bg": {
+   "real": 5549.8,
+   "sim": 5541.7
+  },
+  "lit_p60": {
+   "real": 15428.8,
+   "sim": 14877.6
+  },
+  "lit_p95": {
+   "real": 18349.2,
+   "sim": 18370.4
+  }
+ },
+ "pin_median": {
+  "top_width_um": {
+   "real": 99.752,
+   "sim": 99.767
+  },
+  "half_angle_deg": {
+   "real": 14.957,
+   "sim": 14.961
+  },
+  "interior_transmission": {
+   "real": 0.075,
+   "sim": 0.081
+  },
+  "edge_10_90_px": {
+   "real": 28.598,
+   "sim": 28.114
+  },
+  "tip_from_footprint_top_px": {
+   "real": 140.0,
+   "sim": 142.0
+  }
+ },
+ "clipped_controls": {},
+ "controls_used": {
+  "hem.energy": 71.676,
+  "und.gap": 10.013275,
+  "wbSlits.hsize": 0.300175,
+  "wbSlits.vsize": 0.29994,
+  "wbSlits.hcenter": 0.000163,
+  "wbSlits.vcenter": 6.5e-05,
+  "slitB.hsize": 1.999525,
+  "slitB.vsize": 2.0,
+  "slitB.hcenter": 0.087,
+  "slitB.vcenter": -0.11475,
+  "slitCus.hsize": 0.7,
+  "slitCus.vsize": 0.7,
+  "slitCus.hcenter": 0.089,
+  "slitCus.vcenter": 0.03505,
+  "slitCds.hsize": 0.8,
+  "slitCds.vsize": 0.800125,
+  "slitCds.hcenter": 0.141,
+  "slitCds.vcenter": -0.233062,
+  "slitEus.hsize": 0.7,
+  "slitEus.vsize": 0.54,
+  "slitEus.hcenter": 0.142,
+  "slitEus.vcenter": -0.563,
+  "slitEds.hsize": 0.88,
+  "slitEds.vsize": 0.7,
+  "slitEds.hcenter": 0.228,
+  "slitEds.vcenter": -0.61,
+  "samE.x": -0.1453,
+  "samE.y": 25.6471,
+  "samE.z": -0.0412,
+  "samE.aerox": 0.100016,
+  "samE.rx": 0.0,
+  "samE.rz": 0.0,
+  "gh1.exposure": 0.099996
+ },
+ "footprint_centre_px": [
+  972.6,
+  752.3
+ ]
+}

@@ -16,7 +16,7 @@ import zlib
 import struct
 from functools import lru_cache
 import numpy as np
-from scipy.ndimage import gaussian_filter, gaussian_filter1d
+from scipy.ndimage import gaussian_filter, gaussian_filter1d, zoom as ndimage_zoom
 from scipy.special import fresnel, expit
 from ..physics import core as pcore
 from .world import stable_seed
@@ -150,7 +150,10 @@ def axis_profile(world, axis, cam, coords, bin_=1):
     tr = world.trace(axis, zc)
     sim = world.sim
     S = sim["source"]["size_um_fwhm"][axis] / 2.3548 * 1e-3             # mm (sigma)
-    sg = world.sigma_theta()
+    isc = world.sim["source"].get("image_sigma_scale", 1.0)
+    isc = isc[axis] if isinstance(isc, dict) else isc
+    sg = world.sigma_theta() * isc                                         # image-only width scale of the angular profile (fitted on real frames; the flux keeps sigma_theta)
+    wbs = world.sim["source"].get("wb_edge_scale", {}).get(axis, 1.0)      # image-only: the WB slit's projected edges (and penumbra) scale by this (optics between WB and E demagnify its image)
     th0 = world.steer_rad()[0 if axis == "h" else 1]
     A, E, B = tr["A"], tr["E"], tr["B"]
     su = math.hypot(A * sg, E * S)
@@ -165,6 +168,8 @@ def axis_profile(world, axis, cam, coords, bin_=1):
     for (zi, Ai, Ei, Bi, lo, hi, name) in tr["aps"]:
         if abs(Ai) < 1e-6 or zi >= zc:
             continue
+        if name == "wbSlits":
+            Ai = Ai / wbs                                                  # effective ray coefficient of the WB aperture: projected edges x wbs
         e1, e2 = A * (lo - Bi) / Ai + B, A * (hi - Bi) / Ai + B
         a, b = min(e1, e2), max(e1, e2)
         pen = abs(E - A * Ei / Ai) * S                                      # geometric penumbra (sigma, mm) of THIS aperture's edges
@@ -192,6 +197,64 @@ def axis_profile(world, axis, cam, coords, bin_=1):
     return prof, info
 
 
+def _broad_blur(a, sigma_px):
+    """Gaussian blur with a large sigma, cheaply: block-average, blur the small image, interpolate back (a 250 px sigma on a 1940 x 1490 frame directly would take ~10 s)."""
+    f = max(int(sigma_px // 6), 1)
+    H, W = a.shape
+    h2, w2 = (H // f) * f, (W // f) * f
+    small = a[:h2, :w2].reshape(h2 // f, f, w2 // f, f).mean((1, 3))
+    small = gaussian_filter(small, sigma_px / f, mode="nearest")
+    out = ndimage_zoom(small, (H / small.shape[0], W / small.shape[1]), order=1, mode="nearest")
+    return out[:H, :W] if out.shape[0] >= H and out.shape[1] >= W else np.pad(out, ((0, H - out.shape[0]), (0, W - out.shape[1])), mode="edge")
+
+
+def _edge_ripple(shadow, kf, side_px=14, damp=0.55):
+    """Fresnel (opaque half-plane) ripple next to every left/right edge of the binary shadow mask (H, W): added to the LIT side only (w > 0 there). kf = sqrt(2/(lambda L_eff))
+    x pixel size at the sample plane (1/px)."""
+    H, W = shadow.shape
+    ripple = np.zeros((H, W), np.float32)
+    d = np.diff(shadow.astype(np.int8), axis=1)
+    if kf <= 0:
+        return ripple
+    offs = np.arange(-side_px, side_px + 1)
+    for sign, lit_left in ((1, True), (-1, False)):            # +1: clear -> shadow going right (left edge of a shadow, lit side on the left)
+        rr, cc = np.nonzero(d == sign)
+        if rr.size == 0 or rr.size > 40000:
+            continue
+        xe = cc + 0.5
+        cols = cc[:, None] + offs[None, :]
+        ok = (cols >= 0) & (cols < W)
+        wv = ((xe[:, None] - cols) if lit_left else (cols - xe[:, None])) * kf
+        s_, c_ = fresnel(wv)
+        I = 0.5 * ((c_ + 0.5) ** 2 + (s_ + 0.5) ** 2)
+        vals = (I - (wv > 0)) * damp
+        np.add.at(ripple, (np.broadcast_to(rr[:, None], cols.shape)[ok], cols[ok]), vals[ok].astype(np.float32))
+    return ripple
+
+
+def _mount_shadow(world, shape, p, uc, vc, rows_idx, cols_idx, ph, pv, ch, cv, ps, zc, zp):
+    """Pin + mount transmission from the 3-D ray-cast model (blade/physics/pin_mount.py): every camera pixel is traced back through the ray map to the sample plane,
+    the path length through each material (W pin, brass chuck, steel rod/nut, Al blocks) is cast along the beam for the current rotation / lean, and the transmission
+    is Beer-Lambert at the true photon energy. Returns (transmission, ripple) like the legacy shadow."""
+    H, W = shape
+    mount = world.pin_mount()
+    u_cam = uc + (cols_idx - (W - 1) / 2.0) * p
+    v_cam = vc - (rows_idx - (H - 1) / 2.0) * p
+    u_s = ph["B"] + ph["A"] * (u_cam - ch["B"]) / ch["A"]
+    v_s = pv["B"] + pv["A"] * (v_cam - cv["B"]) / cv["A"]
+    E = world.energy_actual_keV()
+    trans, _ = mount.transmission(u_s, v_s, ps["u"], ps["v_top"], max(E, 5.0), omega_deg=ps["omega"], lean_rad=ps["tilt_img"])
+    trans = trans.astype(np.float32)
+    shadow = trans < 0.5
+    if not shadow.any():
+        return trans, np.zeros((H, W), np.float32)
+    Mh = abs(ch["A"] / ph["A"])
+    lam = pcore.wavelength_A(max(E, 5.0)) * 1e-7
+    leff = zp * (zc - zp) / zc * 1e3
+    kf = math.sqrt(2.0 / (lam * leff)) * p / Mh if leff > 0 else 0.0
+    return trans, _edge_ripple(shadow, kf)
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------- pin
 def _pin_shadow(world, cam, shape, p, uc, vc, rows_idx, cols_idx):
     """Pin transmission image (1 = clear) and a Fresnel-ripple factor, or None if the pin is not in this hutch."""
@@ -208,6 +271,8 @@ def _pin_shadow(world, cam, shape, p, uc, vc, rows_idx, cols_idx):
     ps = world.pin_state()
     if abs(ph["A"]) < 1e-6 or abs(pv["A"]) < 1e-6:
         return None
+    if sE["pin"].get("model") == "3d":
+        return _mount_shadow(world, (H, W), p, uc, vc, rows_idx, cols_idx, ph, pv, ch, cv, ps, zc, zp)
     Mh, Mv = ch["A"] / ph["A"], cv["A"] / pv["A"]
     u_cam = ch["A"] * (ps["u"] - ph["B"]) / ph["A"] + ch["B"]
     v_cam = cv["A"] * (ps["v_top"] - pv["B"]) / pv["A"] + cv["B"]
@@ -305,6 +370,9 @@ def render(world, cam, exposure=None, bin_=1, with_noise=True, with_pin=True, re
         info["blur_sigma_px"] = sig_px * bin_
         info["focus_error_mm"] = world.camera_focus_error_mm(cam)
         img = gaussian_filter(sig, sig_px, mode="nearest") if sig_px > 0.3 else sig
+        hw = float(cc.get("halo", 0.0))
+        if hw > 0:                                   # veiling glare: a fraction `halo` of the light is spread by a broad Gaussian (fitted on the frames outside the footprint)
+            img = (1.0 - hw) * img + hw * _broad_blur(sig, cc.get("halo_sigma_um", 170.0) / (p0 * 1e3) / bin_)
         dust, hot = camera_maps(cam, seed, rows, cols, cc["dust"])
         if bin_ > 1:
             dust, hot = dust[: H * bin_, : W * bin_].reshape(H, bin_, W, bin_).mean((1, 3)), hot[: H * bin_, : W * bin_].reshape(H, bin_, W, bin_).max((1, 3))

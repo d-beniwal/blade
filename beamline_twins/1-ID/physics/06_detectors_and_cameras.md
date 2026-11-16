@@ -6,7 +6,7 @@ Twin elements: `tomoB`, `tomoC`, `tomoE`, `d2C` (Varex D2), `d2E` (NF D2), `hydr
 | camera (as logged) | pixel size at the scintillator | = sensor pitch / M | notes |
 |---|---|---|---|
 | PG1, 5X (E, back wall) | 1.172 um/px | 5.86 um / 5 | headers 2022-2026 |
-| GH1, 5X (E, high-res table) | **0.69 um/px** | 3.45 um / 5 | FLIR Grasshopper3; 0.069 mm = 100 px [M26a:L127] |
+| GH1, 5X (E, high-res table) | **0.69 um/px** | 3.45 um / 5 | Grasshopper3 **GS3-U3-89S6M** (Sony IMX255, 4096 x 2160, 43 fps 16 bit; user 2026-11-15, slide 'Camera Options' middle column; CS-Studio panel title says 123S6M - open item gh1-model); full FOV 2.826 x 1.49 mm, logged frames are ROI crops; 0.069 mm = 100 px [M26a:L127] |
 | PG5 (C) | 1.17 um/px | 5.86 um / 5 (assumed) | rx tilt measurement [S25b] |
 | NF Retiga, 5X (E) | 1.48 um/px | 7.4 um / 5 | headers 2022-2023 |
 `detector.object_pixel_um` reproduces all three logged values exactly. **Discrepancy to resolve:** `profiles/s1id` has `retiga2` (hutch B) at 1.0 um/px; the logs give 1.48 um/px for the NF Retiga 5X in E. They may be different cameras.

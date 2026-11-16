@@ -17,7 +17,7 @@ Select a profile with `--profile <name>` on `new_run` (stored in the run afterwa
 | `beamline`, `description` | labels shown in the GUI |
 | `backends` | `sim` (private simulator per run) and/or `vbl` (the shared virtual-beamline session: needs `twin` and a `beamline_twins/<bl>/sim.json`). There is no hardware backend: BLADE does not command the beamline; the read-only reader is `blade/instrument/epics.py` |
 | `twin` | optional: id of the beamline twin (`beamline_twins/<id>/`) the GUI's twin viewer (`/twin`) shows for this profile; omit if there is none |
-| `cameras` | per camera: `pixel_um`, `pv_prefix` (pvAccess `<prefix><camera_pva_suffix>`; `null` = simulator only), `hutch`; `default_camera` |
+| `cameras` | per camera: `pixel_um`, `pv_prefix` (pvAccess `<prefix><camera_pva_suffix>`; `null` = simulator only), `hutch`; optional `spec` (datasheet: `model`, `sensor`, `sensor_pitch_um`, `native_px`, `lens_mag`, `pixel_um_datasheet`, `fov_mm`, `fps_16bit`, `src`, optional `conflict`; shown in the twin info panel; tests/test_camera_specs.py); `default_camera` |
 | `stations` | **per hutch/station** (key = hutch, e.g. `E`): `description`, `motors`, `geometry` (below). `default_station` picks one |
 | `stations.<S>.motors` | logical roles `omega, x, y, z, base` -> EPICS motor `pv` + display `name` (units must read back as mm) |
 | `stations.<S>.geometry` | sign links: image column per +x, rotation sense, image row per +y, axis column per +base (px per mm sign) |

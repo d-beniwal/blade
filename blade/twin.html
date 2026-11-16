@@ -413,6 +413,12 @@ function side(){
   return `<div class="cg"><h3>${title}${have[g]&&g!=='Device & prefix'?` <span class="mute">${have[g].rows.length}</span>`:''}</h3>${shNote}${rows.map(r=>r.pv===''?`<div class="ch"><div class="chl"><b>${esc(r.label)}</b></div><div>${eEl(e,r.label==='device name'?'dev':'pv','str',r.label,'<span class="mute">(none recorded)</span>')}</div></div>`:chRow(e,g,r,uni)).join('')}</div>`}).join('');
  const lg2=`<div class="legend2">${Object.entries(SRCTAG).map(([k,v])=>`<span><span class="stag">${v[0]}</span> ${esc(v[1])}</span>`).join('')}</div>`;
  const ctlSec=sec('ctl','Controls & PVs',ctl+lg2,true);
+ const cam=e.camera&&(P.profile.cameras||{})[e.camera],cs=cam&&cam.spec;
+ const camSec=cs?sec('cam','Camera · '+esc(e.camera),`<dl class="kv"><dt>model</dt><dd>${esc(cs.model)} <span class="mute">(${esc(cs.sensor)})</span></dd>
+  <dt>sensor</dt><dd>${esc(cs.native_px[0])} × ${esc(cs.native_px[1])} px · ${esc(cs.sensor_pitch_um)} µm pitch · ${esc(cs.fps_16bit)} fps (16 bit)</dd>
+  <dt>lens · pixel</dt><dd><b>${esc(cs.lens_mag)}x</b> · <b>${esc(cam.pixel_um)} µm/px</b> in the profile <span class="mute">(data sheet ${esc(cs.pixel_um_datasheet)})</span></dd>
+  <dt>full-sensor FOV</dt><dd>${esc(cs.fov_mm[0])} × ${esc(cs.fov_mm[1])} mm (H × V)</dd>
+  <dt>IOC prefix</dt><dd class="mono">${esc(cam.pv_prefix||'')}</dd><dt>source</dt><dd class="note" style="margin:0">${esc(cs.src)}</dd></dl>${cs.conflict?`<div class="op"><span class="ok">conflict</span> ${esc(cs.conflict)}</div>`:''}`,true):'';
  /* 4 collapsed metadata */
  const notes=sec('notes','Notes',`<div class="note" style="margin-top:0;color:var(--ink)">${eEl(e,'notes','str','notes',e.notes?esc(e.notes):'<span class="mute">(no notes - right-click to add)</span>')}</div>`,false);
  let snap='';if(e.state){snap=sec('snap','Logged snapshot'+(e.state.when?' · '+e.state.when:''),`<table><tbody>`+Object.entries(e.state).filter(([k])=>k!=='when').map(([k,v])=>`<tr><td class="l">${esc(k)}</td><td class="l">${v==null?'<span class="mute">unknown</span>':esc(typeof v==='object'?JSON.stringify(v):v)}</td></tr>`).join('')+`</tbody></table><div class="note">${eEl(e,'state','json','snapshot (JSON)','edit snapshot (JSON)')}</div>`,false)}
@@ -433,7 +439,7 @@ function side(){
  const meta=sec('meta','Provenance & metadata',`<dl class="kv">${kv.join('')}</dl>`,false);
  const ph=(e.src||[]).map(id=>t.photos.find(p=>p.id===id)).filter(Boolean);
  const thumbs=ph.length?sec('photos','Source photos',`<div class="thumbs">${ph.map(p=>p.local?`<a href="/twin-photo/${esc(t.id)}/${esc(p.id)}" target="_blank" title="${esc(p.id)}: ${esc(p.shows)}"><img loading="lazy" src="/twin-photo/${esc(t.id)}/${esc(p.id)}" alt="${esc(p.id)}"></a>`:`<span class="nophoto" title="${esc(p.shows)}">${esc(p.id)} (not local)</span>`).join('')}</div><div class="note">${ph.map(p=>`<b>${esc(p.id)}</b> ${esc(p.type)}: ${esc(p.shows)}`).join('<br>')}</div>`,false,ph.length):'';
- el.innerHTML=`${hdr}<div class="secbar"><button class="chip" data-secall="1">expand all</button><button class="chip" data-secall="0">collapse all</button></div>${ctlSec}${open}${notes}${snap}${rf}${meta}${thumbs}
+ el.innerHTML=`${hdr}<div class="secbar"><button class="chip" data-secall="1">expand all</button><button class="chip" data-secall="0">collapse all</button></div>${ctlSec}${camSec}${open}${notes}${snap}${rf}${meta}${thumbs}
   <div style="margin-top:12px"><button class="chip" id="clr">← profile &amp; twin info</button></div>`;
  $('clr').onclick=()=>{sel=null;hash();side();paint()};
 }

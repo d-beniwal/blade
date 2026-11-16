@@ -101,7 +101,8 @@ if w is not None:
     S = w.sim["source"]["size_um_fwhm"]["h"] / O.FWHM_PER_SIGMA
     for e in info["edges"]:
         if e["id"] in w.z:
-            assert close(e["penumbra_sigma_mm"] * 1e3, O.edge_penumbra_sigma_um(w.z[e["id"]], zc, S), 2e-4 * e["penumbra_sigma_mm"] * 1e3), e["id"]
+            z_eff = w.z[e["id"]] / (w.sim["source"].get("wb_edge_scale", {}).get("h", 1.0) if e["id"] == "wbSlits" else 1.0)     # the WB aperture's effective ray coefficient (image-only demagnification, sim.json)
+            assert close(e["penumbra_sigma_mm"] * 1e3, O.edge_penumbra_sigma_um(z_eff, zc, S), 2e-4 * e["penumbra_sigma_mm"] * 1e3), e["id"]
             assert close(e["fresnel_scale_um"], O.fresnel_scale_um(w.energy_actual_keV(), w.z[e["id"]], zc), 0.05), (e["id"], e["fresnel_scale_um"])
     ok("penumbra and Fresnel scale agree with blade.vbl")
 assert close(O.slit_image_size_mm(0.110, 60.8, O.P["z_sample_E_m"]) , 0.1257, 0.0005)

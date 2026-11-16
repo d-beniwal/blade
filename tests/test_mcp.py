@@ -18,6 +18,14 @@ try:
 except PermissionError:
     pass
 print("PASS registry: new_run + align_measure on the simulator; backend 'epics' refused")
+registry.invoke("vbl_reset", scenario="ready_for_pin", seed=3)
+pl = registry.invoke("vbl_pin_plan")
+assert pl["moves_anything"] is False and pl["frames_with_chuck"] < pl["frames_tip_only_raster"], pl
+mt = registry.invoke("vbl_pin_mount")
+assert 40 < mt["tip_height_above_plate_mm"] < 80 and {p["name"] for p in mt["parts"]} >= {"pin", "chuck", "rod", "nut"}, mt
+fp = registry.invoke("vbl_find_pin")
+assert fp["found"] and abs(fp["tip_offset_from_window_centre_mm"]) < 0.3, fp
+print("PASS registry: vbl_pin_plan (read-only), vbl_pin_mount, vbl_find_pin found the pin in %d frames" % fp["frames"])
 
 try:
     from mcp import ClientSession, StdioServerParameters

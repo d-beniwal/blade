@@ -9,6 +9,7 @@ from ..registry import tool, playbook
 from ..vbl import store, imaging
 from ..vbl.world import control_specs, CAMERAS
 from .. import procedures as P
+from . import pin_find as PF
 from . import pin_alignment as C
 
 playbook("vbl", ROOT / "playbooks" / "virtual_beamline.md")
@@ -162,6 +163,30 @@ def vbl_find_beam_on_camera(camera: str = "gh1", half_range_mm: float = 3.0, ses
     """Bring the tomo camera to the beam: raster the stage about x=0 (the logs zero the stage on the hotspot, so the beam is near 0 +-1 mm) until the beam is seen."""
     w = _w(session)
     return _done(w, session, P.find_beam_on_camera(w, camera, half_range_mm))
+
+
+@tool("vbl", needs_run=False)
+def vbl_pin_plan(camera: str = "gh1", session: str = "default") -> dict:
+    """READ-ONLY plan to bring the alignment pin into view: expected lit window, ranges to search (priors from the logs: aero X, samE.y), steps, and the frame budget with and
+    without the chuck trick. Moves nothing, so it is the form that also applies to the real beamline (where BLADE only proposes)."""
+    return PF.plan_pin_search(_w(session), camera)
+
+
+@tool("vbl", needs_run=False)
+def vbl_find_pin(camera: str = "gh1", session: str = "default") -> dict:
+    """Search for the pin on the SIMULATOR: clear-beam reference, raise samE.y until something shadows the window, scan aero X (the middle of the shadowed interval is the pin axis -
+    works for tip, shaft or the ~7 mm wide brass chuck), then lower samE.y by at most the pin protrusion until a narrow tip sits inside the window. Needs the beam on the camera."""
+    w = _w(session)
+    return _done(w, session, PF.find_pin(w, camera))
+
+
+@tool("vbl", needs_run=False)
+def vbl_pin_mount(session: str = "default") -> dict:
+    """The 3-D pin + holder model (static): layer heights, tip height above the stage plate, where the chuck's top edge is below the tip, the chuck radius, materials. All dimensions
+    are photo estimates (+-20 %), see sim.json stage_E.pin.mount."""
+    M = _w(session).pin_mount()
+    return {"tip_height_above_plate_mm": M.tip_height_mm, "layers_mm": M.layers_mm, "chuck_top_below_tip_mm": M.part_tip_offset_mm("chuck", "top"), "chuck_radius_mm": M.chuck_radius_mm(),
+            "pin_cone_depth_mm": M.cone_depth_mm, "parts": [{"name": q.name, "material": q.material} for q in M.parts], "dimensions_are": "photo estimates, +-20 %, unverified"}
 
 
 @tool("vbl", needs_run=False)

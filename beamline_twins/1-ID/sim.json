@@ -66,9 +66,12 @@
  "source": {
   "size_um_fwhm": {
    "h": 30.0,
-   "v": 20.0
+    "v": 50.0
   },
-  "size_src": "log: focused beam 30 (h) / 17-23 (v) um FWHM in brightness / regular mode (2026 Feb); used here as the effective source size that sets the geometric penumbra of every slit edge",
+  "size_src": "log: focused beam 30 (h) / 17-23 (v) um FWHM in brightness / regular mode (2026 Feb); used here as the effective source size that sets the geometric penumbra of every slit edge. 2026-11-15: h kept (the real WB-limited footprint edges, 94.7 px, are reproduced by 30 um); v raised 20 -> 50 um to match the real 79 px vertical edges: OPEN, 2.5x the logged 17-23 um",
+  "image_sigma_scale": {"h": 0.8, "v": 1.0},
+  "wb_edge_scale": {"h": 0.911, "v": 0.709},
+  "image_geometry_src": "2026-11-15, from 85 real alignment frames (71.7 keV, WB 0.30 x 0.30 mm, E US slit 0.70 x 0.54 mm). IMAGE-ONLY factors (the flux keeps beam_sigma_at_wb_mm and the true gaps): (1) the real footprint (0.725 x 0.571 mm, soft 95 / 79 px edges) is smaller than the E upstream slit projected from its read-back (0.757 x 0.584 mm) and its edges are soft like logged WB-limited ramps (60-100 px; logged E-slit-limited edges are 5-10 px), so it is defined by the WB slit; the point-source projection of 0.3 mm (0.796 mm) is too big by wb_edge_scale = 0.911 (h) / 0.717 (v): the optics between WB and E (HEM bent crystals, lenses parked) demagnify its image; (2) the angular profile of the beam in the image is narrower than sigma_theta: image_sigma_scale 0.80 (h) / 1.00 (v; the vertical profile needs no narrowing). OPEN: one demagnification should narrow the WB edges and the profile alike; here h: 0.911 edges / 0.80 profile, v: 0.709 edges / 1.0 profile, so the simple 'optics demagnify the WB image' picture is incomplete (the V footprint may be shared with the E slit, 0.584 vs 0.571 mm, and the V source size had to be raised to 50 um); the flux ratios fix 0.147 mm (isotropic) for the same beam.",
   "beam_sigma_at_wb_mm": 0.147,
   "beam_sigma_src": "fit 2026-11-13: 0.147 +- 0.009 mm (3 within-session WB-slit flux ratios agree to 1 %; H and V not separable; fits/flux.md)",
   "ring_current_mA": 200.0,
@@ -378,14 +381,15 @@
     "1ide1:m40"
    ],
    "gain": 1.0,
-   "bg": 5400,
-   "full": 28000,
-   "psf_px": 1.8,
-   "texture": 0.15,
-   "core": 0.5,
+   "bg": 5490,
+   "full": 28100,
+   "psf_px": 6.8,
+   "texture": 0.04,
+   "core": 0.0,
    "dust": 0.05,
    "note": "FLIR Grasshopper3, 5X, high-res table",
-   "halo": 0.02
+   "halo": 0.18,
+   "halo_sigma_um": 200.0
   },
   "pg1": {
    "hutch": "E",
@@ -509,28 +513,58 @@
   "row_per_y": -1.0,
   "rot_sign": 1.0,
   "pin": {
-   "top_width_um": 104.5,
-   "half_angle_deg": 15.0,
+   "top_width_um": 105.0,
+   "half_angle_deg": 14.8,
    "top_width_src": "151.5 px x 0.69 um in the 1490x1940 test frames",
    "transmission": 0.08,
    "length_mm": 12.0,
-   "length_src": "assumed (lever arm of the tilt/wedge)",
+   "length_src": "assumed (lever arm of the tilt/wedge); only used by the legacy 2-D pin shadow (model != '3d')",
+   "model": "3d",
+   "model_src": "2026-11-15: '3d' = ray-cast mount model blade/physics/pin_mount.py (pin + brass chuck + rod + nut + blocks); anything else = the legacy truncated cone",
+   "mount": {
+    "_note": "Mount of the tomo alignment pin, ALL DIMENSIONS ESTIMATED FROM ONE PHOTO (2026-11-15), no calipers: scale anchored on the two black blocks being ~23 mm wide (assumed; the Kohzu top plate gives ~21 mm if it is 60 mm), so every length is +-20 %. Measure and replace (verify.json 'pin-mount-dimensions'). Proportions are read off the photo: chuck ~3.3x as long as wide, rod exposed ~3x the chuck width, pin protrusion ~0.8x the chuck width.",
+    "pin": {"shaft_diameter_mm": 0.5, "protrusion_mm": 5.0, "inside_chuck_mm": 10.0, "material": "W", "bevel_deg": 0.0, "bevel_azimuth_deg": 0.0,
+            "shaft_diameter_src": "assumed (etched W wire; the photo shows a thin wire, 0.3-0.6 mm)", "protrusion_src": "photo: pin sticks out ~0.75 chuck widths above the nose",
+            "inside_chuck_src": "assumed clamp length", "bevel_src": "none modelled by default (DOMAIN.md: the real top is bevelled on one side, flipping with omega; size not measured)"},
+    "chuck": {"nose_len_mm": 6.0, "nose_top_dia_mm": 3.0, "body_dia_mm": 6.6, "body_len_mm": 15.0, "cross_hole_dia_mm": 1.6, "cross_hole_from_bottom_mm": 4.0, "cross_hole_azimuth_deg": 0.0, "material": "brass",
+              "src": "photo (brass pin vise: tapered nose, cylindrical body with a cross hole near the lower end; knurling ignored); material brass 60/40 assumed"},
+    "rod": {"dia_mm": 2.0, "exposed_mm": 20.0, "into_chuck_mm": 6.0, "material": "steel",
+            "src": "photo: threaded rod between the nut and the chuck; exposed length = the one adjustable height of the mount (the screw); M2 steel assumed"},
+    "nut": {"af_mm": 4.0, "thick_mm": 1.6, "material": "steel", "src": "photo: hex nut at the block top; M2 size assumed"},
+    "blocks": [{"name": "upper", "w_mm": 23.0, "d_mm": 23.0, "h_mm": 7.0, "material": "Al"}, {"name": "lower", "w_mm": 23.0, "d_mm": 23.0, "h_mm": 4.0, "material": "Al"}],
+    "blocks_src": "photo: two stacked black blocks (labelled '1-ID'), magnetically held on the Kohzu plate; material (black anodised Al?) and heights assumed",
+    "azimuth_deg": 0.0,
+    "azimuth_src": "assumed: blocks square to the stage axes at omega = 0"
+   },
+   "search_prior": {
+    "_note": "What the logs say about where the pin is when it is NOT yet in view (blade/calibration/pin_view_fit.py -> physics/fits/pin_view.md; offline fit, copied here because calibration is never imported at runtime). Used by procedures/pin_find.py.",
+    "aerox_prior_mm": 0.0,
+    "aerox_prior_halfwidth_mm": 1.5,
+    "aerox_src": "simulator user coordinate: the aligned-axis snapshot (aerox_ref_mm). Real beamline: the on-beam DIAL value was -3.0 +- 0.3 mm over the last four cycles (-2.88, -2.72, -3.09, -3.31) but moved by up to 1.31 mm between cycles (fits/pin_view.md); the user value is re-zeroed each cycle, so the dial is the stable coordinate. Half width 1.5 mm covers 4 of the 5 logged cycle shifts.",
+    "samye_logged_mm": [0.04, 5.15, 13.45, 20.0],
+    "samye_src": "pin-in-view samYE values in the logs, one per distinct (cycle, mount): 2025-10 0.04, 2024-10 5.15, 2025-06 13.45 and 20.0. They span 20 mm, so the height of the pin is NOT constant between cycles; search it.",
+    "wb_footprint_mag": 1.9,
+    "wb_footprint_src": "lit width at the E tomo = 1.6-2.2 x the WB gap (two measurements; fits/pin_view.md)",
+    "kohzu_E_mag": 1.0
+   },
+   "park_aerox_mm": 6.0,
+   "park_src": "2026-11-15: with the full mount the pin can no longer be 'parked' by raising the stage (the chuck would sit in the beam), so scenarios park it sideways: the axis moved this far in aero X (chuck radius 3.3 mm + footprint)",
    "transmission_src": "test frames gave 0.045 at the top; the log screenshots show 8-20 % interior transmission with the thicker lower part darker; 0.06 at the top flat is used and the interior darkens as T^((width/top width)^0.35)"
   },
   "truth": {
-   "c_axis_off_beam_mm": -0.106,
-   "a_mm": -0.091,
-   "b_mm": -0.007,
+   "c_axis_off_beam_mm": -0.1084,
+   "a_mm": -0.0899,
+   "b_mm": -0.0143,
    "tilt_rx_deg": 0.015,
    "tilt_rz_deg": 0.0,
-   "pin_top_v_mm": 0.18,
-   "src": "test-data values: axis column 818 px vs beam centre 972 px, a=-132 px, b=-10 px (0.69 um/px)"
+   "pin_top_v_mm": 0.1911,
+   "src": "2026-11-15 closed-loop refit on 84 real alignment frames (3 files, 2026-10-26): simulated tip column and row measured with the same code as the real ones: tip column = 815.9 - 129.9 cos w - 16.0 sin w px (0.69 um/px), tip row 479. Agrees with the earlier test-frame values (axis 818 px, a -132, b -10)"
   },
-  "pin_z_ref_mm": 0.9588,
-  "x_ref_mm": -0.2343,
-  "y_ref_mm": 13.8471,
-  "aerox_ref_mm": 0.0,
-  "ref_src": "operator-panel snapshot 2026-10-20 (assemblies/samE.json)"
+  "pin_z_ref_mm": -0.0412,
+  "x_ref_mm": -0.1453,
+  "y_ref_mm": 25.6471,
+  "aerox_ref_mm": 0.1,
+  "ref_src": "2026-11-15: the sample-stage read-backs of the real tomo-alignment files of 2026-10-26 (samX -0.1453, samY 25.6471, samZ -0.0412, Aero X 0.1; PVs 1ide1:m34/m35/m36/m101), at which the pin was in view; before: operator-panel snapshot 2026-10-20 (x -0.2343, y 13.8471, z 0.9588, aerox 0.0). The pin sat 11.8 mm lower on the mount in the 10-26 cycle, so y_ref moved by the same amount."
  },
  "truth_scales": {
   "steer_err_urad": 2.5,
