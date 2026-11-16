@@ -71,7 +71,7 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
 <div class="main">
  <div class="col">
   <div class="card"><h2>Camera</h2>
-   <div class="row"><label class="mute">Camera <select id="cam"></select></label><label class="mute">Stage <select id="stage"></select></label><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
+   <div class="row"><label class="mute">Camera <select id="cam"></select></label><label class="mute">Sample stage <select id="stage"></select></label><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
     <label class="mute"><input type="checkbox" id="live" checked> live</label><label class="mute"><input type="checkbox" id="auto" checked> auto contrast</label>
     <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><button id="pinfit" data-tip="Take a full-resolution frame and, IF the tomo pin is recognised in it, move aero X and the sample-stage height until the pin axis is on the centre of the lit footprint and its tip sits 20 % below the footprint top. If no pin is recognised (or it is only partly visible with unreliable edges) nothing moves and the reason is shown. It does not search: use the pin search tool to bring a missing pin into view first.">tomo-pin fit</button><span class="mono mute" id="camst"></span></div>
    <div class="pinres" id="pinres"></div>
@@ -91,7 +91,8 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
  </div>
  <div class="col">
   <details class="card sec" data-k="camctl" open><summary>Camera controls <span class="hint mute" id="camctl_name"></span></summary><div class="cg" id="g_camctl"></div></details>
-  <details class="card sec" data-k="stage" open><summary>Stage controls <span class="hint mute" id="stage_name"></span></summary><div class="cg" id="g_stage"></div></details>
+  <details class="card sec" data-k="camstage" open><summary>Camera stage controls <span class="hint mute" id="camstage_name"></span></summary><div class="cg" id="g_camstage"></div></details>
+  <details class="card sec" data-k="stage" open><summary>Sample stage controls <span class="hint mute" id="stage_name"></span></summary><div class="cg" id="g_stage"></div></details>
   <details class="card sec" data-k="slits" open><summary>Slit controls <span class="hint mute">(size / centre, mm)</span></summary><div style="overflow-x:auto"><table class="sl" id="slits"></table></div></details>
   <details class="card sec" data-k="flux" open><summary>Energy, flux &amp; steering</summary><div class="tgs" id="g_tg"></div><div class="cg" id="g_flux"></div></details>
   <details class="card sec" data-k="lens" open><summary>Lenses <span class="hint mute">(hutch E; x ≈ 25 = parked out)</span></summary><div class="cg" id="g_lens"></div></details>
@@ -158,17 +159,17 @@ function build(){
   for(const k of ['hsize','vsize','hcenter','vcenter']){const td=document.createElement('td');td.append(mkMotor(`${s}.${k}`));tr.append(td)}sl.append(tr)}
  $('g_lens').innerHTML='';for(const s of LENSES)for(const k of ['x','y','th','phi'])addCtl($('g_lens'),`${s}.${k}`,`${s.replace('lens','L')} ${k}`);
  {const ed=$('edge'),cur=ed.value;ed.innerHTML=S.foils.filter(f=>f!=='out').map(f=>`<option>${f}</option>`).join('');ed.value=cur||'Re';ed.onchange=async()=>{try{const r=await api('/api/vbl/tool',{name:'vbl_select_edge',args:{element:ed.value}});show(r,'select edge '+ed.value+' → hem.energy');await refresh(true)}catch(e){$('actout').textContent=e.message}}}
- buildCam();buildStage();building=false}
+ buildCam();buildCamStage();buildStage();building=false}
 function dropSetters(re){for(const k of Object.keys(setters))if(re.test(k))delete setters[k]}
 function buildCam(){const cam=$('cam').value,b=$('g_camctl');dropSetters(/\.(focus|exposure)$/);b.innerHTML='';$('camctl_name').textContent='· '+cam;
  [[`${cam}.focus`,'focus'],[`${cam}.exposure`,'exposure']].forEach(([n,l])=>addCtl(b,n,l));fill()}
 const SAMSTAGE='samE';
-function stageList(){const seen=[],hut={};for(const [cn,c] of Object.entries(S.cameras))if(!seen.includes(c.stage)){seen.push(c.stage);hut[c.stage]=c.hutch}return {tomo:seen,hut}}
-function buildStage(){const st=$('stage').value,b=$('g_stage');dropSetters(/^(tomo\w+|samE)\./);b.innerHTML='';
- if(st===SAMSTAGE){$('stage_name').textContent='· sample stage (hutch E)';SAM.forEach(n=>addCtl(b,n))}
- else{$('stage_name').textContent='· '+st+' (tomo stage, hutch '+stageList().hut[st]+')';[[`${st}.x`,'stage x'],[`${st}.y`,'stage y']].forEach(([n,l])=>addCtl(b,n,l))}
- fill()}
-function fillStageSelect(){const {tomo,hut}=stageList();$('stage').innerHTML=`<optgroup label="Tomo stages">${tomo.map(t=>`<option value="${t}">${t} (hutch ${hut[t]})</option>`).join('')}</optgroup><optgroup label="Sample stage"><option value="${SAMSTAGE}">sample stage (hutch E)</option></optgroup>`}
+function buildCamStage(){const cam=$('cam').value,b=$('g_camstage'),c=S.cameras[cam];dropSetters(/^tomo\w+\./);b.innerHTML='';
+ if(!c){$('camstage_name').textContent='';return}
+ $('camstage_name').textContent='· '+c.stage+' (tomo stage, hutch '+c.hutch+')';[[`${c.stage}.x`,'stage x'],[`${c.stage}.y`,'stage y']].forEach(([n,l])=>addCtl(b,n,l));fill()}
+function buildStage(){const b=$('g_stage');dropSetters(/^samE\./);b.innerHTML='';
+ $('stage_name').textContent='· sample stage (hutch E)';SAM.forEach(n=>addCtl(b,n));fill()}
+function fillStageSelect(){$('stage').innerHTML=`<option value="${SAMSTAGE}">Sample stage (hutch E)</option>`}
 function fillCamSelect(){const esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
  const ad=S.area_detectors||[];
  $('cam').innerHTML=`<optgroup label="Tomo cameras">${Object.keys(S.cameras).map(c=>`<option value="${c}">${c} (hutch ${S.cameras[c].hutch})</option>`).join('')}</optgroup>`+
@@ -188,14 +189,14 @@ function renderState(){
  if(S.truth){$('truthcard').style.display='';$('truth').textContent=JSON.stringify(S.truth,(k,v)=>typeof v==='number'?+v.toPrecision(4):v,1)}else $('truthcard').style.display='none';
  fill()}
 async function refresh(force){try{S=await api('/api/vbl/state'+($('reveal').checked?'?reveal=1':''));if(!S.session){await api('/api/vbl/reset',{scenario:'startup',seed:0});S=await api('/api/vbl/state')}
-  if(building){$('scenario').innerHTML=S.scenarios.map(s=>`<option>${s}</option>`).join('');$('scenario').value=S.scenario;$('seed').value=S.seed;fillCamSelect();fillStageSelect();$('cam').value='gh1';$('stage').value=S.cameras.gh1.stage;build()}
+  if(building){$('scenario').innerHTML=S.scenarios.map(s=>`<option>${s}</option>`).join('');$('scenario').value=S.scenario;$('seed').value=S.seed;fillCamSelect();fillStageSelect();$('cam').value='gh1';build()}
   renderState();if(force)loadFrame()}catch(e){$('camst').textContent=e.message}}
 let busy=false;
 function loadFrame(){if(busy||!S)return;busy=true;const cam=$('cam').value,t=Date.now();const im=$('frame');
  im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();runBoxProfile();runProj()};
  im.onerror=()=>{busy=false;$('camst').textContent='render failed'};
  im.src=`/api/vbl/frame?camera=${cam}&bin=${$('bin').value}&auto=${$('auto').checked?1:0}&_=${t}`}
-$('cam').onchange=()=>{const c=S.cameras[$('cam').value];if(c)$('stage').value=c.stage;buildCam();buildStage();pinMsg('');loadFrame()};$('stage').onchange=buildStage;$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
+$('cam').onchange=()=>{buildCam();buildCamStage();pinMsg('');loadFrame()};$('stage').onchange=buildStage;$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
 $('reveal').onchange=()=>refresh(false);
 $('reset').onclick=async()=>{await api('/api/vbl/reset',{scenario:$('scenario').value,seed:parseInt($('seed').value||0)});await refresh(true)};
 let HOT=null;
