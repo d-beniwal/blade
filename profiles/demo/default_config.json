@@ -33,9 +33,7 @@
   "pin": {
     "nominal_half_angle_deg": 15.2,
     "half_angle_tol_deg": 3.0,
-    "min_contrast": 0.5,
-    "top_width_tol": 0.3,
-    "clip_margin_px": 30
+    "top_width_tol": 0.3
   },
   "procedure": {
     "fast_steps_deg": [

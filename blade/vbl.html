@@ -73,7 +73,7 @@ svg.plot text{fill:var(--mute);font:10px var(--mono)}
   <div class="card"><h2>Camera</h2>
    <div class="row"><label class="mute">Camera <select id="cam"></select></label><label class="mute">Sample stage <select id="stage"></select></label><label class="mute">bin <select id="bin"><option>1</option><option selected>2</option><option>4</option></select></label>
     <label class="mute"><input type="checkbox" id="live" checked> live</label><label class="mute"><input type="checkbox" id="auto" checked> auto contrast</label>
-    <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><button id="pinfit" data-tip="Take a full-resolution frame and, IF the tomo pin is recognised in it, move aero X and the sample-stage height until the pin axis is on the centre of the lit footprint and its tip sits 20 % below the footprint top. If no pin is recognised (or it is only partly visible with unreliable edges) nothing moves and the reason is shown. It does not search: use the pin search tool to bring a missing pin into view first.">tomo-pin fit</button><span class="mono mute" id="camst"></span></div>
+    <button id="snap">refresh</button><button id="ana" data-tip="Take a frame and report what an operator reads off it: beam present, footprint box, hotspot, 10-90 % edge widths, saturation.">analyse frame</button><button id="pinfit" data-tip="Live image analysis, no motor moves: finds the pin REGION in the camera frame (two long straight leaning edges + flat top) and measures its geometry inside that region; overlays the region, both flank lines (dashed orange = a flank that could not be measured), the virtual top corners, the pin axis and the lit window (dashed cyan). It re-analyses whenever the image is refreshed (turn on Live to follow the image continuously). Green = a trustworthy pin silhouette; orange = recognised but not reliable (clipped or unreliable edges). Click again to switch off.">▭ tomo-pin fit: off</button><span class="mono mute" id="camst"></span></div>
    <div class="pinres" id="pinres"></div>
    <div class="row"><b class="mute">profile</b>
     <label class="mute" data-tip="Show the summed intensity of every column (top axis) and every row (right axis) of the whole image, each with an automatic Gaussian fit: the fit and its centre are drawn on the axes and on the image, and the centre is reported in pixels and as an offset from the frame centre. A slit-defined footprint is flat-topped, so check R²: the Gaussian centre is then the centre of the plateau, not a focused peak."><input type="checkbox" id="axon"> intensity axes</label>
@@ -193,10 +193,10 @@ async function refresh(force){try{S=await api('/api/vbl/state'+($('reveal').chec
   renderState();if(force)loadFrame()}catch(e){$('camst').textContent=e.message}}
 let busy=false;
 function loadFrame(){if(busy||!S)return;busy=true;const cam=$('cam').value,t=Date.now();const im=$('frame');
- im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();runBoxProfile();runProj()};
+ im.onload=()=>{busy=false;const c=S.cameras[cam];$('ov').textContent=`${cam}  ${c.cols}x${c.rows}  ${c.pixel_um} µm/px  bin ${$('bin').value}  z=${c.z_m} m`;$('camst').textContent=`${Date.now()-t} ms`;sizeCanvas();runBoxProfile();runProj();pinLive()};
  im.onerror=()=>{busy=false;$('camst').textContent='render failed'};
  im.src=`/api/vbl/frame?camera=${cam}&bin=${$('bin').value}&auto=${$('auto').checked?1:0}&_=${t}`}
-$('cam').onchange=()=>{buildCam();buildCamStage();pinMsg('');loadFrame()};$('stage').onchange=buildStage;$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
+$('cam').onchange=()=>{PIN=null;buildCam();buildCamStage();pinMsg(PINON?'▶ analysing …':'');loadFrame()};$('stage').onchange=buildStage;$('bin').onchange=loadFrame;$('auto').onchange=loadFrame;$('snap').onclick=loadFrame;
 $('reveal').onchange=()=>refresh(false);
 $('reset').onclick=async()=>{await api('/api/vbl/reset',{scenario:$('scenario').value,seed:parseInt($('seed').value||0)});await refresh(true)};
 let HOT=null;
@@ -210,13 +210,28 @@ document.querySelectorAll('details.sec').forEach(d=>{const k='blade.vbl.open.'+d
 
 /* ---------------------------------------------------------------- tomo-pin fit */
 function pinMsg(h){$('pinres').innerHTML=h}
-$('pinfit').onclick=async()=>{const b=$('pinfit'),esc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;');b.disabled=true;pinMsg('▶ looking for the pin …');
- try{const r=await api('/api/vbl/tool',{name:'vbl_fit_pin',args:{camera:$('cam').value}});
-  if(r.found){const o=r.offsets_px||{},c=r.controls||{};pinMsg(`<span class="${r.converged?'ok':'bad'}">${r.converged?'✓ pin fitted':'⚠ pin recognised but not converged'}</span> in ${r.frames} frames · ${r.moved?'aero X → '+(+c['samE.aerox']).toFixed(3)+' mm, samE.y → '+(+c['samE.y']).toFixed(3)+' mm':'already in place'} · axis ${o.axis_col_px} px, tip row ${o.tip_row_px} px (targets ${o.target_col_px}, ${o.target_row_px})`)}
-  else pinMsg(`<span class="bad">✗ pin not fitted:</span> ${esc(r.reason)}${r.note?' <span class="mute">'+esc(r.note)+'</span>':''}`);
-  show(r,'tomo-pin fit (vbl_fit_pin)');await refresh(true)}
- catch(e){pinMsg(`<span class="bad">${esc(e.message)}</span>`)}
- b.disabled=false};
+let PIN=null,PINON=false,pinBusy=false,pinAgain=false;
+const pinEsc=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+$('pinfit').onclick=()=>{PINON=!PINON;const b=$('pinfit');b.classList.toggle('on',PINON);b.textContent='▭ tomo-pin fit: '+(PINON?'LIVE':'off');
+ if(PINON){pinMsg('▶ analysing …');loadFrame()}else{PIN=null;pinMsg('');drawOverlay()}};
+async function pinLive(){if(!PINON)return;if(pinBusy){pinAgain=true;return}pinBusy=true;
+ try{const r=await api('/api/vbl/tool',{name:'vbl_pin_geometry',args:{camera:$('cam').value}});if(!PINON)return;PIN=r;pinReport(r);drawOverlay()}
+ catch(e){PIN=null;pinMsg(`<span class="bad">${pinEsc(e.message)}</span>`);drawOverlay()}
+ finally{pinBusy=false;if(pinAgain&&PINON){pinAgain=false;pinLive()}}}
+function pinReport(r){const n=r.numbers||{},f=(v,d=1)=>v==null?'–':(+v).toFixed(d);
+ if(!r.recognised){pinMsg(`<span class="mute">○ ${pinEsc(r.why||'No pin visible in this frame.')}</span>`+((r.reasons||[]).length?` <span class="mute" data-tip="${pinEsc((r.reasons||[]).join('; '))}">(why?)</span>`:''));return}
+ if(r.quality==='region_only'){pinMsg(`<span class="ok">✓ pin region found</span> · only part of the pin is visible (one flank), so only the region is shown - geometry is fitted once both flanks are visible · <span class="mute">region score ${f(n.region_score,2)} · visible height ${f(n.visible_height_px,0)} px</span>`);return}
+ const qn={both_flanks:'both flanks measured',one_sided_left:'only the left flank measured',one_sided_right:'only the right flank measured'}[r.quality]||pinEsc(r.quality);
+ const head=r.usable?`<span class="ok">✓ pin region found</span> (${qn})`:`<span class="bad">⚠ pin region found, not reliable</span> (${qn}) <span class="mute">${pinEsc((r.reasons||[]).join('; ')||r.why||r.state)}</span>`;
+ pinMsg(head+` · <span class="mute">region score ${f(n.region_score,2)}</span>`+(n.top_width_px==null?'':` · top width ${f(n.top_width_px)} px (${f(n.top_width_um,0)} µm) · tip row ${f(n.tip_row_px)} px · axis col ${f(n.axis_col_px)} px · half-angle ${f(n.half_angle_deg,2)}° (L ${f(n.angle_left_deg,2)}, R ${f(n.angle_right_deg,2)}) · axis tilt ${f(n.axis_tilt_deg,2)}° · visible height ${f(n.visible_height_px,0)} px · axis offset from the lit window's centre ${f(n.axis_offset_from_fov_centre_um,0)} µm · tip ${f(100*n.tip_below_footprint_top_frac,0)} % below the window top`))}
+function drawPin(g,w,h,d){if(!PINON||!PIN)return;const o=PIN.overlay||{},col=PIN.usable?'#34c759':'#ff9f0a',hid=o.hidden_flank||[];
+ const seg=(a,c,wid,dash)=>{if(!a)return;g.strokeStyle=c;g.lineWidth=wid*d;g.setLineDash(dash?[7*d,5*d]:[]);g.beginPath();g.moveTo(a[0][0]*w,a[0][1]*h);g.lineTo(a[1][0]*w,a[1][1]*h);g.stroke();g.setLineDash([])};
+ const fov=o.fov||o.footprint;if(fov){const b=fov.box;g.strokeStyle='rgba(50,212,255,.8)';g.lineWidth=1.2*d;g.setLineDash([4*d,4*d]);g.strokeRect(b[0]*w,b[1]*h,(b[2]-b[0])*w,(b[3]-b[1])*h);g.setLineDash([])}
+ if(o.polygon&&o.polygon.length>2){g.beginPath();o.polygon.forEach((p,i)=>i?g.lineTo(p[0]*w,p[1]*h):g.moveTo(p[0]*w,p[1]*h));g.closePath();g.fillStyle=PIN.usable?'rgba(52,199,89,.16)':'rgba(255,159,10,.16)';g.fill()}
+ if(o.mask_edges){const rh=4/S.cameras[$('cam').value].rows*h;g.fillStyle='rgba(255,45,85,.16)';for(const [l,y,rr] of o.mask_edges)g.fillRect(l*w,y*h,(rr-l)*w,rh)}
+ if(o.edge_points){g.fillStyle='#ffd23f';for(const [l,y,rr] of o.edge_points){g.fillRect(l*w-1.5*d,y*h-1.5*d,3*d,3*d);g.fillRect(rr*w-1.5*d,y*h-1.5*d,3*d,3*d)}}
+ seg(o.top,'#32d4ff',2.2);seg(o.left_flank,hid.includes('left')?'#ff9f0a':col,2,hid.includes('left'));seg(o.right_flank,hid.includes('right')?'#ff9f0a':col,2,hid.includes('right'));seg(o.axis,'#ff2d55',1.6,true);
+ if(o.top){g.fillStyle='#32d4ff';for(const p of o.top){g.beginPath();g.arc(p[0]*w,p[1]*h,4*d,0,6.3);g.fill()}}}
 
 /* ---------------------------------------------------------------- tooltips (one floating box; works inside scrolling tables and on tiny buttons) */
 const tip=$('tip');let tipT=null;
@@ -276,7 +291,8 @@ function drawOverlay(){const w=cv.width,h=cv.height,g=cv.getContext('2d');g.clea
  if(CEN){const x=CEN.x*w,y=CEN.y*h;g.strokeStyle='#34c759';g.lineWidth=1.6*d;g.beginPath();g.moveTo(x-14*d,y);g.lineTo(x+14*d,y);g.moveTo(x,y-14*d);g.lineTo(x,y+14*d);g.stroke();g.beginPath();g.arc(x,y,5*d,0,6.3);g.stroke()}
  if(BOX){const bx=Math.min(BOX.x0,BOX.x1)*w,by=Math.min(BOX.y0,BOX.y1)*h,bw=Math.abs(BOX.x1-BOX.x0)*w,bh=Math.abs(BOX.y1-BOX.y0)*h;g.lineWidth=2*d;g.strokeStyle='#32d4ff';g.setLineDash([6*d,4*d]);g.strokeRect(bx,by,bw,bh);g.setLineDash([])}
  const f=BOX&&PROF&&PROF.fit;if(f&&f.centre_frac){const cx=f.centre_frac[0]*w,cy=f.centre_frac[1]*h;g.strokeStyle='#34c759';g.lineWidth=2*d;g.beginPath();g.moveTo(cx-9*d,cy-9*d);g.lineTo(cx+9*d,cy+9*d);g.moveTo(cx-9*d,cy+9*d);g.lineTo(cx+9*d,cy-9*d);g.stroke()}
- if(f&&f.edges_frac){g.strokeStyle='#ff9f0a';g.lineWidth=2*d;for(const [ex,ey] of f.edges_frac){g.beginPath();g.arc(ex*w,ey*h,6*d,0,6.3);g.stroke()}}}
+ if(f&&f.edges_frac){g.strokeStyle='#ff9f0a';g.lineWidth=2*d;for(const [ex,ey] of f.edges_frac){g.beginPath();g.arc(ex*w,ey*h,6*d,0,6.3);g.stroke()}}
+ drawPin(g,w,h,d)}
 function evFrac(e){const r=cv.getBoundingClientRect();return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}}
 cv.addEventListener('pointerdown',e=>{if(!drawMode)return;const p=evFrac(e);BOX={x0:p.x,y0:p.y,x1:p.x,y1:p.y};drawing=true;PROJ=null;cv.setPointerCapture(e.pointerId);drawOverlay()});
 cv.addEventListener('pointermove',e=>{if(!drawing)return;const p=evFrac(e);BOX.x1=p.x;BOX.y1=p.y;drawOverlay();runBoxProfile()});

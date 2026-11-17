@@ -413,7 +413,7 @@
    ],
    "physical_effect": "Pin column vs omega is a sinusoid; x cancels a, z cancels b, Aero X moves c (axis column).",
    "formula": "x(w) = c + a cos w + b sin w",
-   "function": "blade.analysis.pin.axis_align",
+   "function": "blade.pinregion.axis_align",
    "sensitivity": "Aero X -1431 px/mm on GH1",
    "typical": "aeroXE -2.426 mm after APS-U",
    "evidence": [

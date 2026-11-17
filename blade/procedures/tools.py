@@ -182,10 +182,19 @@ def vbl_find_pin(camera: str = "gh1", session: str = "default") -> dict:
 
 
 @tool("vbl", needs_run=False)
-def vbl_fit_pin(camera: str = "gh1", apply: bool = True, session: str = "default") -> dict:
-    """Fit the tomo pin into the field of view ON THE SIMULATOR: take a full-resolution frame, and IF the pin is recognised (the code validated on the real alignment frames) move
-    aero X and samE.y until its axis is on the lit footprint's centre and its tip 20 % below the footprint top (up to 4 looks). If no pin is recognised, or it is only partly visible
-    with unreliable edges, nothing moves and the reason is returned (use `vbl_find_pin` to search). apply=False only reports the moves it would make."""
+def vbl_pin_geometry(camera: str = "gh1", session: str = "default") -> dict:
+    """IMAGE ANALYSIS ONLY, moves nothing (the page's "tomo-pin fit" button, run live): take a full-resolution frame and report the pin geometry the recogniser sees - top corners and
+    width, both flanks, cone half-angle, pin axis and tilt, per-row edge points, the lit footprint - as fractions of the frame for an overlay, plus numbers (axis offset from the
+    footprint centre in um, tip depth below the footprint top). If no pin is recognised the reason is returned; nothing is guessed."""
+    w = _w(session)
+    return _done(w, session, PFIT.analyse_pin(w, camera))
+
+
+@tool("vbl", needs_run=False)
+def vbl_centre_pin(camera: str = "gh1", apply: bool = True, session: str = "default") -> dict:
+    """MOVE (simulator only; not what the page's pin-fit button does - that is `vbl_pin_geometry`): take a full-resolution frame, and IF the pin is recognised move aero X and samE.y
+    until its axis is on the lit footprint's centre and its tip 20 % below the footprint top (up to 4 looks). If no pin is recognised, or it is only partly visible with unreliable
+    edges, nothing moves and the reason is returned (use `vbl_find_pin` to search). apply=False only reports the moves it would make."""
     w = _w(session)
     return _done(w, session, PFIT.fit_pin_in_view(w, camera, apply=apply))
 

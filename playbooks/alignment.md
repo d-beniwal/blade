@@ -1,6 +1,6 @@
 # BLADE rotation-axis (pin) alignment (for the agent: Claude Code, Codex, ...)
 
-**Status (2026-11-15).** This is the former `blade align` module, consolidated into the procedure library (`blade/procedures/pin_alignment.py`; image analysis `blade/analysis/pin/`).
+**Status (2026-11-15).** This is the former `blade align` module, consolidated into the procedure library (`blade/procedures/pin_alignment.py`; image analysis `blade/pinregion/`, the one pin workflow: `playbooks/pin_workflow_v2.md`).
 The old CLI, the "Alignment Monitor" GUI page and the hardware backend were **retired**: BLADE does not command the real beamline. It runs on the SIMULATOR only (MCP tools `new_run`, `align_*`)
 and its decision logic is tested on synthetic frames (`tests/test_pin_alignment.py`) and real frames (`tests/test_identity.py`, `tests/test_partial.py`, need the knowledge tree).
 **KNOWN OPEN:** on the virtual beamline's textured frames `align_adaptive` does not converge (the realistic footprint clips the pin; see `.context/STATE.md`).

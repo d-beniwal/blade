@@ -24,7 +24,7 @@ _FLAT = [
     ("SEARCH_STEP_FRAC", "limits", "search_step_frac"),
     ("TOL_AB_PX", "tolerances", "tol_ab_px"), ("TOL_C_PX", "tolerances", "tol_c_px"), ("BEAM_FRAC", "tolerances", "beam_frac"),
     ("NOMINAL_HALF_ANGLE_DEG", "pin", "nominal_half_angle_deg"), ("HALF_ANGLE_TOL_DEG", "pin", "half_angle_tol_deg"),
-    ("PIN_MIN_CONTRAST", "pin", "min_contrast"), ("TOP_WIDTH_TOL", "pin", "top_width_tol"), ("CLIP_MARGIN_PX", "pin", "clip_margin_px"),
+    ("TOP_WIDTH_TOL", "pin", "top_width_tol"),
     ("FAST_STEPS_DEG", "procedure", "fast_steps_deg"), ("DEFAULT_SWEEP_DEG", "procedure", "default_sweep_deg"), ("SAVE_RAW", "procedure", "save_raw"),
 ]
 

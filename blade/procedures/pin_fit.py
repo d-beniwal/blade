@@ -1,17 +1,18 @@
-"""Fit the tomo pin into the field of view of a tomo camera: if the pin is recognised in the frame, centre its axis on the lit footprint and put its tip a fixed fraction below the top
-of the footprint, so the whole cone is visible. This is the "tomo-pin fit" button of the virtual-beamline page.
+"""Two things live here, both on the one pin workflow (blade/pinregion, playbooks/pin_workflow_v2.md). `analyse_pin` is the "tomo-pin fit" button of the virtual-beamline page: IMAGE ANALYSIS ONLY - it recognises the pin in a frame and
+returns its geometry for an overlay; it never moves a motor (user 2026-11-15). `fit_pin_in_view` (MCP `vbl_centre_pin`) is the separate, simulator-only MOVE: if the pin is recognised in the frame, centre its axis on the lit window and put
+its tip a fixed fraction below the top of the window, so the whole cone is visible.
 
-It is a FINE move for a pin that is already (at least partly) in the picture. It never searches: if no pin is recognised the answer is `found: False` with the reason and nothing moves
+`fit_pin_in_view` is a FINE move for a pin that is already (at least partly) in the picture. It never searches: if no pin is recognised the answer is `found: False` with the reason and nothing moves
 (use `pin_find.find_pin` to search for a pin that is not in view yet).
 
-Recognition is `analysis.pin.measure.measure_frame` (the code validated on the real alignment frames). Moves use the sample stage of the E hutch (aero X moves the pin axis sideways,
+Recognition is `pinregion.measure_frame` (pin region first, geometry measured inside it). Moves use the sample stage of the E hutch (aero X moves the pin axis sideways,
 samE.y moves it vertically) with the static image-shift signs of `sim.json stage_E` (`col_per_base`, `row_per_y`: mm of image shift per mm of motor). On an instrument that cannot be written
 (the real beamline) `set` raises ReadOnlyError, so there it can only be used with `apply=False`, which reports the moves it WOULD make (a proposal)."""
 import numpy as np
 from ._util import accepts_world
-from ..analysis.pin.measure import measure_frame
+from ..pinregion import measure_frame, find_pin_region_final, pin_geometry as region_geometry, pin_like
 
-TOP_FRAC = 0.2           # the tip goes this fraction of the footprint height below its top edge (same convention as `assess_view`)
+TOP_FRAC = 0.2           # the tip goes this fraction of the footprint height below its top edge (same convention as `pinregion.measure`)
 TOL_PX = 4.0             # converged when the axis and the tip are within this many full-resolution pixels of their targets
 MAX_STEP_MM = 1.5        # never move a motor more than this in one go: a bad recognition must not fling the stage across its travel
 
@@ -74,3 +75,92 @@ def fit_pin_in_view(inst, cam="gh1", apply=True, max_iter=4):
     col, row, how = _position(m)
     return {"found": col is not None, "state": (m.get("view") or {}).get("state", "unknown"), "moved": moved, "converged": False, "frames": frames + 1, "log": log,
             "controls": {"samE.aerox": inst.ctl("samE.aerox"), "samE.y": inst.ctl("samE.y")}, "reason": None if col is not None else how}
+
+
+def _seg(a, b, W, H):
+    return [[a[0] / W, a[1] / H], [b[0] / W, b[1] / H]]
+
+
+_PRIOR = {}              # per camera: recent top widths (px) from two-flank frames - rescues one-flank frames; reset with `reset_pin_prior()`
+
+
+def reset_pin_prior(cam=None):
+    _PRIOR.pop(cam, None) if cam else _PRIOR.clear()
+
+
+@accepts_world
+def analyse_pin(inst, cam="gh1"):
+    """IMAGE ANALYSIS ONLY (moves nothing, writes nothing to the instrument): one full-resolution frame -> the pin geometry, as an overlay for the page and numbers.
+    Pin region detector + geometry measured inside that region (blade/pinregion, playbooks/pin_workflow_v2.md). Points of the overlay are fractions (0..1) of the frame width/height, so they draw on the image at any bin. Returns {recognised, usable, quality, state,
+    status, message, reasons, why, numbers{...}, overlay{...}}; `overlay` holds only what was really found (region polygon, lit window, virtual top corners, flank lines - a flank that
+    was not measured is listed in `hidden_flank` -, axis). Not usable (clipped, one flank only) still shows what was measured, flagged `usable: False`: nothing is hidden or guessed."""
+    img = inst.frame(cam, bin_=1).astype(float)
+    pix = inst.cams[cam]["pixel_um"]
+    return pin_geometry(img, pix, cam=cam)
+
+
+def pin_geometry(img, pix, cam=None):
+    """Pin analysis of any full-resolution frame array (simulated, real or logged) - same output as `analyse_pin`, no instrument needed. `pix` = um per pixel; `cam` keys the
+    learned top-width prior (None: no prior)."""
+    H, W = img.shape
+    res = find_pin_region_final(img)
+    hist = _PRIOR.setdefault(cam, []) if cam else []
+    prior = {"top_width_px": float(np.median(hist))} if len(hist) >= 2 else None
+    geo = region_geometry(img, res, pixel_um=pix, prior=prior)
+    nums = {"pixel_um": pix, "frame_px": [W, H], "region_score": float(res.get("score", 0.0))}
+    base = {"recognised": False, "usable": False, "quality": None, "identity": None, "state": "absent", "status": "no_pin", "message": "no pin-like object", "reasons": [], "why": None,
+            "notes": [], "numbers": nums, "overlay": {}}
+    if not geo.get("found"):
+        base["why"] = "No pin visible in this frame."
+        base["reasons"] = ["no object with two long straight edges leaning like the pin's flanks"]
+        return base
+    p = geo["pin"]
+    ok_, bad = pin_like(res, geo, img.shape)
+    tw, ang = p["top_width_px"], p["half_angle_deg"]
+    if not ok_:
+        base["why"] = "No pin visible in this frame."              # a rejected candidate is never drawn or reported as a pin; the technical reasons stay in `reasons` / `notes`
+        base["reasons"] = bad
+        base["notes"] = ["candidate region rejected: " + "; ".join(bad)]
+        return base
+    fov = geo["fov"]
+    fov_ov = {"box": [fov[0] / W, fov[1] / H, fov[2] / W, fov[3] / H], "centre": [0.5 * (fov[0] + fov[2]) / W, 0.5 * (fov[1] + fov[3]) / H]}
+    y_top, y_bot = p["visible_rows"]
+    (sl, il), (sr, ir) = geo["lines"]["L"], geo["lines"]["R"]
+    meas = p["flanks_measured"]
+    nums["visible_height_px"] = p["visible_height_px"]
+    nums["fov_px"] = fov
+    if not (meas["L"] and meas["R"]):
+        # TIER 1 - only part of the pin is visible (one flank): identify the visible region and the flank that was really measured. No corners, no axis, no top width, no angles:
+        # whatever lies outside the lit window, or on the unmeasured side, is not reported.
+        side, (s_, i_) = ("left", (sl, il)) if meas["L"] else ("right", (sr, ir))
+        ys = np.arange(max(y_top, fov[1]), min(y_bot, fov[3]) + 1.0)
+        xs = s_ * ys + i_
+        keep = (xs >= fov[0]) & (xs <= fov[2])
+        ov = {"polygon": [[x / W, y / H] for x, y in res["polygon"]], "fov": fov_ov}
+        if keep.sum() >= 2:
+            ya, yb = ys[keep][0], ys[keep][-1]
+            ov[side + "_flank"] = _seg((s_ * ya + i_, ya), (s_ * yb + i_, yb), W, H)
+        ov["footprint"] = fov_ov
+        ov["hidden_flank"] = []
+        return {"recognised": True, "usable": True, "quality": "region_only", "identity": "pin", "state": "partial", "status": "region", "geometry": False,
+                "message": "pin region found; only one flank visible, geometry not fitted", "reasons": [], "why": None,
+                "notes": ["region score %.2f" % res.get("score", 0.0), "one flank visible (%s): region only" % side], "numbers": nums, "overlay": ov}
+    # TIER 2 - both flanks measured: the pin's geometry
+    if cam:
+        hist.append(float(tw))
+        del hist[:-30]
+    (xl, yl), (xr, yr) = p["top_left"], p["top_right"]
+    ov = {"polygon": [[x / W, y / H] for x, y in res["polygon"]], "fov": fov_ov, "footprint": fov_ov, "hidden_flank": [],
+          "top": _seg((xl, yl), (xr, yr), W, H), "left_flank": _seg((xl, yl), (sl * y_bot + il, y_bot), W, H), "right_flank": _seg((xr, yr), (sr * y_bot + ir, y_bot), W, H)}
+    if p["axis_col_px"] is not None:
+        tn = np.tan(np.radians(p["axis_tilt_deg"]))
+        ov["axis"] = _seg((p["axis_col_px"], p["tip_row_px"]), (p["axis_col_px"] + tn * (y_bot - p["tip_row_px"]), y_bot), W, H)
+    nums.update(axis_col_px=p["axis_col_px"], tip_row_px=p["tip_row_px"], top_width_px=tw, top_width_um=p["top_width_um"], half_angle_deg=ang, angle_left_deg=p["half_angle_left_deg"],
+                angle_right_deg=p["half_angle_right_deg"], axis_tilt_deg=p["axis_tilt_deg"], top_tilt_deg=p["top_tilt_deg"], top_rms_px=p["top_rms_px"],
+                flank_rms_px=[p["flank_rms_px"]["L"], p["flank_rms_px"]["R"]], flank_inlier_rows=[p["flank_inlier_rows"]["L"], p["flank_inlier_rows"]["R"]], margins=geo["margins"],
+                axis_offset_from_fov_centre_um=None if geo["axis_offset_from_fov_centre_px"] is None or pix is None else geo["axis_offset_from_fov_centre_px"] * pix,
+                tip_below_footprint_top_frac=geo["tip_depth_below_fov_top_frac"], full_view=bool(geo["view"]["state"] == "in_view"))
+    nums["axis_offset_from_footprint_centre_um"] = nums["axis_offset_from_fov_centre_um"]     # key the page / older code reads
+    return {"recognised": True, "usable": bool(geo["usable"]), "quality": geo["quality"], "identity": "pin", "state": geo["view"]["state"], "status": "ok" if geo["usable"] else "partial",
+            "geometry": True, "message": "pin found, both flanks measured", "reasons": geo["reasons"], "why": (geo["reasons"] or [None])[0], "notes": ["region score %.2f" % res.get("score", 0.0)],
+            "numbers": nums, "overlay": ov}

@@ -1,12 +1,12 @@
 """Rotation-axis (pin) alignment procedure, consolidated into the main procedure library (formerly `blade align`, retired 2026-11-15).
 
 Goal: put the pin on the rotation axis (a, b -> 0) and the axis on the beam centre (c -> beam centre), model x(w) = c + a cos w + b sin w (see
-analysis/pin/axis_align.py and playbooks/procedures.md). The image analysis is blade/analysis/pin/*; this module is the decision logic (adaptive passes,
+pinregion/axis_align.py and playbooks/procedures.md). The image analysis is blade/pinregion (pin workflow v2, playbooks/pin_workflow_v2.md); this module is the decision logic (adaptive passes,
 find-pin, fast steps, calibration) and runs on a `PinStage` view of any `Instrument` - the simulator today; the real beamline only when commanding it is allowed
 again (it is NOT: a read-only instrument raises ReadOnlyError at the first move). Every function takes a `run` (blade/session.py: event log, frames, state)."""
 import numpy as np
 from .. import config as cfg
-from ..analysis.pin import axis_align, measure as M
+from ..pinregion import axis_align, measure_frame, fit_axis, overlay_jpeg
 
 
 def _clean(m):
@@ -88,9 +88,9 @@ def do_measure(run, omega=None, tag="meas"):
     if omega is not None:
         goto_omega(run, omega)
     img = run.inst.acquire()
-    m = M.measure_frame(img, run.inst.get_omega(), run.state.get("pin_prior"), run.state.get("beam_prior"))
+    m = measure_frame(img, run.inst.get_omega(), run.state.get("pin_prior"), run.state.get("beam_prior"), pixel_um=cfg.PIXEL_UM)
     path, rel = run.next_frame_path(tag)
-    M.overlay_jpeg(img, m, path)
+    overlay_jpeg(img, m, path)
     if cfg.SAVE_RAW:   # raw frame next to the overlay so any detection can be re-run / debugged offline
         np.savez_compressed(run.subdir("raw") / (path.stem + ".npz"), img=img, omega=run.inst.get_omega())
     _update_prior(run, m)
@@ -114,7 +114,7 @@ def _beam_cx(ms):
 def do_sweep(run, angles, tag="sweep"):
     ms = [do_measure(run, a, tag) for a in angles]
     ok = [m for m in ms if m["pin_col"] is not None]
-    fit = M.fit_axis([m["omega"] for m in ok], [m["pin_col"] for m in ok])
+    fit = fit_axis([m["omega"] for m in ok], [m["pin_col"] for m in ok])
     beam_cx = _beam_cx(ms)
     res = {"tag": tag, "angles": list(angles), "n_valid": len(ok), "beam_cx": beam_cx, "fit": fit,
            "omegas": [m["omega"] for m in ok], "cols": [m["pin_col"] for m in ok],
@@ -386,7 +386,7 @@ def do_adaptive_align(run, step=15.0, max_passes=6):
         pos, lim_p, limu_p, st_p = _probe_side(run, +1, step, jump)
         neg, lim_n, limu_n, st_n = _probe_side(run, -1, step, jump)
         pts += pos + neg
-        fit = M.fit_axis([p[0] for p in pts], [p[1] for p in pts], [p[2] for p in pts])
+        fit = fit_axis([p[0] for p in pts], [p[1] for p in pts], [p[2] for p in pts])
         small = False
         if not fit["ok"] and len(pts) >= 2:      # pin only measurable over a few degrees: b from the farthest point (a-term ~ a*theta^2/2 is negligible), z only
             om_, col_ = max(pts[1:], key=lambda p: abs(p[0]))[:2]

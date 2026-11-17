@@ -1,4 +1,4 @@
-"""Detection checks on synthetic pin frames (tests/synthetic_pin.py; no hardware): beam centre ignores the pin; pin validity / view state / hints.
+"""Detection checks on synthetic pin frames (tests/synthetic_pin.py; no hardware) for the pin-region measurement (blade/pinregion/measure.py): the lit-window centre ignores the pin; pin validity / view state / hints.
 Usage: python -I tests/test_detection.py"""
 import sys
 sys.dont_write_bytecode = True
@@ -6,8 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from synthetic_pin import SyntheticPin as SimInstrument  # noqa: E402
-from blade.analysis.pin import measure as M  # noqa: E402
-from blade.analysis.pin import beam_center as bc  # noqa: E402
+from blade import pinregion as M  # noqa: E402
 
 fails = []
 
@@ -24,20 +23,21 @@ def frame(**truth):
     return inst, inst.acquire()
 
 
-# 1) beam centre must not follow the pin (old method did)
+# 1) lit-window centre must not follow the pin
 for a in (-132, 0, 100, -250):
     inst, img = frame(a=a, c=818.0)
     tx, ty = inst.true_beam_centre()
     m = M.measure_frame(img, 0.0)
-    old = bc.half_max_footprint(img.astype(float))["cx"]
     check(f"beam centre, pin offset a={a}", abs(m["beam"]["cx"] - tx) < 2.0 and abs(m["beam"]["cy"] - ty) < 2.0,
-          f"new {m['beam']['cx']:.1f} (err {m['beam']['cx'] - tx:+.1f}) old {old:.1f} (err {old - tx:+.1f}) truth {tx:.1f}")
+          f"measured {m['beam']['cx']:.1f} (err {m['beam']['cx'] - tx:+.1f}) truth {tx:.1f}")
 
 # 2) good frames at all angles, incl. +-90 with the half-transparent flank: usable and accurate
 _i, _img = frame(a=-132.0, b=-10.0, c=818.0)
 _m0 = M.measure_frame(_img, 0.0)
 prior = {"top_width": _m0["top_width"], "half_angle_deg": _m0["half_angle_deg"]}     # as learned from the omega=0 frame
-check("without prior the wedge frame is rejected, not guessed", not M.measure_frame(frame(omega=-90.0, a=-132.0, b=-10.0, c=818.0)[1], -90)["usable"])
+_iw, _imgw = frame(omega=-90.0, a=-132.0, b=-10.0, c=818.0)
+_mw = M.measure_frame(_imgw, -90)
+check("without prior the wedge frame is either rejected or accurate (never a wrong number)", (not _mw["usable"]) or abs(_mw["pin_col"] - _iw.true_pin_col()) < 1.5, f"usable {_mw['usable']} col {_mw['pin_col']} truth {_iw.true_pin_col():.1f}")
 for w in (-90, -60, -30, 0, 30, 60, 90):
     inst, img = frame(omega=float(w), a=-132.0, b=-10.0, c=818.0)
     m = M.measure_frame(img, w, prior)

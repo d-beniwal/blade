@@ -26,19 +26,30 @@ assert 40 < mt["tip_height_above_plate_mm"] < 80 and {p["name"] for p in mt["par
 fp = registry.invoke("vbl_find_pin")
 assert fp["found"] and abs(fp["tip_offset_from_window_centre_mm"]) < 0.3, fp
 print("PASS registry: vbl_pin_plan (read-only), vbl_pin_mount, vbl_find_pin found the pin in %d frames" % fp["frames"])
+registry.invoke("vbl_reset", scenario="ready_for_pin", seed=0)                       # tomo-pin fit button: analysis only, no motor moves
+from blade.vbl import store as _store
+_ctl0 = dict(_store.require("default").snapshot()["controls"])
+pg = registry.invoke("vbl_pin_geometry")
+assert dict(_store.require("default").snapshot()["controls"]) == _ctl0, "vbl_pin_geometry must not move any control"
+assert pg["recognised"] and pg["usable"] and {"top", "left_flank", "right_flank", "axis", "footprint"} <= set(pg["overlay"]), pg
+assert all(0 <= v <= 1 for seg in (pg["overlay"]["top"], pg["overlay"]["axis"]) for pt in seg for v in pt), pg["overlay"]
+registry.invoke("vbl_reset", scenario="startup", seed=0)
+pg0 = registry.invoke("vbl_pin_geometry")
+assert pg0["recognised"] is False and pg0["reasons"] or pg0["why"], pg0
+print("PASS registry: vbl_pin_geometry returns the recognised pin geometry as an overlay (and a reason when no pin is recognised)")
 registry.invoke("vbl_reset", scenario="ready_for_pin", seed=0)
-fz = registry.invoke("vbl_fit_pin", apply=False)
+fz = registry.invoke("vbl_centre_pin", apply=False)
 assert fz["found"] and fz["moved"] is False and "proposed" in fz, fz
-fz = registry.invoke("vbl_fit_pin")
+fz = registry.invoke("vbl_centre_pin")
 assert fz["found"] and fz["converged"] and all(abs(v) <= 4.5 for v in fz["offsets_px"]["to_move_px"]), fz
 registry.invoke("vbl_reset", scenario="ready_for_pin", seed=3)                       # pin only partly visible here: either fitted or refused with a reason, never guessed
 registry.invoke("vbl_find_pin")
-fz3 = registry.invoke("vbl_fit_pin")
+fz3 = registry.invoke("vbl_centre_pin")
 assert fz3["found"] and fz3["converged"], fz3
 registry.invoke("vbl_reset", scenario="startup", seed=0)                              # no beam / pin parked: nothing recognised, nothing moves
-fz0 = registry.invoke("vbl_fit_pin")
+fz0 = registry.invoke("vbl_centre_pin")
 assert fz0["found"] is False and fz0["moved"] is False and fz0["reason"], fz0
-print("PASS registry: vbl_fit_pin (proposes with apply=False, centres a recognised pin in %d frames, refuses with a reason when no pin is recognised)" % fz["frames"])
+print("PASS registry: vbl_centre_pin (proposes with apply=False, centres a recognised pin in %d frames, refuses with a reason when no pin is recognised)" % fz["frames"])
 
 try:
     from mcp import ClientSession, StdioServerParameters
